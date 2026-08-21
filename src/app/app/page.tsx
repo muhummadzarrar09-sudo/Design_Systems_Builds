@@ -177,18 +177,25 @@ function ThemedApp() {
       </header>
 
       <main className="flex-1">
-        {ActiveSection ? (
-          <ActiveSection />
-        ) : (
-          <section className="py-24 px-8 text-center">
-            <h2 className="text-3xl font-bold">
-              {themeDef.icon} {themeDef.name}
-            </h2>
-            <p className="text-lg mt-2" style={{ color: "var(--muted-fg)" }}>
-              {themeDef.description}
-            </p>
-          </section>
-        )}
+        {/* Entrance animation in this theme's motion language — the key
+            forces a remount per theme/page so every navigation performs */}
+        <div
+          key={`${themeDef.id}-${activePage.key}`}
+          className={`section-enter section-enter--${themeDef.id}`}
+        >
+          {ActiveSection ? (
+            <ActiveSection />
+          ) : (
+            <section className="py-24 px-8 text-center">
+              <h2 className="text-3xl font-bold">
+                {themeDef.icon} {themeDef.name}
+              </h2>
+              <p className="text-lg mt-2" style={{ color: "var(--muted-fg)" }}>
+                {themeDef.description}
+              </p>
+            </section>
+          )}
+        </div>
       </main>
 
       <footer

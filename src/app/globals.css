@@ -853,3 +853,72 @@ h1, h2, h3, h4, h5, h6 {
 @media (prefers-reduced-motion: reduce) {
   .settings-panel { transition: none; }
 }
+
+/* ────────────────────────────────────────────
+   SECTION ENTRANCE — each style's motion language
+   Minimal: slow fade-up · Flat: fast block rise · Material: scale bloom
+   Skeuo: gentle settle · Neumo: blur-fade · Glass: blur-in drift ·
+   Clay: spring bounce
+   ──────────────────────────────────────────── */
+.section-enter {
+  animation-duration: 0.55s;
+  animation-timing-function: ease;
+  animation-fill-mode: both;
+}
+.section-enter--minimalism {
+  animation-duration: 0.65s;
+  animation-name: enter-fade-up;
+}
+.section-enter--flat {
+  animation-duration: 0.35s;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
+  animation-name: enter-block-rise;
+}
+.section-enter--material {
+  animation-duration: 0.45s;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.3, 1);
+  animation-name: enter-scale-bloom;
+}
+.section-enter--skeuomorphism {
+  animation-duration: 0.6s;
+  animation-name: enter-settle;
+}
+.section-enter--neumorphism {
+  animation-duration: 0.5s;
+  animation-name: enter-blur-fade;
+}
+.section-enter--glassmorphism {
+  animation-duration: 0.6s;
+  animation-name: enter-blur-drift;
+}
+.section-enter--claymorphism {
+  animation-duration: 0.65s;
+  animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation-name: enter-spring-bounce;
+}
+
+@keyframes enter-fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+}
+@keyframes enter-block-rise {
+  from { opacity: 0; transform: translateY(28px); }
+}
+@keyframes enter-scale-bloom {
+  from { opacity: 0; transform: scale(0.96); }
+}
+@keyframes enter-settle {
+  from { opacity: 0; transform: translateY(8px); }
+}
+@keyframes enter-blur-fade {
+  from { opacity: 0; filter: blur(6px); }
+}
+@keyframes enter-blur-drift {
+  from { opacity: 0; filter: blur(10px); transform: translateY(14px); }
+}
+@keyframes enter-spring-bounce {
+  from { opacity: 0; transform: translateY(-18px) scale(0.97); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section-enter { animation: none; }
+}
