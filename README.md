@@ -32,6 +32,13 @@ Every component renders using CSS variables (`--bg`, `--fg`, `--primary`, `--sha
 
 No recompile. No flicker. Instant rebrand.
 
+Typography follows the same rule: the `[data-theme="X"]` blocks are the single
+source of truth for `--font-stack` / `--font-heading` / `--font-accent`, and
+only reference family names that are actually registered via `@fontsource`
+(e.g. `"Inter Variable"`, not `"Inter"`). Mode blocks own color only — they
+must not define fonts, or their higher specificity silently overrides the
+theme fonts.
+
 ## Run it
 
 ```bash
@@ -40,6 +47,28 @@ npm run dev
 ```
 
 Open <http://localhost:3000>.
+
+## Using it
+
+- **Hub (`/`)** — every card is a link straight into that theme's app.
+- **Themed app (`/app?theme=X&page=Y`)** — the theme's real pages are listed in
+  the header tabs; the dropdown switches theme and updates the URL; the 🌙/☀️
+  button toggles light/dark. Choices persist across refreshes with no flash.
+
+## What each theme actually ships
+
+Honest page counts — this table is generated from the same registry the router
+uses (`src/themes/definitions.ts`), so it cannot drift from reality:
+
+| Theme | Pages |
+|---|---|
+| 🪵 Skeuomorphism | 2 — Home, Dashboard |
+| 🎨 Flat Design | 4 — Home, Pricing, Team, Stats |
+| 📐 Material Design | 3 — Home, Principles, FAQ |
+| 🫧 Neumorphism | 3 — Media, Settings, Profile |
+| 🪟 Glassmorphism | 3 — Home, Features, Pricing |
+| 🏺 Claymorphism | 2 — Home, Plans |
+| ✦ Minimalism | 5 — Home, Principles, Writings, Contact, Works |
 
 ## Internal API
 
