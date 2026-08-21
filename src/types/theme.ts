@@ -55,7 +55,6 @@ export interface ThemeDefinition {
 export interface ThemeContextType {
   currentTheme: ThemeId;
   currentMode: ThemeMode;
-  isTransitioning: boolean;
   setTheme: (theme: ThemeId) => void;
   toggleMode: () => void;
   setMode: (mode: ThemeMode) => void;

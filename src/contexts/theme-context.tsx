@@ -43,7 +43,6 @@ export function ThemeProvider({
     const stored = readStored(STORAGE_MODE, initialMode);
     return stored === "dark" ? "dark" : "light";
   });
-  const [isTransitioning, setIsTransitioning] = useState(false);
 
   // Apply theme to DOM
   const applyTheme = useCallback((theme: ThemeId, mode: ThemeMode) => {
@@ -66,7 +65,7 @@ export function ThemeProvider({
     }
   }, [currentTheme, currentMode]);
 
-  // Set theme — instant CSS variable swap, with ink-splash transition flag
+  // Set theme — instant CSS variable swap, with a transition-polish class
   const setTheme = useCallback(
     (theme: ThemeId) => {
       if (theme === currentTheme) return;
@@ -74,11 +73,8 @@ export function ThemeProvider({
         console.warn(`Theme "${theme}" not found, using default`);
         return;
       }
-      setIsTransitioning(true);
       setCurrentTheme(theme);
       applyTheme(theme, currentMode);
-      // Release transition flag after the splash animation
-      setTimeout(() => setIsTransitioning(false), 800);
     },
     [currentTheme, currentMode, applyTheme]
   );
@@ -108,7 +104,6 @@ export function ThemeProvider({
       value={{
         currentTheme,
         currentMode,
-        isTransitioning,
         setTheme,
         toggleMode,
         setMode,
