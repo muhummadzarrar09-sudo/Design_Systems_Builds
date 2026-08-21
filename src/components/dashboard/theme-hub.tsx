@@ -5,6 +5,7 @@ import Link from "next/link";
 import { THEME_DEFINITIONS, THEME_IDS } from "@/themes/definitions";
 import { ThemeSelector } from "@/components/dashboard/theme-selector";
 import { ThemePreviewIsland } from "@/components/dashboard/preview-islands";
+import { SettingsPanel } from "@/components/dashboard/settings-panel";
 
 type ApiStatus = "checking" | "online" | "offline";
 
@@ -64,8 +65,9 @@ export function ThemeHub() {
           </p>
         </div>
 
-        <div className="shrink-0">
+        <div className="shrink-0 flex items-center gap-2">
           <ThemeSelector />
+          <SettingsPanel />
         </div>
       </header>
 

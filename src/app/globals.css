@@ -819,3 +819,37 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 900;
   letter-spacing: -0.02em;
 }
+
+/* ────────────────────────────────────────────
+   SETTINGS PANEL — gear slide-in
+   ──────────────────────────────────────────── */
+.settings-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9994;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  animation: splash-in 0.2s ease both;
+}
+.settings-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: min(22rem, 92vw);
+  z-index: 9995;
+  padding: 1.25rem;
+  overflow-y: auto;
+  background: var(--card);
+  color: var(--card-fg);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+  transform: translateX(105%);
+  transition: transform 0.35s cubic-bezier(0.32, 0.72, 0.24, 1);
+}
+.settings-panel--open {
+  transform: translateX(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .settings-panel { transition: none; }
+}

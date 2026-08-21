@@ -4,6 +4,7 @@ import React, { Suspense, useCallback } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ThemeSelector } from "@/components/dashboard/theme-selector";
+import { SettingsPanel } from "@/components/dashboard/settings-panel";
 import { useTheme } from "@/contexts/theme-context";
 import { THEME_DEFINITIONS, THEME_IDS, DEFAULT_THEME } from "@/themes/definitions";
 import { ThemeId } from "@/types/theme";
@@ -141,6 +142,7 @@ function ThemedApp() {
               {currentMode === "light" ? "🌙" : "☀️"}
             </button>
             <ThemeSelector onSelect={handleThemeSelect} />
+            <SettingsPanel onThemeSelect={handleThemeSelect} />
           </div>
         </div>
 
