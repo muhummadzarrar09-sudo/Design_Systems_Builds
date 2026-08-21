@@ -1,0 +1,573 @@
+/* ─── Self-hosted custom fonts (bundled via npm, zero external calls) ─── */
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/nunito";
+@import "@fontsource-variable/space-grotesk";
+@import "@fontsource-variable/playfair-display";
+@import "@fontsource-variable/baloo-2";
+@import "@fontsource-variable/outfit";
+@import "@fontsource/roboto/400.css";
+@import "@fontsource/roboto/500.css";
+@import "@fontsource/roboto/700.css";
+@import "@fontsource/roboto/900.css";
+
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--bg);
+  --color-foreground: var(--fg);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-fg);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-fg);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-fg);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-fg);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-fg);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-fg);
+  --radius: var(--radius-val);
+  --font-theme: var(--font-stack);
+}
+
+/* ==========================================
+   MINIMALISM THEME
+   ========================================== */
+:root,
+[data-theme="minimalism"][data-mode="light"] {
+  --bg: #ffffff;
+  --fg: #111111;
+  --primary: #000000;
+  --primary-fg: #ffffff;
+  --secondary: #f5f5f5;
+  --secondary-fg: #1a1a1a;
+  --card: #ffffff;
+  --card-fg: #111111;
+  --muted: #f0f0f0;
+  --muted-fg: #666666;
+  --border: #e5e5e5;
+  --accent: #333333;
+  --accent-fg: #ffffff;
+  --destructive: #dc2626;
+  --destructive-fg: #ffffff;
+  --radius-val: 0px;
+  --shadow-sm: 0 0 0 0 transparent;
+  --shadow: 0 0 0 0 transparent;
+  --shadow-lg: 0 0 0 0 transparent;
+  --font-stack: "Inter", "SF Pro", system-ui, sans-serif;
+  --transition-speed: 0.2s;
+}
+
+[data-theme="minimalism"][data-mode="dark"] {
+  --bg: #0a0a0a;
+  --fg: #f5f5f5;
+  --primary: #ffffff;
+  --primary-fg: #0a0a0a;
+  --secondary: #1a1a1a;
+  --secondary-fg: #e5e5e5;
+  --card: #141414;
+  --card-fg: #f5f5f5;
+  --muted: #1f1f1f;
+  --muted-fg: #888888;
+  --border: #2a2a2a;
+  --accent: #cccccc;
+  --accent-fg: #0a0a0a;
+  --destructive: #7f1d1d;
+  --destructive-fg: #fef2f2;
+}
+
+/* ==========================================
+   SKEUOMORPHISM THEME
+   ========================================== */
+[data-theme="skeuomorphism"][data-mode="light"] {
+  --bg: #e8dcc8;
+  --fg: #2c1810;
+  --primary: #8b4513;
+  --primary-fg: #fff8f0;
+  --secondary: #d4c5a9;
+  --secondary-fg: #3d2b1f;
+  --card: #f5ead0;
+  --card-fg: #2c1810;
+  --muted: #d8cbb8;
+  --muted-fg: #6b4f3a;
+  --border: #b8a68e;
+  --accent: #c4956a;
+  --accent-fg: #2c1810;
+  --destructive: #8b0000;
+  --destructive-fg: #fff8f0;
+  --radius-val: 6px;
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,240,0.4);
+  --shadow: 0 3px 6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,240,0.3);
+  --shadow-lg: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,240,0.25);
+  --font-stack: "Georgia", "Palatino", "Times New Roman", serif;
+  --transition-speed: 0.15s;
+}
+
+[data-theme="skeuomorphism"][data-mode="dark"] {
+  --bg: #1a1210;
+  --fg: #ddd0c0;
+  --primary: #c49a6c;
+  --primary-fg: #1a1210;
+  --secondary: #2c2218;
+  --secondary-fg: #c4b8a8;
+  --card: #241c16;
+  --card-fg: #ddd0c0;
+  --muted: #2e2420;
+  --muted-fg: #9a8878;
+  --border: #3d3028;
+  --accent: #b08864;
+  --accent-fg: #1a1210;
+  --destructive: #a52a2a;
+  --destructive-fg: #1a1210;
+  --radius-val: 6px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,240,0.08);
+  --shadow: 0 4px 8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,240,0.06);
+  --shadow-lg: 0 12px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,240,0.05);
+}
+
+/* ==========================================
+   FLAT DESIGN THEME
+   ========================================== */
+[data-theme="flat"][data-mode="light"] {
+  --bg: #fafafa;
+  --fg: #2d3436;
+  --primary: #e17055;
+  --primary-fg: #ffffff;
+  --secondary: #dfe6e9;
+  --secondary-fg: #636e72;
+  --card: #ffffff;
+  --card-fg: #2d3436;
+  --muted: #f1f2f3;
+  --muted-fg: #b2bec3;
+  --border: #dfe6e9;
+  --accent: #00b894;
+  --accent-fg: #ffffff;
+  --destructive: #d63031;
+  --destructive-fg: #ffffff;
+  --radius-val: 0px;
+  --shadow-sm: 0 0 0 0 transparent;
+  --shadow: 0 0 0 0 transparent;
+  --shadow-lg: 0 0 0 0 transparent;
+  --font-stack: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --transition-speed: 0.15s;
+}
+
+[data-theme="flat"][data-mode="dark"] {
+  --bg: #1a1a2e;
+  --fg: #f5f5fa;
+  --primary: #ff7675;
+  --primary-fg: #1a1a2e;
+  --secondary: #2d2d44;
+  --secondary-fg: #b0b0c8;
+  --card: #22223a;
+  --card-fg: #f5f5fa;
+  --muted: #2a2a40;
+  --muted-fg: #8888a0;
+  --border: #3a3a50;
+  --accent: #00cec9;
+  --accent-fg: #1a1a2e;
+  --destructive: #e74e4e;
+  --destructive-fg: #1a1a2e;
+}
+
+/* ==========================================
+   MATERIAL DESIGN THEME
+   ========================================== */
+[data-theme="material"][data-mode="light"] {
+  --bg: #f5f5f5;
+  --fg: #212121;
+  --primary: #1976d2;
+  --primary-fg: #ffffff;
+  --secondary: #e3f2fd;
+  --secondary-fg: #1565c0;
+  --card: #ffffff;
+  --card-fg: #212121;
+  --muted: #eeeeee;
+  --muted-fg: #757575;
+  --border: #e0e0e0;
+  --accent: #ff6f00;
+  --accent-fg: #ffffff;
+  --destructive: #d32f2f;
+  --destructive-fg: #ffffff;
+  --radius-val: 4px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
+  --shadow: 0 3px 6px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.12);
+  --shadow-lg: 0 10px 25px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.1);
+  --font-stack: "Roboto", "Inter", system-ui, sans-serif;
+  --transition-speed: 0.2s;
+}
+
+[data-theme="material"][data-mode="dark"] {
+  --bg: #121212;
+  --fg: #e0e0e0;
+  --primary: #90caf9;
+  --primary-fg: #121212;
+  --secondary: #1e3a5f;
+  --secondary-fg: #90caf9;
+  --card: #1e1e1e;
+  --card-fg: #e0e0e0;
+  --muted: #252525;
+  --muted-fg: #9e9e9e;
+  --border: #333333;
+  --accent: #ffab40;
+  --accent-fg: #121212;
+  --destructive: #ef5350;
+  --destructive-fg: #121212;
+}
+
+/* ==========================================
+   NEUMORPHISM THEME
+   ========================================== */
+[data-theme="neumorphism"][data-mode="light"] {
+  --bg: #e0e5ec;
+  --fg: #2d4059;
+  --primary: #4a6fa5;
+  --primary-fg: #e0e5ec;
+  --secondary: #c8d0e0;
+  --secondary-fg: #2d4059;
+  --card: #e0e5ec;
+  --card-fg: #2d4059;
+  --muted: #d5dce8;
+  --muted-fg: #7a8ba8;
+  --border: transparent;
+  --accent: #6c8ebf;
+  --accent-fg: #e0e5ec;
+  --destructive: #c44a4a;
+  --destructive-fg: #e0e5ec;
+  --radius-val: 16px;
+  --shadow-sm: 2px 2px 5px #b8bec9, -2px -2px 5px #ffffff;
+  --shadow: 5px 5px 10px #b8bec9, -5px -5px 10px #ffffff;
+  --shadow-lg: 9px 9px 16px #b8bec9, -9px -9px 16px #ffffff;
+  --font-stack: "Inter", "Nunito", system-ui, sans-serif;
+  --transition-speed: 0.2s;
+}
+
+[data-theme="neumorphism"][data-mode="dark"] {
+  --bg: #1a1f2e;
+  --fg: #c8d0e0;
+  --primary: #6c8ebf;
+  --primary-fg: #1a1f2e;
+  --secondary: #252b3d;
+  --secondary-fg: #c8d0e0;
+  --card: #1a1f2e;
+  --card-fg: #c8d0e0;
+  --muted: #1e2435;
+  --muted-fg: #7a8ba8;
+  --border: transparent;
+  --accent: #8aabcf;
+  --accent-fg: #1a1f2e;
+  --destructive: #c44a4a;
+  --destructive-fg: #1a1f2e;
+  --shadow-sm: 2px 2px 5px #121624, -2px -2px 5px #222838;
+  --shadow: 5px 5px 10px #121624, -5px -5px 10px #222838;
+  --shadow-lg: 9px 9px 16px #121624, -9px -9px 16px #222838;
+}
+
+/* ==========================================
+   GLASSMORPHISM THEME
+   ========================================== */
+[data-theme="glassmorphism"][data-mode="light"] {
+  --bg: #e8e8f0;
+  --fg: #1a1b2f;
+  --primary: #1a1b2f;
+  --primary-fg: #e8e8f0;
+  --secondary: rgba(255,255,255,0.4);
+  --secondary-fg: #1a1b2f;
+  --card: rgba(255,255,255,0.5);
+  --card-fg: #1a1b2f;
+  --muted: rgba(255,255,255,0.3);
+  --muted-fg: rgba(0,0,0,0.4);
+  --border: rgba(255,255,255,0.6);
+  --accent: #6c63ff;
+  --accent-fg: #ffffff;
+  --destructive: #e74c3c;
+  --destructive-fg: #ffffff;
+  --radius-val: 16px;
+  --shadow-sm: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow: 0 8px 32px rgba(0,0,0,0.15);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,0.2);
+  --font-stack: "Inter", "SF Pro", system-ui, sans-serif;
+  --transition-speed: 0.3s;
+}
+
+[data-theme="glassmorphism"][data-mode="dark"] {
+  --bg: #1a1b2f;
+  --fg: #e8e8f0;
+  --primary: #ffffff;
+  --primary-fg: #1a1b2f;
+  --secondary: rgba(255,255,255,0.1);
+  --secondary-fg: #e8e8f0;
+  --card: rgba(255,255,255,0.08);
+  --card-fg: #e8e8f0;
+  --muted: rgba(255,255,255,0.05);
+  --muted-fg: rgba(255,255,255,0.5);
+  --border: rgba(255,255,255,0.15);
+  --accent: #6c63ff;
+  --accent-fg: #ffffff;
+  --destructive: #ff6b6b;
+  --destructive-fg: #ffffff;
+  --radius-val: 16px;
+  --shadow-sm: 0 4px 6px rgba(0,0,0,0.1);
+  --shadow: 0 8px 32px rgba(0,0,0,0.2);
+  --shadow-lg: 0 20px 60px rgba(0,0,0,0.3);
+  --font-stack: "Inter", "SF Pro", system-ui, sans-serif;
+  --transition-speed: 0.3s;
+}
+
+/* ==========================================
+   CLAYMORPHISM THEME
+   ========================================== */
+[data-theme="claymorphism"][data-mode="light"] {
+  --bg: #fce4ec;
+  --fg: #4a1942;
+  --primary: #e91e63;
+  --primary-fg: #ffffff;
+  --secondary: #f8bbd0;
+  --secondary-fg: #4a1942;
+  --card: #ffdbe6;
+  --card-fg: #4a1942;
+  --muted: #f0d0db;
+  --muted-fg: #8a4a72;
+  --border: #e8b0c0;
+  --accent: #7b1fa2;
+  --accent-fg: #ffffff;
+  --destructive: #c62828;
+  --destructive-fg: #ffffff;
+  --radius-val: 24px;
+  --shadow-sm: 0 4px 0 #d4a0b0, 0 6px 10px rgba(0,0,0,0.1);
+  --shadow: 0 8px 0 #d4a0b0, 0 12px 20px rgba(0,0,0,0.1);
+  --shadow-lg: 0 12px 0 #d4a0b0, 0 18px 30px rgba(0,0,0,0.1);
+  --font-stack: "Nunito", "Inter", system-ui, sans-serif;
+  --transition-speed: 0.15s;
+}
+
+[data-theme="claymorphism"][data-mode="dark"] {
+  --bg: #2a1025;
+  --fg: #fce4ec;
+  --primary: #f06292;
+  --primary-fg: #2a1025;
+  --secondary: #4a2040;
+  --secondary-fg: #fce4ec;
+  --card: #3a1830;
+  --card-fg: #fce4ec;
+  --muted: #352030;
+  --muted-fg: #b08098;
+  --border: #4a2840;
+  --accent: #ce93d8;
+  --accent-fg: #2a1025;
+  --destructive: #e57373;
+  --destructive-fg: #2a1025;
+  --shadow-sm: 0 4px 0 #3a1830, 0 6px 10px rgba(0,0,0,0.2);
+  --shadow: 0 8px 0 #3a1830, 0 12px 20px rgba(0,0,0,0.2);
+  --shadow-lg: 0 12px 0 #3a1830, 0 18px 30px rgba(0,0,0,0.2);
+}
+
+/* ==========================================
+   GLOBAL STYLES
+   ========================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  font-family: var(--font-stack);
+  background-color: var(--bg);
+  color: var(--fg);
+  transition: background-color var(--transition-speed) ease,
+              color var(--transition-speed) ease;
+}
+
+body {
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--muted-fg);
+  border-radius: 4px;
+}
+
+/* Utility */
+.theme-transitioning {
+  transition: background-color var(--transition-speed) ease,
+              color var(--transition-speed) ease,
+              box-shadow var(--transition-speed) ease,
+              border-color var(--transition-speed) ease,
+              border-radius var(--transition-speed) ease;
+}
+
+/* ─── Animations ─── */
+@keyframes ink-bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.3;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes glass-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -30px) scale(1.05); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+/* ────────────────────────────────────────────
+   CUSTOM TYPOGRAPHY — per-theme font systems
+   (self-hosted via @fontsource, bundled in build)
+   ──────────────────────────────────────────── */
+[data-theme="minimalism"] {
+  --font-stack: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-accent: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-theme="flat"] {
+  --font-stack: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Space Grotesk Variable", "Inter Variable", ui-sans-serif, sans-serif;
+  --font-accent: "Space Grotesk Variable", "Inter Variable", ui-sans-serif, sans-serif;
+}
+
+[data-theme="material"] {
+  --font-stack: "Roboto", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Roboto", ui-sans-serif, system-ui, sans-serif;
+  --font-accent: "Roboto", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-theme="skeuomorphism"] {
+  --font-stack: Georgia, "Palatino Linotype", "Times New Roman", serif;
+  --font-heading: "Playfair Display Variable", Georgia, serif;
+  --font-accent: "Playfair Display Variable", Georgia, serif;
+}
+
+[data-theme="neumorphism"] {
+  --font-stack: "Nunito Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Nunito Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-accent: "Nunito Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+[data-theme="glassmorphism"] {
+  --font-stack: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Outfit Variable", "Inter Variable", ui-sans-serif, sans-serif;
+  --font-accent: "Outfit Variable", "Inter Variable", ui-sans-serif, sans-serif;
+}
+
+[data-theme="claymorphism"] {
+  --font-stack: "Nunito Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-heading: "Baloo 2 Variable", "Nunito Variable", ui-sans-serif, sans-serif;
+  --font-accent: "Baloo 2 Variable", "Nunito Variable", ui-sans-serif, sans-serif;
+}
+
+/* Headings use the theme's display font automatically */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading, var(--font-stack));
+  letter-spacing: -0.01em;
+}
+
+/* ─── Ink-splash spinner animations ─── */
+@keyframes material-ripple {
+  0% { transform: scale(0.4); opacity: 1; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+@keyframes neumorph-pulse {
+  0%, 100% { box-shadow: var(--shadow); }
+  50% { box-shadow: var(--shadow-lg); }
+}
+
+@keyframes clay-squish {
+  0%, 100% { transform: scale(1, 1); border-radius: 40%; }
+  30% { transform: scale(1.15, 0.85); border-radius: 48% 42% 46% 40%; }
+  60% { transform: scale(0.9, 1.1); border-radius: 42% 46% 40% 48%; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ────────────────────────────────────────────
+   MICRO-INTERACTIONS — per-theme press/hover
+   ──────────────────────────────────────────── */
+/* Flat: bold block press — color invert */
+[data-theme="flat"] .pressable:active,
+[data-theme="flat"] button:active:not([class*="ripple"]) {
+  filter: brightness(0.9);
+  transform: translateY(2px);
+}
+[data-theme="flat"] .pressable,
+[data-theme="flat"] button {
+  transition: filter 0.1s ease, transform 0.1s ease;
+}
+
+/* Skeuomorphism: physical press — inset shadow */
+[data-theme="skeuomorphism"] .pressable:active,
+[data-theme="skeuomorphism"] button:active:not([class*="ripple"]) {
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.35), inset 0 1px 2px rgba(0, 0, 0, 0.25);
+  transform: translateY(1px);
+}
+[data-theme="skeuomorphism"] .pressable:hover,
+[data-theme="skeuomorphism"] button:hover {
+  filter: brightness(1.04);
+}
+
+/* Material: elevation lift on hover + ripple handled by component */
+[data-theme="material"] .pressable:hover,
+[data-theme="material"] button:hover:not([class*="ripple"]) {
+  box-shadow: var(--shadow);
+  transform: translateY(-2px);
+}
+[data-theme="material"] .pressable,
+[data-theme="material"] button {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Neumorphism: shadow swap — extruded ↔ inset */
+[data-theme="neumorphism"] .pressable:hover {
+  box-shadow: var(--shadow);
+}
+[data-theme="neumorphism"] .pressable:active {
+  box-shadow: inset 5px 5px 10px #b8bec9, inset -5px -5px 10px #ffffff;
+}
+[data-theme="neumorphism"] .pressable {
+  transition: box-shadow 0.25s ease;
+}
+
+/* Glassmorphism: frost brighten on hover */
+[data-theme="glassmorphism"] .pressable:hover {
+  background-color: rgba(255, 255, 255, 0.18);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Claymorphism: squish on press */
+[data-theme="claymorphism"] .pressable:active,
+[data-theme="claymorphism"] button:active:not([class*="ripple"]) {
+  transform: scale(0.94) translateY(3px);
+  box-shadow: 0 2px 0 var(--border), 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+[data-theme="claymorphism"] .pressable:hover {
+  transform: translateY(-2px);
+}
+
+/* Minimalism: nothing but opacity */
+[data-theme="minimalism"] .pressable:hover,
+[data-theme="minimalism"] button:hover {
+  opacity: 0.75;
+}
+[data-theme="minimalism"] .pressable,
+[data-theme="minimalism"] button {
+  transition: opacity 0.15s ease;
+}
