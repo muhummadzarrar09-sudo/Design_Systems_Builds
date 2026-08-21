@@ -1,7 +1,8 @@
 "use client";
 
-import React, { Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import React, { Suspense, useCallback } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ThemeSelector } from "@/components/dashboard/theme-selector";
 import { useTheme } from "@/contexts/theme-context";
 import { THEME_DEFINITIONS, THEME_IDS, DEFAULT_THEME } from "@/themes/definitions";
@@ -22,22 +23,70 @@ import { GlassmorphismHero } from "@/components/sections/glassmorphism/hero";
 import { GlassmorphismFeatures, GlassmorphismPricing } from "@/components/sections/glassmorphism/features";
 import { ClaymorphismHero, ClaymorphismPricing } from "@/components/sections/claymorphism/hero";
 
+/**
+ * Single source of truth for theme/page → component. One entry per routable
+ * page, keyed by `${themeId}/${section}` — must mirror THEME_DEFINITIONS.pages.
+ * No aliases: if a page isn't mapped here, it doesn't render.
+ */
+const SECTION_COMPONENTS: Record<string, React.ComponentType> = {
+  "skeuomorphism/hero": SkeuomorphismHero,
+  "skeuomorphism/dashboard": SkeuomorphismDashboard,
+  "flat/hero": FlatHero,
+  "flat/pricing": FlatPricing,
+  "flat/team": FlatTeam,
+  "flat/stats": FlatStats,
+  "material/hero": MaterialHero,
+  "material/features": MaterialFeatures,
+  "material/faq": MaterialFAQ,
+  "neumorphism/media": NeumorphismMedia,
+  "neumorphism/settings": NeumorphismSettings,
+  "neumorphism/profile": NeumorphismProfile,
+  "glassmorphism/hero": GlassmorphismHero,
+  "glassmorphism/features": GlassmorphismFeatures,
+  "glassmorphism/pricing": GlassmorphismPricing,
+  "claymorphism/hero": ClaymorphismHero,
+  "claymorphism/pricing": ClaymorphismPricing,
+  "minimalism/hero": MinimalismHero,
+  "minimalism/features": MinimalismBenefits,
+  "minimalism/blog": MinimalismBlog,
+  "minimalism/contact": MinimalismContact,
+  "minimalism/gallery": MinimalismGallery,
+};
+
 function ThemedApp() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const { currentTheme, currentMode, toggleMode, setTheme } = useTheme();
 
   const themeParam = searchParams.get("theme") || DEFAULT_THEME;
-  const pageParam = searchParams.get("page") || "overview";
+  const pageParam = searchParams.get("page") || "";
   const themeDef = THEME_DEFINITIONS[themeParam];
 
-  // Sync URL → theme (so the dropdown selection also updates the URL)
+  // Resolve the page honestly: exact match, or the theme's first page.
+  const activePage =
+    themeDef?.pages.find((p) => p.key === pageParam) ?? themeDef?.pages[0];
+
+  // Sync URL → theme context (deep links and nav-tab links drive the context)
   React.useEffect(() => {
     if (themeParam && THEME_IDS.includes(themeParam) && themeParam !== currentTheme) {
       setTheme(themeParam as ThemeId);
     }
   }, [themeParam, currentTheme, setTheme]);
 
-  if (!themeDef) {
+  // Switching theme from the dropdown inside the app also updates the URL,
+  // so the address bar always reflects what's on screen.
+  const handleThemeSelect = useCallback(
+    (id: ThemeId) => {
+      setTheme(id);
+      const firstPage = THEME_DEFINITIONS[id]?.pages[0];
+      if (firstPage) {
+        router.replace(`/app?theme=${id}&page=${firstPage.key}`);
+      }
+    },
+    [router, setTheme]
+  );
+
+  if (!themeDef || !activePage) {
     return (
       <div
         className="min-h-screen flex items-center justify-center"
@@ -48,127 +97,7 @@ function ThemedApp() {
     );
   }
 
-  function renderActivePage() {
-    switch (themeParam) {
-      case "minimalism":
-        switch (pageParam) {
-          case "hero":
-          case "overview":
-            return <MinimalismHero />;
-          case "features":
-          case "benefits":
-            return <MinimalismBenefits />;
-          case "blog":
-            return <MinimalismBlog />;
-          case "contact":
-            return <MinimalismContact />;
-          case "gallery":
-            return <MinimalismGallery />;
-          default:
-            return <MinimalismHero />;
-        }
-      case "skeuomorphism":
-        switch (pageParam) {
-          case "hero":
-          case "overview":
-            return <SkeuomorphismHero />;
-          case "dashboard":
-          case "features":
-          case "settings":
-          case "media":
-          case "profile":
-          case "navigation":
-            return <SkeuomorphismDashboard />;
-          default:
-            return <SkeuomorphismHero />;
-        }
-      case "flat":
-        switch (pageParam) {
-          case "hero":
-          case "overview":
-            return <FlatHero />;
-          case "features":
-            return <FlatHero />;
-          case "pricing":
-            return <FlatPricing />;
-          case "team":
-          case "testimonials":
-            return <FlatTeam />;
-          case "stats":
-            return <FlatStats />;
-          default:
-            return <FlatHero />;
-        }
-      case "material":
-        switch (pageParam) {
-          case "hero":
-          case "overview":
-            return <MaterialHero />;
-          case "features":
-          case "dashboard":
-          case "forms":
-          case "navigation":
-          case "stats":
-            return <MaterialFeatures />;
-          case "faq":
-            return <MaterialFAQ />;
-          default:
-            return <MaterialHero />;
-        }
-      case "neumorphism":
-        switch (pageParam) {
-          case "media":
-          case "overview":
-          case "gallery":
-            return <NeumorphismMedia />;
-          case "settings":
-          case "forms":
-            return <NeumorphismSettings />;
-          case "profile":
-          case "dashboard":
-            return <NeumorphismProfile />;
-          case "pricing":
-            return <NeumorphismMedia />;
-          default:
-            return <NeumorphismMedia />;
-        }
-      case "glassmorphism":
-        switch (pageParam) {
-          case "hero":
-          case "overview":
-            return <GlassmorphismHero />;
-          case "features":
-          case "testimonials":
-            return <GlassmorphismFeatures />;
-          case "pricing":
-            return <GlassmorphismPricing />;
-          default:
-            return <GlassmorphismHero />;
-        }
-      case "claymorphism":
-        switch (pageParam) {
-          case "hero":
-          case "overview":
-            return <ClaymorphismHero />;
-          case "pricing":
-          case "stats":
-            return <ClaymorphismPricing />;
-          default:
-            return <ClaymorphismHero />;
-        }
-      default:
-        return (
-          <section className="py-24 px-8 text-center">
-            <h2 className="text-3xl font-bold">
-              {themeDef.icon} {themeDef.name}
-            </h2>
-            <p className="text-lg mt-2" style={{ color: "var(--muted-fg)" }}>
-              {themeDef.description}
-            </p>
-          </section>
-        );
-    }
-  }
+  const ActiveSection = SECTION_COMPONENTS[`${themeDef.id}/${activePage.section}`];
 
   return (
     <div
@@ -211,12 +140,54 @@ function ThemedApp() {
             >
               {currentMode === "light" ? "🌙" : "☀️"}
             </button>
-            <ThemeSelector />
+            <ThemeSelector onSelect={handleThemeSelect} />
           </div>
         </div>
+
+        {/* Section navigation tabs — the theme's real, routable pages */}
+        <nav
+          aria-label="Section pages"
+          className="border-t"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 flex gap-1 overflow-x-auto">
+            {themeDef.pages.map((page) => {
+              const active = page.key === activePage.key;
+              return (
+                <Link
+                  key={page.key}
+                  href={`/app?theme=${themeDef.id}&page=${page.key}`}
+                  aria-current={active ? "page" : undefined}
+                  className="px-3 py-2 text-sm font-medium whitespace-nowrap transition-colors"
+                  style={{
+                    color: active ? "var(--primary)" : "var(--muted-fg)",
+                    borderBottom: active
+                      ? "2px solid var(--primary)"
+                      : "2px solid transparent",
+                  }}
+                >
+                  {page.label}
+                </Link>
+              );
+            })}
+          </div>
+        </nav>
       </header>
 
-      <main className="flex-1">{renderActivePage()}</main>
+      <main className="flex-1">
+        {ActiveSection ? (
+          <ActiveSection />
+        ) : (
+          <section className="py-24 px-8 text-center">
+            <h2 className="text-3xl font-bold">
+              {themeDef.icon} {themeDef.name}
+            </h2>
+            <p className="text-lg mt-2" style={{ color: "var(--muted-fg)" }}>
+              {themeDef.description}
+            </p>
+          </section>
+        )}
+      </main>
 
       <footer
         className="px-8 py-4 text-xs text-center border-t"

@@ -53,7 +53,7 @@ export function ThemeHub() {
               return (
                 <Link
                   key={id}
-                  href={`/app?theme=${id}`}
+                  href={`/app?theme=${id}&page=${def.pages[0].key}`}
                   className="theme-card block p-5"
                   style={{
                     backgroundColor: "var(--card)",
@@ -84,7 +84,7 @@ export function ThemeHub() {
                       className="px-2 py-0.5 rounded-full font-medium"
                       style={{ backgroundColor: "var(--accent)", color: "var(--accent-fg)" }}
                     >
-                      {def.sections.length} sections
+                      {def.pages.length} page{def.pages.length === 1 ? "" : "s"}
                     </span>
                     <span className="ml-auto font-bold" style={{ color: "var(--primary)" }}>
                       Open →
