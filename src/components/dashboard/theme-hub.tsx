@@ -4,6 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { THEME_DEFINITIONS, THEME_IDS } from "@/themes/definitions";
 import { ThemeSelector } from "@/components/dashboard/theme-selector";
+import { ThemePreviewIsland } from "@/components/dashboard/preview-islands";
 
 /**
  * ThemeHub — hub page.
@@ -67,12 +68,13 @@ export function ThemeHub() {
                     <span className="text-2xl">{def.icon}</span>
                     <h3 className="text-base font-black">{def.name}</h3>
                   </div>
-                  <p className="text-xs font-bold mb-1" style={{ color: "var(--accent)" }}>
+                  <p className="text-xs font-bold mb-2" style={{ color: "var(--accent)" }}>
                     {def.tagline}
                   </p>
-                  <p className="text-xs leading-relaxed mb-3" style={{ color: "var(--muted-fg)" }}>
-                    {def.description}
-                  </p>
+                  {/* Live preview — a real mini-UI in this theme's own language */}
+                  <div className="mb-3">
+                    <ThemePreviewIsland id={def.id} />
+                  </div>
                   <div className="flex items-center gap-2 text-[10px]">
                     <span
                       className="px-2 py-0.5 rounded-full font-medium"
