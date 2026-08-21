@@ -1,10 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { THEME_DEFINITIONS, THEME_IDS } from "@/themes/definitions";
 import { ThemeSelector } from "@/components/dashboard/theme-selector";
 import { ThemePreviewIsland } from "@/components/dashboard/preview-islands";
+
+type ApiStatus = "checking" | "online" | "offline";
 
 /**
  * ThemeHub — hub page.
@@ -13,6 +15,30 @@ import { ThemePreviewIsland } from "@/components/dashboard/preview-islands";
  * - Static grid — no nested data-theme (nested data-theme was the bug all along)
  */
 export function ThemeHub() {
+  // Live check of the internal API on mount — frontend ↔ backend wiring, for real
+  const [apiStatus, setApiStatus] = useState<ApiStatus>("checking");
+  const [apiCount, setApiCount] = useState<number>(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/themes", { cache: "no-store" })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data: { count?: number }) => {
+        if (cancelled) return;
+        setApiCount(data.count ?? 0);
+        setApiStatus("online");
+      })
+      .catch(() => {
+        if (!cancelled) setApiStatus("offline");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div
       className="min-h-screen flex flex-col"
@@ -108,6 +134,18 @@ export function ThemeHub() {
         style={{ borderColor: "var(--border)", color: "var(--muted-fg)" }}
       >
         Built with Next.js &amp; TypeScript &middot; 7 design styles &middot; Light + Dark per style
+        <span className="mx-2" aria-hidden="true">·</span>
+        {apiStatus === "checking" && <span>API: connecting…</span>}
+        {apiStatus === "online" && (
+          <span style={{ color: "var(--primary)", fontWeight: 600 }}>
+            API: {apiCount} themes online ✓
+          </span>
+        )}
+        {apiStatus === "offline" && (
+          <span style={{ color: "var(--destructive)", fontWeight: 600 }}>
+            API offline ✗
+          </span>
+        )}
       </footer>
     </div>
   );
