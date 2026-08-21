@@ -1,15 +1,15 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { THEME_DEFINITIONS, THEME_IDS } from "@/themes/definitions";
 import { ThemeSelector } from "@/components/dashboard/theme-selector";
 
 /**
- * ThemeHub — simple, bulletproof Hub page.
- * - Shows the brand title
- * - Shows a single ThemeSelector dropdown (always works)
- * - Shows a static grid of all 7 themes for reference — no nested data-theme
- *   (nested data-theme was the bug all along)
+ * ThemeHub — hub page.
+ * - Brand title + a ThemeSelector dropdown (always works)
+ * - Every card is a real link into that theme's app (/app?theme=X)
+ * - Static grid — no nested data-theme (nested data-theme was the bug all along)
  */
 export function ThemeHub() {
   return (
@@ -51,9 +51,10 @@ export function ThemeHub() {
             {THEME_IDS.map((id) => {
               const def = THEME_DEFINITIONS[id];
               return (
-                <div
+                <Link
                   key={id}
-                  className="p-5"
+                  href={`/app?theme=${id}`}
+                  className="theme-card block p-5"
                   style={{
                     backgroundColor: "var(--card)",
                     color: "var(--card-fg)",
@@ -85,14 +86,17 @@ export function ThemeHub() {
                     >
                       {def.sections.length} sections
                     </span>
+                    <span className="ml-auto font-bold" style={{ color: "var(--primary)" }}>
+                      Open →
+                    </span>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
 
           <p className="mt-8 text-center text-xs" style={{ color: "var(--muted-fg)" }}>
-            Use the dropdown above to switch themes → entire app rebrands instantly.
+            Click any card (or use the dropdown) to open that theme&apos;s app — the whole UI rebrands instantly.
           </p>
         </div>
       </main>

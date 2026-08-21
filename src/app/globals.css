@@ -408,6 +408,21 @@ body {
               border-radius var(--transition-speed) ease;
 }
 
+/* Hub theme cards — clickable entries into each themed app */
+.theme-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.theme-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-lg);
+}
+.theme-card:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
 /* ─── Animations ─── */
 @keyframes ink-bounce {
   0%, 80%, 100% {
