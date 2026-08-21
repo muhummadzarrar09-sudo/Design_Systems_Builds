@@ -547,3 +547,157 @@ h1, h2, h3, h4, h5, h6 {
 [data-theme="minimalism"] button {
   transition: opacity 0.15s ease;
 }
+
+/* ────────────────────────────────────────────
+   INK-SPLASH OVERLAY — theme-aware theme switch
+   Renders in the NEW theme's vars; content revealed after splash.
+   ──────────────────────────────────────────── */
+.ink-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: grid;
+  place-items: center;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-stack);
+  animation: splash-in 0.15s ease both;
+}
+.ink-splash--out {
+  animation: splash-out 0.26s ease both;
+  pointer-events: none;
+}
+.ink-splash__inner {
+  display: grid;
+  place-items: center;
+  gap: 0.9rem;
+  text-align: center;
+}
+.ink-splash__label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.ink-splash__icon {
+  font-size: 1rem;
+}
+@keyframes splash-in {
+  from { opacity: 0; }
+}
+@keyframes splash-out {
+  to { opacity: 0; visibility: hidden; }
+}
+
+/* Spinner stage */
+.splash {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+}
+/* Minimal: a thin, quiet ring */
+.thin-ring {
+  width: 30px;
+  height: 30px;
+  border: 2px solid var(--muted);
+  border-top-color: var(--fg);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+/* Flat: three bold bouncing squares */
+.bounce-squares {
+  display: flex;
+  gap: 6px;
+  width: auto;
+  height: auto;
+}
+.bounce-squares .sq {
+  width: 10px;
+  height: 10px;
+  animation: ink-bounce 0.9s ease-in-out infinite;
+}
+/* Material: concentric ripple rings */
+.ripple-rings span {
+  position: absolute;
+  inset: 5px;
+  border: 2px solid var(--primary);
+  border-radius: 50%;
+  animation: material-ripple 1s ease-out infinite;
+}
+/* Skeuomorphism: a gear turning inside a machined disc */
+.skeuo-gear {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, var(--card), var(--muted));
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.skeuo-gear .gear {
+  display: block;
+  font-size: 18px;
+  animation: spin 1.6s linear infinite;
+}
+/* Neumorphism: soft dual-shadow pulse */
+.neu-pulse {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: var(--shadow);
+  animation: neumorph-pulse 1.2s ease-in-out infinite;
+}
+/* Glassmorphism: frosted ring with a drifting arc */
+.glass-ring {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(6px);
+}
+.glass-ring .arc {
+  position: absolute;
+  inset: -1px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  border-top-color: var(--accent);
+  animation: spin 0.9s linear infinite;
+}
+/* Claymorphism: a squishy blob */
+.clay-blob {
+  width: 30px;
+  height: 30px;
+  background: var(--primary);
+  box-shadow: var(--shadow);
+  animation: clay-squish 1s ease-in-out infinite;
+}
+
+/* Spinner keyframes — every one referenced above or by the ripple */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes ink-bounce {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.5; }
+  40% { transform: translateY(-10px); opacity: 1; }
+}
+@keyframes material-ripple {
+  0% { transform: scale(0.4); opacity: 1; }
+  100% { transform: scale(1.15); opacity: 0; }
+}
+@keyframes neumorph-pulse {
+  0%, 100% { box-shadow: var(--shadow); }
+  50% { box-shadow: var(--shadow-lg); }
+}
+@keyframes clay-squish {
+  0%, 100% { transform: scale(1, 1); border-radius: 42%; }
+  30% { transform: scale(1.15, 0.85); border-radius: 50%; }
+  60% { transform: scale(0.88, 1.12); border-radius: 38%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ink-splash { display: none; }
+}

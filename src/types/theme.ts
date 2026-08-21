@@ -55,6 +55,8 @@ export interface ThemeDefinition {
 export interface ThemeContextType {
   currentTheme: ThemeId;
   currentMode: ThemeMode;
+  /** True while the ink-splash overlay is up during a theme switch. */
+  isTransitioning: boolean;
   setTheme: (theme: ThemeId) => void;
   toggleMode: () => void;
   setMode: (mode: ThemeMode) => void;
