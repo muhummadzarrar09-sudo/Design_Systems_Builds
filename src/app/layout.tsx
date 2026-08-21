@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/theme-context";
 import { InkSplash } from "@/components/effects/ink-splash";
+import { MaterialRipple } from "@/components/effects/material-ripple";
 
 export const metadata: Metadata = {
   title: "Design System Playground",
@@ -36,6 +37,7 @@ export default function RootLayout({
         <ThemeProvider>
           {children}
           <InkSplash />
+          <MaterialRipple />
         </ThemeProvider>
       </body>
     </html>
