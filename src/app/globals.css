@@ -56,7 +56,6 @@
   --shadow-sm: 0 0 0 0 transparent;
   --shadow: 0 0 0 0 transparent;
   --shadow-lg: 0 0 0 0 transparent;
-  --font-stack: "Inter", "SF Pro", system-ui, sans-serif;
   --transition-speed: 0.2s;
 }
 
@@ -101,7 +100,6 @@
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,240,0.4);
   --shadow: 0 3px 6px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,240,0.3);
   --shadow-lg: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,240,0.25);
-  --font-stack: "Georgia", "Palatino", "Times New Roman", serif;
   --transition-speed: 0.15s;
 }
 
@@ -150,7 +148,6 @@
   --shadow-sm: 0 0 0 0 transparent;
   --shadow: 0 0 0 0 transparent;
   --shadow-lg: 0 0 0 0 transparent;
-  --font-stack: "Inter", "Helvetica Neue", Arial, sans-serif;
   --transition-speed: 0.15s;
 }
 
@@ -195,7 +192,6 @@
   --shadow-sm: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.08);
   --shadow: 0 3px 6px rgba(0,0,0,0.15), 0 2px 4px rgba(0,0,0,0.12);
   --shadow-lg: 0 10px 25px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.1);
-  --font-stack: "Roboto", "Inter", system-ui, sans-serif;
   --transition-speed: 0.2s;
 }
 
@@ -240,7 +236,6 @@
   --shadow-sm: 2px 2px 5px #b8bec9, -2px -2px 5px #ffffff;
   --shadow: 5px 5px 10px #b8bec9, -5px -5px 10px #ffffff;
   --shadow-lg: 9px 9px 16px #b8bec9, -9px -9px 16px #ffffff;
-  --font-stack: "Inter", "Nunito", system-ui, sans-serif;
   --transition-speed: 0.2s;
 }
 
@@ -288,7 +283,6 @@
   --shadow-sm: 0 4px 6px rgba(0,0,0,0.1);
   --shadow: 0 8px 32px rgba(0,0,0,0.15);
   --shadow-lg: 0 20px 60px rgba(0,0,0,0.2);
-  --font-stack: "Inter", "SF Pro", system-ui, sans-serif;
   --transition-speed: 0.3s;
 }
 
@@ -312,7 +306,6 @@
   --shadow-sm: 0 4px 6px rgba(0,0,0,0.1);
   --shadow: 0 8px 32px rgba(0,0,0,0.2);
   --shadow-lg: 0 20px 60px rgba(0,0,0,0.3);
-  --font-stack: "Inter", "SF Pro", system-ui, sans-serif;
   --transition-speed: 0.3s;
 }
 
@@ -339,7 +332,6 @@
   --shadow-sm: 0 4px 0 #d4a0b0, 0 6px 10px rgba(0,0,0,0.1);
   --shadow: 0 8px 0 #d4a0b0, 0 12px 20px rgba(0,0,0,0.1);
   --shadow-lg: 0 12px 0 #d4a0b0, 0 18px 30px rgba(0,0,0,0.1);
-  --font-stack: "Nunito", "Inter", system-ui, sans-serif;
   --transition-speed: 0.15s;
 }
 
