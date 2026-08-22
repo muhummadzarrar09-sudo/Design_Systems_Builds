@@ -31,6 +31,9 @@ export default function StatesPage() {
         <Link className="back-link" href="/">
           ← back to the picker
         </Link>
+        <Link className="back-link" href="/lab" style={{ marginLeft: 8 }}>
+          try the state lab →
+        </Link>
       </header>
 
       <section className="spec-list">

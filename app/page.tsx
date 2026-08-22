@@ -49,6 +49,9 @@ export default function Home() {
             <li>
               <a href="/states">states spec →</a>
             </li>
+            <li>
+              <a href="/lab">state lab →</a>
+            </li>
           </ul>
         </header>
 
