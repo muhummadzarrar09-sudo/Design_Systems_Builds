@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import Background from "@/components/Background";
 import StyleRow from "@/components/StyleRow";
 import SummaryBar from "@/components/SummaryBar";
@@ -7,10 +8,13 @@ import { useStyleSelection } from "@/hooks/useStyleSelection";
 import { STYLES } from "@/lib/styles";
 
 export default function Home() {
+  const router = useRouter();
   const { selected, ready, toggle, setAll, clear } = useStyleSelection();
 
   const handleSelectAll = () =>
     setAll(selected.length === STYLES.length ? [] : STYLES.map((s) => s.name));
+
+  const openDashboard = (slug: string) => router.push(`/dash/${slug}`);
 
   return (
     <>
@@ -26,20 +30,19 @@ export default function Home() {
           </div>
 
           <h1>
-            Pick your <span className="grad">design language</span>.
+            Pick a <span className="grad">design language</span>.
           </h1>
           <p className="sub">
-            Seven design languages, one pill at a time, top to bottom.{" "}
-            <strong>Hover each pill</strong> and it becomes the style it names
-            — brushed metal, blunt flat, ripples, frost, squish and silence.
-            Built with <strong>Next.js</strong> on Node, styled with hand-rolled
-            CSS on a pure <strong>#000000</strong> canvas.
+            Seven design systems, one Mission Control dashboard.{" "}
+            <strong>Click a style</strong> and you enter the dashboard coded in
+            that system — brushed metal, blunt flat, ripples, frost, squish or
+            silence. Built with <strong>Next.js</strong> on Node, styled with
+            hand-rolled CSS on a pure <strong>#000000</strong> canvas.
           </p>
           <ul className="hint">
-            <li>hover to preview the style</li>
-            <li>click to pick</li>
+            <li>click a style to enter its dashboard</li>
+            <li>hover to preview the look</li>
             <li>Tab + Space works too</li>
-            <li>your picks are saved</li>
             <li>
               <a href="/inspo">inspo board →</a>
             </li>
@@ -56,6 +59,7 @@ export default function Home() {
               index={i}
               checked={selected.includes(style.name)}
               onToggle={toggle}
+              onNavigate={openDashboard}
             />
           ))}
         </fieldset>

@@ -9,13 +9,21 @@ type Props = {
   index: number;
   checked: boolean;
   onToggle: (name: string) => void;
+  onNavigate: (slug: string) => void;
 };
 
 /**
- * One pill row. The invisible checkbox is the real hit target, so clicking,
- * Tab + Space and screen readers all work — CSS :has() does the rest.
+ * One pill row. Clicking it launches the design system's Mission Control
+ * dashboard. The invisible checkbox is the hit target, so clicking,
+ * Tab + Space and screen readers all work.
  */
-export default function StyleRow({ style, index, checked, onToggle }: Props) {
+export default function StyleRow({
+  style,
+  index,
+  checked,
+  onToggle,
+  onNavigate,
+}: Props) {
   return (
     <label
       className={`option option--${style.slug}`}
@@ -26,8 +34,11 @@ export default function StyleRow({ style, index, checked, onToggle }: Props) {
         name="style"
         value={style.name}
         checked={checked}
-        onChange={() => onToggle(style.name)}
-        aria-label={style.name}
+        onChange={() => {
+          onToggle(style.name);
+          onNavigate(style.slug);
+        }}
+        aria-label={`Open the ${style.name} dashboard`}
       />
       <span className="row">
         <span className="spot" aria-hidden="true" />
