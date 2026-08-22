@@ -37,10 +37,9 @@ export default function StyleRow({ style, index, checked, onToggle }: Props) {
         <StyleChip style={style} />
         <span className="body">
           <span className="name">{style.name}</span>
-          <span className="note">{style.note}</span>
-          <span className="flavor">{style.flavor}</span>
+          <span className="desc">{style.desc}</span>
+          <span className="tag">{style.tag}</span>
         </span>
-        <span className="tech">{style.tech}</span>
         <span className="check" aria-hidden="true" />
       </span>
     </label>

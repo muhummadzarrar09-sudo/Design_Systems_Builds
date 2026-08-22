@@ -1,6 +1,6 @@
 # Design Language Pills — Design Systems Builds
 
-A pure-black, gold-accented multi-select picker. **Hover a pill and it becomes the design style it names** — brushed metal, blunt flat, ripples, frost, squish and silence. All hand-rolled CSS, no images, no UI libraries.
+A pure-black, muted-brass-accented multi-select picker. **Hover a pill and it becomes the design style it names** — brushed metal, blunt flat, ripples, frost, squish and silence. All hand-rolled CSS, no images, no UI libraries.
 
 Built with **Next.js (App Router) + Node**, styled with CSS variables and `:has()`.
 
@@ -51,7 +51,7 @@ legacy/
 
 1. **Skeuomorphism** — brushed-metal texture + looping gloss sweep, pressed-brass checked state
 2. **Flat design** — blunt warm-white card, black rules, zero shadows, slamming edge bar
-3. **Material Design** — elevation lift + looping gold ripple + bobbing FAB
+3. **Material Design** — elevation lift + looping ripple + bobbing FAB
 4. **Neumorphism (soft UI)** — dual soft shadows, 26px radius, gentle float; checked = inset "on"
 5. **Glassmorphism** — `backdrop-filter` frost + endlessly sweeping sheen
 6. **Claymorphism** — terracotta blob, breathing `border-radius` + squish loop; checked stays clay, never stuck squashed
