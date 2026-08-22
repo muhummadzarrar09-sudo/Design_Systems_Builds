@@ -153,10 +153,65 @@ button {
 }
 
 /* ---------- 4. LAYOUT + HERO ---------- */
+/* ---------- 3b. SITE NAV ---------- */
+.site-nav {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 18px 24px 10px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.92), rgba(0, 0, 0, 0.55) 70%, transparent);
+}
+.site-nav__brand {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent-2);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+}
+.site-nav__brand span {
+  margin-left: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-faint);
+}
+.site-nav__links {
+  display: flex;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.site-nav__links a {
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  text-decoration: none;
+  border-radius: 999px;
+  transition: color 0.2s, background 0.2s;
+}
+.site-nav__links a:hover {
+  color: var(--text);
+}
+.site-nav__links a.is-on {
+  color: var(--accent-2);
+  background: rgba(184, 146, 92, 0.08);
+}
+
 .wrap {
   max-width: 1120px;
   margin: 0 auto;
-  padding: 64px 24px 170px; /* bottom room for the sticky bar */
+  padding: 36px 24px 80px;
 }
 
 .hero {
@@ -1507,7 +1562,8 @@ h1 {
   color: var(--dash-accent-2);
 }
 
-.dash-main {
+.dash-main,
+.dash-body {
   flex: 1;
   min-width: 0;
   padding: 30px 34px;
@@ -2436,7 +2492,8 @@ h1 {
   .dash-panels {
     grid-template-columns: 1fr;
   }
-  .dash-main {
+  .dash-main,
+  .dash-body {
     padding: 22px 18px;
   }
 }
@@ -2460,8 +2517,14 @@ h1 {
 }
 
 @media (max-width: 640px) {
+  .go {
+    display: none;
+  }
+  .site-nav {
+    padding-inline: 16px;
+  }
   .wrap {
-    padding: 40px 16px 150px;
+    padding: 28px 16px 80px;
   }
   .num {
     width: 26px;

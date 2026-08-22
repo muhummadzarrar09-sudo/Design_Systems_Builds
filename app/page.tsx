@@ -3,15 +3,11 @@
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Background from "@/components/Background";
+import SiteNav from "@/components/SiteNav";
 import StyleRow from "@/components/StyleRow";
 import StyleLoader from "@/components/StyleLoader";
 import { STYLES, type StyleMeta } from "@/lib/styles";
 
-/**
- * The picker. One choice → that style's loader → its Mission Control.
- * Hover still previews the look; multi-select is gone (radios, not
- * checkboxes), so the summary bar is gone with it.
- */
 export default function Home() {
   const router = useRouter();
   const [launching, setLaunching] = useState<StyleMeta | null>(null);
@@ -36,39 +32,25 @@ export default function Home() {
         />
       )}
 
+      <SiteNav active="home" />
+
       <main className="wrap">
         <header className="hero">
-          <div className="hero__row">
-            <span className="mark" aria-hidden="true">
-              Z
-            </span>
-            <p className="kicker">Design Systems Builds · personal edition</p>
-          </div>
+          <p className="kicker">Seven systems · one mission</p>
 
           <h1>
             Pick a <span className="grad">design language</span>.
           </h1>
           <p className="sub">
-            Seven design systems, one Mission Control dashboard.{" "}
-            <strong>Pick one</strong> and its loader hands you off to the
-            dashboard coded in that system — brushed metal, blunt flat,
-            ripples, frost, squish or silence. Built with{" "}
-            <strong>Next.js</strong> on Node, styled with hand-rolled CSS on a
-            pure <strong>#000000</strong> canvas.
+            Hover a pill and it <strong>becomes the system it names</strong> —
+            metal, blunt color, elevation, soft UI, frost, clay, or silence.
+            Pick one and you enter Mission Control, built in that language.
+            Not a theme toggle. Seven different products.
           </p>
           <ul className="hint">
-            <li>pick one to launch its dashboard</li>
-            <li>hover to preview the look</li>
+            <li>hover to preview the physics</li>
+            <li>pick one to launch</li>
             <li>Tab + Space works too</li>
-            <li>
-              <a href="/inspo">inspo board →</a>
-            </li>
-            <li>
-              <a href="/states">states spec →</a>
-            </li>
-            <li>
-              <a href="/lab">state lab →</a>
-            </li>
           </ul>
         </header>
 
@@ -79,6 +61,10 @@ export default function Home() {
             <StyleRow key={style.slug} style={style} index={i} onPick={pick} />
           ))}
         </fieldset>
+
+        <p className="footnote">
+          Hand-rolled CSS · no UI libraries · personal edition by <b>Z</b>
+        </p>
       </main>
     </>
   );

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { INSPOS } from "@/lib/inspo";
+import SiteNav from "@/components/SiteNav";
 
 export const metadata: Metadata = {
   title: "Inspiration board — Design Systems Builds",
@@ -10,14 +11,11 @@ export const metadata: Metadata = {
 
 export default function InspoPage() {
   return (
+    <>
+    <SiteNav active="inspo" />
     <main className="wrap">
       <header className="hero">
-        <div className="hero__row">
-          <span className="mark" aria-hidden="true">
-            Z
-          </span>
-          <p className="kicker">Inspiration board</p>
-        </div>
+        <p className="kicker">Inspiration board</p>
 
         <h1>
           One brief, <span className="grad">seven styles</span>.
@@ -61,5 +59,6 @@ export default function InspoPage() {
         language for the real builds
       </p>
     </main>
+    </>
   );
 }

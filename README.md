@@ -36,14 +36,17 @@ app/
   dash/[slug]/      # Mission Control per design language (+ loading.tsx handoff)
   globals.css       # tokens + per-style hover/checked states + §12 viewport + §13 loaders
 components/
+  SiteNav.tsx       # languages / spec / lab / inspo
   Background.tsx    # ambient glows + grain + cursor spotlight (delegated)
-  StyleRow.tsx      # one pill: label > hidden radio + styled row (single select)
+  StyleRow.tsx      # one pill: radio + launch affordance
   StyleChip.tsx     # per-style idle mini-icon (pure CSS pseudo-elements)
   StyleLoader.tsx   # the loading state speaks its design language (7 skins)
   SpaceViewport.tsx # Earth + Aurora-9 orbit + nebula, re-skinned 7 ways
-  MissionDashboard.tsx / MissionClock.tsx / TrajectoryChart.tsx / LabDemo.tsx
+  MissionDashboard.tsx / Instruments.tsx / MissionClock.tsx / TrajectoryChart.tsx / LabDemo.tsx
 lib/
   styles.ts         # the seven design languages, in order
+  mission.ts        # crew, logs, nav
+  telemetry.ts      # live-feeling Aurora-9 readouts
 ```
 
 ## The seven pills (hover to see each become itself)
