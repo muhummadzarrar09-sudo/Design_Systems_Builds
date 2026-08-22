@@ -1,0 +1,1329 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="description" content="A pure-black, gold-accented multi-select pill list where hovering each pill makes it become the design style it names — hand-rolled CSS, no images.">
+<title>Z's design language pills — Design Systems Builds</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23e8a53c'/%3E%3Ctext x='32' y='46' font-family='Arial, sans-serif' font-size='38' font-weight='700' text-anchor='middle' fill='%23000000'%3EZ%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   1. TOKENS — pure black canvas, black & gold palette
+   ============================================================ */
+:root {
+  color-scheme: dark;
+
+  /* surfaces — every base is #000000 */
+  --bg:        #000000;
+  --bg-soft:   #0a0a0d;
+  --surface:   #101013;
+  --surface-2: #181820;
+
+  /* lines & text */
+  --line:          rgba(255, 255, 255, .07);
+  --line-strong:   rgba(255, 255, 255, .15);
+  --text:          #f3efe6;   /* warm white  */
+  --text-dim:      #a49d90;   /* warm gray   */
+  --text-faint:    #575249;
+
+  /* accents — gold family, zero neon */
+  --accent:      #e8a53c;
+  --accent-2:    #f5c15c;
+  --accent-deep: #b97e1f;
+  --teal:        #2ba89e;
+  --clay:        #e07a5f;
+
+  /* motion & shape */
+  --radius:      18px;
+  --ease-out:    cubic-bezier(.22, 1, .36, 1);
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+
+  /* type */
+  --font-body:    "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+}
+
+/* ============================================================
+   2. RESET + BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);   /* true #000000 */
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: rgba(232, 165, 60, .35); color: #fff; }
+
+::-webkit-scrollbar { width: 11px; }
+::-webkit-scrollbar-track { background: #000; }
+::-webkit-scrollbar-thumb {
+  background: #23232b;
+  border-radius: 8px;
+  border: 3px solid #000;
+}
+::-webkit-scrollbar-thumb:hover { background: #3a3a45; }
+
+fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+button { font: inherit; }
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ============================================================
+   3. BACKGROUND — pure black + faint warm ambience + grain
+   ============================================================ */
+.bg {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background: #000;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  will-change: transform;
+}
+
+/* barely-there warmth — never neon, never blue */
+.orb--a {
+  width: 46vmax; height: 46vmax;
+  left: -16vmax; top: -18vmax;
+  background: radial-gradient(circle at 32% 32%, #7a5a14, transparent 62%);
+  opacity: .13;
+  animation: orbDriftA 30s ease-in-out infinite alternate;
+}
+
+.orb--b {
+  width: 38vmax; height: 38vmax;
+  right: -14vmax; top: 26vh;
+  background: radial-gradient(circle at 62% 40%, #3d1420, transparent 62%);
+  opacity: .22;
+  animation: orbDriftB 36s ease-in-out infinite alternate;
+}
+
+.orb--c {
+  width: 34vmax; height: 34vmax;
+  left: 32vw; bottom: -20vmax;
+  background: radial-gradient(circle, #6b4a0d, transparent 62%);
+  opacity: .1;
+  animation: orbDriftA 42s ease-in-out infinite alternate-reverse;
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+}
+
+/* ============================================================
+   4. LAYOUT + HERO
+   ============================================================ */
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 64px 24px 170px; /* bottom room for the sticky bar */
+}
+
+.hero { max-width: 780px; }
+
+.hero__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* personal monogram */
+.mark {
+  flex: none;
+  width: 42px; height: 42px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 21px;
+  color: #14110c;
+  background: linear-gradient(135deg, var(--accent-2), var(--accent-deep));
+  border-radius: 12px;
+  box-shadow:
+    0 0 0 1px rgba(232, 165, 60, .45),
+    0 10px 26px -8px rgba(232, 165, 60, .55),
+    inset 0 1px 0 rgba(255, 255, 255, .55);
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 6px 12px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  border: 1px solid rgba(232, 165, 60, .3);
+  border-radius: 999px;
+  background: rgba(232, 165, 60, .06);
+}
+
+.kicker::before {
+  content: "";
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+  animation: blink 2.4s ease-in-out infinite;
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(2.5rem, 6vw, 4.2rem);
+  line-height: 1.04;
+  letter-spacing: -.025em;
+}
+
+.grad {
+  background: linear-gradient(92deg, var(--accent-2) 5%, var(--accent) 55%, var(--accent-deep) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.sub {
+  margin: 18px 0 0;
+  max-width: 60ch;
+  font-size: 16.5px;
+  color: var(--text-dim);
+}
+
+.sub strong { color: var(--text); font-weight: 600; }
+
+.hint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 22px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hint li {
+  font-size: 12px;
+  color: var(--text-faint);
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .02);
+}
+
+/* ============================================================
+   5. THE VERTICAL PILL LIST
+   ============================================================ */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 44px;
+  max-width: 860px;
+}
+
+.option {
+  position: relative;
+  display: block;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  animation: rowIn .8s var(--ease-spring) both;
+  animation-delay: calc(var(--i) * 90ms);
+}
+
+/* the real hit-target: an invisible checkbox stretched over the pill */
+.option input {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* -------- the pill row itself -------- */
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 92px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  transition:
+    translate .5s var(--ease-spring),
+    scale .5s var(--ease-spring),
+    box-shadow .45s var(--ease-out),
+    background-color .45s var(--ease-out),
+    border-color .4s var(--ease-out),
+    border-radius .6s var(--ease-out),
+    filter .2s;
+  will-change: transform;
+}
+
+/* decorative layers sit under the content */
+.row::before,
+.row::after {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
+}
+
+/* content sits above every style layer */
+.row > * { position: relative; z-index: 1; }
+
+/* cursor-following gold spotlight */
+.spot {
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .35s;
+  background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 50%), rgba(232, 165, 60, .1), transparent 65%);
+}
+.option:hover .spot,
+.option:focus-within .spot { opacity: 1; }
+
+/* -------- row pieces -------- */
+.num {
+  flex: none;
+  width: 34px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  color: var(--text-faint);
+  transition: color .35s, opacity .35s;
+}
+
+.chip {
+  flex: none;
+  width: 46px; height: 46px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  transition: all .5s var(--ease-out);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.name {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: .01em;
+  transition: color .3s, letter-spacing .45s, text-shadow .3s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.note {
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--accent);
+  transition: color .35s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tech {
+  flex: none;
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .13em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  transition: color .35s, opacity .35s;
+}
+
+/* -------- selection -------- */
+.option:has(input:checked) .row {
+  outline: 1.5px solid rgba(232, 165, 60, .85);
+  outline-offset: 2px;
+  scale: .985;
+}
+.option:has(input:checked):hover .row,
+.option:has(input:checked):focus-within .row { scale: 1; }
+
+.option input:focus-visible + .row {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+}
+
+.option:active .row { filter: brightness(.92); }
+
+.option:has(input:checked):not(:hover):not(:focus-within) .row .name { color: var(--accent-2); }
+.option:has(input:checked) .row .num { color: var(--accent); }
+
+/* check badge + select ping */
+.check {
+  flex: none;
+  position: relative;
+  width: 24px; height: 24px;
+  display: grid;
+  place-items: center;
+  border: 1.5px solid var(--line-strong);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, .35);
+  transition:
+    background .25s,
+    border-color .25s,
+    box-shadow .25s,
+    transform .35s var(--ease-spring);
+}
+
+.check::before {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-2);
+  opacity: 0;
+}
+
+.check::after {
+  content: "";
+  width: 9px; height: 5px;
+  border-left: 2px solid #14110c;
+  border-bottom: 2px solid #14110c;
+  transform: rotate(-45deg) translate(1px, -1px) scale(0);
+  transition: transform .25s var(--ease-spring);
+}
+
+.option:has(input:checked) .check {
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  border-color: transparent;
+  box-shadow: 0 4px 14px rgba(232, 165, 60, .5);
+  transform: scale(1.06);
+}
+.option:has(input:checked) .check::before { animation: checkPing .55s ease-out; }
+.option:has(input:checked) .check::after {
+  transform: rotate(-45deg) translate(1px, -1px) scale(1);
+}
+
+/* ============================================================
+   6. PER-STYLE IDLE CHIPS (mini icons, all CSS)
+   ============================================================ */
+
+/* --- skeuo: brass bevel button ------------------------------- */
+.option--skeu .chip {
+  background: linear-gradient(180deg, #f2c66d, #cf8f2b 55%, #8a5a12);
+  border: 1px solid rgba(0, 0, 0, .5);
+  border-radius: 10px;
+  box-shadow:
+    inset 0 2px 3px rgba(255, 255, 255, .5),
+    inset 0 -4px 8px rgba(0, 0, 0, .5),
+    0 6px 12px rgba(0, 0, 0, .6);
+}
+.option--skeu .chip::after {
+  content: "";
+  position: absolute;
+  inset: 3px 3px auto 3px;
+  height: 38%;
+  border-radius: 7px 7px 3px 3px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .7), rgba(255, 255, 255, 0));
+}
+
+/* --- flat: blunt warm-white block ----------------------------- */
+.option--flat .chip {
+  background: #f2f0ea;
+  border: none;
+  border-radius: 4px;
+  box-shadow: none;
+}
+.option--flat .chip::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 14px; height: 14px;
+  border-radius: 2px;
+  background: #14110c;
+  transition: background .4s;
+}
+
+/* --- material: elevated teal tile + FAB ------------------------ */
+.option--mat .chip {
+  background: linear-gradient(180deg, #35b3a8, #1f8f86);
+  border: none;
+  border-radius: 8px;
+  box-shadow:
+    0 2px 2px rgba(0, 0, 0, .3),
+    0 4px 8px rgba(0, 0, 0, .4),
+    0 10px 18px rgba(0, 0, 0, .5);
+}
+.option--mat .chip::after {
+  content: "";
+  position: absolute;
+  right: -6px; bottom: -6px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  background: #f5f2ea;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .5);
+}
+
+/* --- neumorph: soft dual-shadow circle -------------------------- */
+.option--neu .chip {
+  background: #121216;
+  border: none;
+  border-radius: 50%;
+  box-shadow:
+    -6px -6px 12px rgba(255, 255, 255, .045),
+    6px 6px 12px rgba(0, 0, 0, .8);
+}
+
+/* --- glass: frosted panel --------------------------------------- */
+.option--glass .chip {
+  background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(255, 255, 255, .22);
+  border-radius: 14px;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, .5),
+    inset 0 1px 0 rgba(255, 255, 255, .22);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+.option--glass .chip::after {
+  content: "";
+  position: absolute;
+  left: 6px; right: 6px; top: 6px;
+  height: 22%;
+  border-radius: 8px 8px 4px 4px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .3), transparent);
+}
+
+/* --- clay: terracotta polymer blob ------------------------------- */
+.option--clay .chip {
+  background: linear-gradient(145deg, #f0a28a, #e07a5f 55%, #b4553f);
+  border: 2px solid rgba(255, 255, 255, .35);
+  box-shadow:
+    0 10px 18px rgba(224, 122, 95, .3),
+    inset 0 -6px 10px rgba(0, 0, 0, .2),
+    inset 0 5px 8px rgba(255, 255, 255, .28);
+  animation: clayMorph 8s ease-in-out infinite alternate;
+}
+
+/* --- minimal: a single dot ---------------------------------------- */
+.option--mini .chip {
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+.option--mini .chip::after {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  transition:
+    width .4s var(--ease-out),
+    height .4s var(--ease-out),
+    border-radius .4s,
+    background .4s;
+}
+.option--mini:hover .chip::after,
+.option--mini:focus-within .chip::after {
+  width: 2px; height: 14px;
+  border-radius: 2px;
+  background: var(--accent);
+}
+
+/* ============================================================
+   7. PER-STYLE HOVER — the pill BECOMES the style it names
+   ============================================================ */
+
+/* ---------- SKEUOMORPHISM: brushed metal + looping gloss --------- */
+.option--skeu .row::before {
+  background-image:
+    linear-gradient(180deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, 0) 34%, rgba(0, 0, 0, .38)),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, .02) 0 1px, rgba(0, 0, 0, 0) 1px 3px),
+    linear-gradient(180deg, #3d3a33, #262420 45%, #171512);
+  opacity: 0;
+  transition: opacity .45s;
+}
+
+.option--skeu .row::after {
+  top: -30%; bottom: -30%;
+  width: 40%;
+  background: linear-gradient(105deg, transparent 10%, rgba(255, 255, 255, .16) 50%, transparent 90%);
+  transform: translateX(-180%) skewX(-8deg);
+}
+
+.option--skeu:hover .row::before,
+.option--skeu:focus-within .row::before,
+.option--skeu:has(input:checked) .row::before { opacity: 1; }
+
+.option--skeu:hover .row::after,
+.option--skeu:focus-within .row::after { animation: skeuShine 1.6s linear infinite; }
+
+.option--skeu:hover .row,
+.option--skeu:focus-within .row {
+  border-color: rgba(255, 255, 255, .2);
+  translate: 0 -2px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .26),
+    inset 0 0 0 1px rgba(0, 0, 0, .4),
+    inset 0 -14px 22px -10px rgba(0, 0, 0, .6),
+    0 18px 30px -18px rgba(0, 0, 0, .9);
+}
+.option--skeu:hover .row .name,
+.option--skeu:focus-within .row .name { color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .7); }
+.option--skeu:hover .row .note,
+.option--skeu:focus-within .row .note { color: #f0c66b; }
+.option--skeu:hover .row .tech,
+.option--skeu:focus-within .row .tech { color: #8f8878; }
+.option--skeu:hover .row .num,
+.option--skeu:focus-within .row .num { color: #bdb29a; }
+
+.option--skeu:hover .chip,
+.option--skeu:focus-within .chip { transform: rotate(-5deg) scale(1.08); }
+
+/* selected = pressed brass toggle (texture stays on, no lift) */
+.option--skeu:has(input:checked) .row {
+  translate: 0 1px;
+  box-shadow:
+    inset 0 2px 8px rgba(0, 0, 0, .65),
+    inset 0 0 0 1px rgba(0, 0, 0, .45),
+    0 2px 6px rgba(0, 0, 0, .6);
+}
+.option--skeu:has(input:checked) .row .name { color: #fff; text-shadow: 0 1px 2px rgba(0, 0, 0, .7); }
+.option--skeu:has(input:checked) .row .note { color: #e8c06a; }
+.option--skeu:hover:has(input:checked) .row { translate: 0 -1px; }
+
+/* ---------- FLAT DESIGN: blunt, shadowless, zero depth ---------- */
+.option--flat .row::after {
+  left: 0; top: 0; bottom: 0;
+  width: 5px;
+  background: #14110c;
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform .4s var(--ease-out);
+}
+
+.option--flat:hover .row,
+.option--flat:focus-within .row {
+  background: #f2f0ea;
+  border-color: #f2f0ea;
+  border-radius: 10px;
+  translate: 0 -1px;
+  box-shadow: 0 16px 32px -16px rgba(242, 240, 234, .5);
+}
+.option--flat:hover .row::after,
+.option--flat:focus-within .row::after { transform: scaleY(1); }
+
+.option--flat:hover .row .name,
+.option--flat:focus-within .row .name { color: #14110c; }
+.option--flat:hover .row .note,
+.option--flat:focus-within .row .note { color: rgba(20, 17, 12, .82); }
+.option--flat:hover .row .tech,
+.option--flat:focus-within .row .tech { color: rgba(20, 17, 12, .6); }
+.option--flat:hover .row .num,
+.option--flat:focus-within .row .num { color: rgba(20, 17, 12, .55); }
+
+.option--flat:hover .chip,
+.option--flat:focus-within .chip { background: #14110c; transform: scale(1.04); }
+.option--flat:hover .chip::after,
+.option--flat:focus-within .chip::after { background: #f2f0ea; }
+
+/* selected = pressed: flat designs simply darken */
+.option--flat:has(input:checked) .row {
+  background: #dcd8cc;
+  border-color: #dcd8cc;
+}
+.option--flat:has(input:checked) .row .name { color: #14110c; }
+.option--flat:has(input:checked) .row .note { color: rgba(20, 17, 12, .82); }
+.option--flat:has(input:checked) .row .tech { color: rgba(20, 17, 12, .6); }
+.option--flat:has(input:checked) .row .num { color: rgba(20, 17, 12, .55); }
+
+/* ---------- MATERIAL DESIGN: elevation + looping ripple --------- */
+.option--mat .row::after {
+  left: 50%; top: 50%;
+  width: 130%; height: 130%;
+  border-radius: 50%;
+  background: rgba(232, 165, 60, .2);
+  transform: translate(-50%, -50%) scale(0);
+  opacity: 0;
+}
+.option--mat:hover .row::after,
+.option--mat:focus-within .row::after { animation: ripple .9s var(--ease-out) infinite; }
+
+.option--mat:hover .row,
+.option--mat:focus-within .row {
+  background-color: #1b1d24;
+  border-color: transparent;
+  translate: 0 -3px;
+  box-shadow:
+    0 2px 2px -2px rgba(0, 0, 0, .5),
+    0 4px 6px -2px rgba(0, 0, 0, .6),
+    0 14px 30px -6px rgba(0, 0, 0, .85),
+    0 0 0 1px rgba(255, 255, 255, .04);
+}
+.option--mat:hover .row .name,
+.option--mat:focus-within .row .name { color: #fff; }
+.option--mat:hover .row .note,
+.option--mat:focus-within .row .note { color: #b3b9c3; }
+.option--mat:hover .row .tech,
+.option--mat:focus-within .row .tech { color: #757c88; }
+
+.option--mat:hover .chip,
+.option--mat:focus-within .chip { animation: materialBob 1.1s ease-in-out infinite; }
+
+/* selected = pressed button: elevation collapses */
+.option--mat:has(input:checked) .row {
+  translate: 0;
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, .4),
+    0 2px 4px rgba(0, 0, 0, .5);
+}
+.option--mat:hover:has(input:checked) .row { translate: 0 -2px; }
+
+/* ---------- NEUMORPHISM: extruded soft UI, floating --------------- */
+.option--neu:hover .row,
+.option--neu:focus-within .row {
+  background-color: #121216;
+  border-color: transparent;
+  border-radius: 26px;
+  translate: 0 -1px;
+  box-shadow:
+    -12px -12px 24px rgba(255, 255, 255, .045),
+    12px 12px 28px rgba(0, 0, 0, .85);
+  animation: neuFloat 2.6s ease-in-out infinite;
+}
+.option--neu:hover .row .name,
+.option--neu:focus-within .row .name { color: #f3efe6; }
+.option--neu:hover .row .note,
+.option--neu:focus-within .row .note { color: #9a9da6; }
+.option--neu:hover .row .tech,
+.option--neu:focus-within .row .tech { color: #565a63; }
+
+.option--neu:hover .chip,
+.option--neu:focus-within .chip { scale: 1.18; }
+
+/* selected = pressed INTO the canvas (inset = "on") */
+.option--neu:has(input:checked) .row {
+  border-radius: 26px;
+  translate: none;
+  box-shadow:
+    inset -8px -8px 18px rgba(255, 255, 255, .03),
+    inset 8px 8px 20px rgba(0, 0, 0, .85);
+}
+.option--neu:hover:has(input:checked) .row { translate: 0 -1px; }
+
+/* ---------- GLASSMORPHISM: frosted panel + looping sheen ---------- */
+.option--glass .row::after {
+  top: -30%; bottom: -30%;
+  width: 44%;
+  background: linear-gradient(100deg, transparent 15%, rgba(255, 255, 255, .12) 50%, rgba(255, 255, 255, .2) 55%, transparent 85%);
+  transform: translateX(-200%) skewX(-10deg);
+}
+.option--glass:hover .row::after,
+.option--glass:focus-within .row::after { animation: glassSheen 2.4s linear infinite; }
+
+.option--glass:hover .row,
+.option--glass:focus-within .row {
+  background: rgba(255, 255, 255, .055);
+  border-color: rgba(255, 255, 255, .22);
+  translate: 0 -2px;
+  -webkit-backdrop-filter: blur(16px) saturate(160%);
+  backdrop-filter: blur(16px) saturate(160%);
+  box-shadow:
+    0 16px 40px -12px rgba(0, 0, 0, .8),
+    inset 0 1px 0 rgba(255, 255, 255, .14);
+}
+.option--glass:hover .row .name,
+.option--glass:focus-within .row .name { color: #fff; }
+.option--glass:hover .row .note,
+.option--glass:focus-within .row .note { color: rgba(243, 239, 230, .72); }
+.option--glass:hover .row .tech,
+.option--glass:focus-within .row .tech { color: rgba(243, 239, 230, .5); }
+
+/* selected = more visible frost */
+.option--glass:has(input:checked) .row {
+  background: rgba(255, 255, 255, .12);
+  border-color: rgba(255, 255, 255, .38);
+}
+.option--glass:hover:has(input:checked) .row { translate: 0 -2px; }
+
+/* ---------- CLAYMORPHISM: squishy blob, breathing corners --------- */
+.option--clay .row::before {
+  background: linear-gradient(145deg, #f0a28a, #e07a5f 55%, #b4553f);
+  opacity: 0;
+  transition: opacity .45s;
+}
+
+.option--clay:hover .row::before,
+.option--clay:focus-within .row::before,
+.option--clay:has(input:checked) .row::before { opacity: 1; }
+
+.option--clay:hover .row,
+.option--clay:focus-within .row {
+  border-color: rgba(255, 255, 255, .3);
+  box-shadow:
+    0 18px 30px -12px rgba(224, 122, 95, .4),
+    inset 0 -10px 18px rgba(0, 0, 0, .25),
+    inset 0 8px 14px rgba(255, 255, 255, .22);
+  animation:
+    clayMorph 6s ease-in-out infinite alternate,
+    claySquish 3.2s ease-in-out infinite;
+}
+.option--clay:hover .row .name,
+.option--clay:focus-within .row .name { color: #fff; }
+.option--clay:hover .row .note,
+.option--clay:focus-within .row .note { color: #fff3ea; }
+.option--clay:hover .row .tech,
+.option--clay:focus-within .row .tech { color: rgba(255, 255, 255, .72); }
+.option--clay:hover .row .num,
+.option--clay:focus-within .row .num { color: rgba(255, 255, 255, .85); }
+
+/* selected = STAYS terracotta, breathes gently — no squish, no fade */
+.option--clay:has(input:checked) .row {
+  translate: none;
+  transform: none;
+  box-shadow:
+    inset 0 -8px 16px rgba(0, 0, 0, .22),
+    inset 0 6px 12px rgba(255, 255, 255, .2),
+    0 6px 14px rgba(224, 122, 95, .25);
+  animation: clayMorph 8s ease-in-out infinite alternate;
+}
+.option--clay:has(input:checked) .row .name { color: #fff; }
+.option--clay:has(input:checked) .row .note { color: #fff3ea; }
+.option--clay:has(input:checked) .row .tech { color: rgba(255, 255, 255, .72); }
+.option--clay:has(input:checked) .row .num { color: rgba(255, 255, 255, .85); }
+.option--clay:hover:has(input:checked) .row {
+  animation:
+    clayMorph 6s ease-in-out infinite alternate,
+    claySquish 3.2s ease-in-out infinite;
+}
+
+/* ---------- MINIMALISM: one underline, nothing else --------------- */
+.option--mini .name {
+  position: relative;
+  display: inline-block;
+}
+.option--mini .name::after {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; bottom: -5px;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .55s var(--ease-out);
+}
+.option--mini:hover .name::after,
+.option--mini:focus-within .name::after { transform: scaleX(1); }
+
+.option--mini:hover .row,
+.option--mini:focus-within .row {
+  background: transparent;
+  border-color: transparent;
+  border-radius: 10px;
+  box-shadow: none;
+  translate: none;
+}
+.option--mini:hover .name,
+.option--mini:focus-within .name {
+  color: var(--accent);
+  letter-spacing: .05em;
+}
+.option--mini:hover .note,
+.option--mini:focus-within .note { color: var(--text-faint); }
+.option--mini:hover .num,
+.option--mini:focus-within .num,
+.option--mini:hover .chip,
+.option--mini:focus-within .chip,
+.option--mini:hover .tech,
+.option--mini:focus-within .tech { opacity: 0; }
+
+/* ============================================================
+   8. STICKY SUMMARY BAR
+   ============================================================ */
+.bar {
+  position: sticky;
+  bottom: 16px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 48px;
+  padding: 12px 14px 12px 18px;
+  background: rgba(8, 8, 10, .85);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 18px 44px -14px rgba(0, 0, 0, .9);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.bar__count {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+.bar__count strong {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 22px;
+  color: var(--accent-2);
+}
+
+.bar__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex: 1;
+  min-width: 200px;
+}
+
+.bar__empty {
+  font-size: 12.5px;
+  color: var(--text-faint);
+  font-style: italic;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 11px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--accent-2);
+  background: rgba(232, 165, 60, .12);
+  border: 1px solid rgba(232, 165, 60, .35);
+  border-radius: 999px;
+  cursor: pointer;
+  animation: pillIn .3s var(--ease-spring) both;
+  transition: background .2s, transform .2s var(--ease-spring);
+}
+.pill:hover { background: rgba(232, 165, 60, .25); }
+.pill:active { transform: scale(.94); }
+.pill span { font-size: 13px; opacity: .65; line-height: 1; }
+
+.bar__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn {
+  padding: 9px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: filter .2s, transform .2s var(--ease-spring), box-shadow .2s, background .2s, border-color .2s, color .2s;
+}
+.btn:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+
+.btn--primary {
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  border: none;
+  color: #14110c;
+  box-shadow: 0 6px 16px -6px rgba(232, 165, 60, .65);
+}
+.btn--primary:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+.btn--primary:active { transform: translateY(0) scale(.98); }
+
+.btn--ghost {
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--text-dim);
+}
+.btn--ghost:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, .04);
+  border-color: rgba(255, 255, 255, .28);
+}
+.btn--ghost:active { transform: scale(.98); }
+
+.footnote {
+  margin: 22px 4px 0;
+  font-size: 12px;
+  color: var(--text-faint);
+  text-align: center;
+}
+.footnote b { color: var(--text-dim); font-weight: 600; }
+
+/* ============================================================
+   9. KEYFRAMES + MOTION SAFETY
+   ============================================================ */
+@keyframes rowIn {
+  from { opacity: 0; transform: translateX(-46px); filter: blur(8px); }
+  to   { opacity: 1; transform: none; filter: none; }
+}
+
+@keyframes orbDriftA {
+  from { transform: translate3d(0, 0, 0) rotate(0deg); }
+  to   { transform: translate3d(6vw, 4vh, 0) rotate(18deg); }
+}
+
+@keyframes orbDriftB {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(-5vw, 6vh, 0) scale(1.18); }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: .35; }
+}
+
+@keyframes checkPing {
+  0%   { opacity: .9; transform: scale(.6); }
+  100% { opacity: 0;  transform: scale(1.35); }
+}
+
+@keyframes ripple {
+  from { transform: translate(-50%, -50%) scale(0);    opacity: .45; }
+  to   { transform: translate(-50%, -50%) scale(1.05); opacity: 0;  }
+}
+
+@keyframes skeuShine {
+  from { transform: translateX(-180%) skewX(-8deg); }
+  to   { transform: translateX(480%)  skewX(-8deg); }
+}
+
+@keyframes glassSheen {
+  from { transform: translateX(-200%) skewX(-10deg); }
+  to   { transform: translateX(520%)  skewX(-10deg); }
+}
+
+@keyframes materialBob {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -3px; }
+}
+
+@keyframes neuFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}
+
+@keyframes clayMorph {
+  0%   { border-radius: 52% 48% 55% 45% / 48% 52% 45% 55%; }
+  50%  { border-radius: 45% 55% 48% 52% / 56% 44% 55% 45%; }
+  100% { border-radius: 55% 45% 50% 50% / 44% 56% 45% 55%; }
+}
+
+@keyframes claySquish {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50%      { transform: translateY(-2px) scale(1.012); }
+}
+
+@keyframes pillIn {
+  from { opacity: 0; transform: translateY(6px) scale(.9); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01s !important;
+  }
+}
+
+/* ============================================================
+   10. SMALL SCREENS
+   ============================================================ */
+@media (max-width: 760px) {
+  .tech { display: none; }
+  .row { gap: 14px; padding: 15px 16px; min-height: 84px; }
+}
+
+@media (max-width: 640px) {
+  .wrap { padding: 40px 16px 150px; }
+  .num { width: 26px; }
+  .chip { width: 42px; height: 42px; }
+  .bar { flex-direction: column; align-items: stretch; }
+  .bar__actions { justify-content: stretch; }
+  .btn { flex: 1; }
+}
+</style>
+</head>
+<body>
+
+<div class="bg" aria-hidden="true">
+  <i class="orb orb--a"></i>
+  <i class="orb orb--b"></i>
+  <i class="orb orb--c"></i>
+  <i class="grain"></i>
+</div>
+
+<main class="wrap">
+
+  <header class="hero">
+    <div class="hero__row">
+      <span class="mark" aria-hidden="true">Z</span>
+      <p class="kicker">Design Systems Builds · personal edition</p>
+    </div>
+    <h1>Pick your <span class="grad">design language</span>.</h1>
+    <p class="sub">Seven design languages, one pill at a time, top to bottom. <strong>Hover each pill</strong> and it becomes the style it names — brushed metal, blunt flat, ripples, frost, squish and silence. All hand-rolled CSS on a pure <strong>#000000</strong> canvas.</p>
+    <ul class="hint">
+      <li>hover to preview the style</li>
+      <li>click to pick</li>
+      <li>Tab + Space works too</li>
+      <li>your picks are saved</li>
+    </ul>
+  </header>
+
+  <fieldset class="list" id="picker">
+    <legend class="sr-only">Choose your design languages</legend>
+
+    <label class="option option--skeu" style="--i:0">
+      <input type="checkbox" name="style" value="Skeuomorphism">
+      <span class="row">
+        <span class="spot" aria-hidden="true"></span>
+        <span class="num" aria-hidden="true">01</span>
+        <span class="chip" aria-hidden="true"></span>
+        <span class="body">
+          <span class="name">Skeuomorphism</span>
+          <span class="note">my take: the best skeuo alive today lives in audio apps</span>
+        </span>
+        <span class="tech">inset shadows · texture</span>
+        <span class="check" aria-hidden="true"></span>
+      </span>
+    </label>
+
+    <label class="option option--flat" style="--i:1">
+      <input type="checkbox" name="style" value="Flat design">
+      <span class="row">
+        <span class="spot" aria-hidden="true"></span>
+        <span class="num" aria-hidden="true">02</span>
+        <span class="chip" aria-hidden="true"></span>
+        <span class="body">
+          <span class="name">Flat design</span>
+          <span class="note">my take: we survived 2013, some of us miss it</span>
+        </span>
+        <span class="tech">solid colour · zero depth</span>
+        <span class="check" aria-hidden="true"></span>
+      </span>
+    </label>
+
+    <label class="option option--mat" style="--i:2">
+      <input type="checkbox" name="style" value="Material Design">
+      <span class="row">
+        <span class="spot" aria-hidden="true"></span>
+        <span class="num" aria-hidden="true">03</span>
+        <span class="chip" aria-hidden="true"></span>
+        <span class="body">
+          <span class="name">Material Design</span>
+          <span class="note">my take: the ripple is the best micro-interaction ever shipped</span>
+        </span>
+        <span class="tech">elevation · ripple</span>
+        <span class="check" aria-hidden="true"></span>
+      </span>
+    </label>
+
+    <label class="option option--neu" style="--i:3">
+      <input type="checkbox" name="style" value="Neumorphism (soft UI)">
+      <span class="row">
+        <span class="spot" aria-hidden="true"></span>
+        <span class="num" aria-hidden="true">04</span>
+        <span class="chip" aria-hidden="true"></span>
+        <span class="body">
+          <span class="name">Neumorphism (soft UI)</span>
+          <span class="note">my take: divisive, but gorgeous in dashboards</span>
+        </span>
+        <span class="tech">dual shadows · soft UI</span>
+        <span class="check" aria-hidden="true"></span>
+      </span>
+    </label>
+
+    <label class="option option--glass" style="--i:4">
+      <input type="checkbox" name="style" value="Glassmorphism">
+      <span class="row">
+        <span class="spot" aria-hidden="true"></span>
+        <span class="num" aria-hidden="true">05</span>
+        <span class="chip" aria-hidden="true"></span>
+        <span class="body">
+          <span class="name">Glassmorphism</span>
+          <span class="note">my take: frost beats gradients, always</span>
+        </span>
+        <span class="tech">backdrop-filter · frost</span>
+        <span class="check" aria-hidden="true"></span>
+      </span>
+    </label>
+
+    <label class="option option--clay" style="--i:5">
+      <input type="checkbox" name="style" value="Claymorphism">
+      <span class="row">
+        <span class="spot" aria-hidden="true"></span>
+        <span class="num" aria-hidden="true">06</span>
+        <span class="chip" aria-hidden="true"></span>
+        <span class="body">
+          <span class="name">Claymorphism</span>
+          <span class="note">my take: the one that feels like play-doh</span>
+        </span>
+        <span class="tech">morphing corners · squish</span>
+        <span class="check" aria-hidden="true"></span>
+      </span>
+    </label>
+
+    <label class="option option--mini" style="--i:6">
+      <input type="checkbox" name="style" value="Minimalism">
+      <span class="row">
+        <span class="spot" aria-hidden="true"></span>
+        <span class="num" aria-hidden="true">07</span>
+        <span class="chip" aria-hidden="true"></span>
+        <span class="body">
+          <span class="name">Minimalism</span>
+          <span class="note">my take: the hardest style to do well</span>
+        </span>
+        <span class="tech">one underline · nothing else</span>
+        <span class="check" aria-hidden="true"></span>
+      </span>
+    </label>
+
+  </fieldset>
+
+  <footer class="bar" aria-live="polite">
+    <div class="bar__count"><strong id="count">0</strong><span>of 7 picked</span></div>
+    <div class="bar__chips" id="chips"></div>
+    <div class="bar__actions">
+      <button type="button" class="btn btn--primary" id="all">Select all</button>
+      <button type="button" class="btn btn--ghost" id="clear">Clear</button>
+    </div>
+  </footer>
+
+  <p class="footnote">Pure CSS · CSS variables · <code>:has()</code> · <code>backdrop-filter</code> · keyframes · no images · background <b>#000000</b> · vertical pills · hand-built by <b>Z</b> · Rawalpindi, PK</p>
+
+</main>
+
+<script>
+(() => {
+  const boxes   = [...document.querySelectorAll('#picker .option input')];
+  const countEl = document.getElementById('count');
+  const chipsEl = document.getElementById('chips');
+  const allBtn  = document.getElementById('all');
+  const clearBtn = document.getElementById('clear');
+  const KEY = 'ds-picker-selection';
+
+  /* --- cursor-following gold spotlight on every pill --- */
+  document.querySelectorAll('.row').forEach(row => {
+    let raf = null;
+    row.addEventListener('pointermove', e => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        const r = row.getBoundingClientRect();
+        row.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+        row.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+        raf = null;
+      });
+    });
+  });
+
+  /* --- persistence: your picks survive reloads --- */
+  try {
+    const saved = JSON.parse(localStorage.getItem(KEY) || '[]');
+    boxes.forEach(b => { b.checked = saved.includes(b.value); });
+  } catch (e) { /* first visit */ }
+
+  function popCount() {
+    try {
+      countEl.animate(
+        [{ transform: 'scale(1.3)' }, { transform: 'scale(1)' }],
+        { duration: 300, easing: 'cubic-bezier(.34, 1.56, .64, 1)' }
+      );
+    } catch (e) { /* WAAPI unavailable */ }
+  }
+
+  function sync() {
+    const selected = boxes.filter(b => b.checked);
+    countEl.textContent = selected.length;
+    chipsEl.innerHTML = '';
+    popCount();
+
+    try {
+      localStorage.setItem(KEY, JSON.stringify(selected.map(b => b.value)));
+    } catch (e) { /* private mode */ }
+
+    if (selected.length === 0) {
+      const empty = document.createElement('span');
+      empty.className = 'bar__empty';
+      empty.textContent = 'Nothing picked yet — hover a pill, then click it.';
+      chipsEl.appendChild(empty);
+    } else {
+      for (const box of selected) {
+        const pill = document.createElement('button');
+        pill.type = 'button';
+        pill.className = 'pill';
+        pill.setAttribute('aria-label', 'Remove ' + box.value);
+        pill.innerHTML = box.value + ' <span aria-hidden="true">×</span>';
+        pill.addEventListener('click', () => {
+          box.checked = false;
+          sync();
+        });
+        chipsEl.appendChild(pill);
+      }
+    }
+
+    const allChecked = selected.length === boxes.length;
+    allBtn.textContent = allChecked ? 'Clear all' : 'Select all';
+  }
+
+  boxes.forEach(box => box.addEventListener('change', sync));
+  allBtn.addEventListener('click', () => {
+    const allChecked = boxes.every(b => b.checked);
+    boxes.forEach(b => b.checked = !allChecked);
+    sync();
+  });
+  clearBtn.addEventListener('click', () => {
+    boxes.forEach(b => b.checked = false);
+    sync();
+  });
+
+  sync();
+})();
+</script>
+
+</body>
+</html>
