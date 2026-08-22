@@ -1,24 +1,40 @@
 "use client";
 
+import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import Background from "@/components/Background";
 import StyleRow from "@/components/StyleRow";
-import SummaryBar from "@/components/SummaryBar";
-import { useStyleSelection } from "@/hooks/useStyleSelection";
-import { STYLES } from "@/lib/styles";
+import StyleLoader from "@/components/StyleLoader";
+import { STYLES, type StyleMeta } from "@/lib/styles";
 
+/**
+ * The picker. One choice → that style's loader → its Mission Control.
+ * Hover still previews the look; multi-select is gone (radios, not
+ * checkboxes), so the summary bar is gone with it.
+ */
 export default function Home() {
   const router = useRouter();
-  const { selected, ready, toggle, setAll, clear } = useStyleSelection();
+  const [launching, setLaunching] = useState<StyleMeta | null>(null);
 
-  const handleSelectAll = () =>
-    setAll(selected.length === STYLES.length ? [] : STYLES.map((s) => s.name));
+  const pick = useCallback((style: StyleMeta) => {
+    setLaunching(style);
+  }, []);
 
-  const openDashboard = (slug: string) => router.push(`/dash/${slug}`);
+  const enterDashboard = useCallback(() => {
+    if (launching) router.push(`/dash/${launching.slug}`);
+  }, [launching, router]);
 
   return (
     <>
       <Background />
+
+      {launching && (
+        <StyleLoader
+          key={launching.slug}
+          slug={launching.slug}
+          onDone={enterDashboard}
+        />
+      )}
 
       <main className="wrap">
         <header className="hero">
@@ -34,13 +50,14 @@ export default function Home() {
           </h1>
           <p className="sub">
             Seven design systems, one Mission Control dashboard.{" "}
-            <strong>Click a style</strong> and you enter the dashboard coded in
-            that system — brushed metal, blunt flat, ripples, frost, squish or
-            silence. Built with <strong>Next.js</strong> on Node, styled with
-            hand-rolled CSS on a pure <strong>#000000</strong> canvas.
+            <strong>Pick one</strong> and its loader hands you off to the
+            dashboard coded in that system — brushed metal, blunt flat,
+            ripples, frost, squish or silence. Built with{" "}
+            <strong>Next.js</strong> on Node, styled with hand-rolled CSS on a
+            pure <strong>#000000</strong> canvas.
           </p>
           <ul className="hint">
-            <li>click a style to enter its dashboard</li>
+            <li>pick one to launch its dashboard</li>
             <li>hover to preview the look</li>
             <li>Tab + Space works too</li>
             <li>
@@ -56,35 +73,12 @@ export default function Home() {
         </header>
 
         <fieldset className="list" id="picker">
-          <legend className="sr-only">Choose your design languages</legend>
+          <legend className="sr-only">Choose one design language</legend>
 
           {STYLES.map((style, i) => (
-            <StyleRow
-              key={style.slug}
-              style={style}
-              index={i}
-              checked={selected.includes(style.name)}
-              onToggle={toggle}
-              onNavigate={openDashboard}
-            />
+            <StyleRow key={style.slug} style={style} index={i} onPick={pick} />
           ))}
         </fieldset>
-
-        {ready && (
-          <SummaryBar
-            selected={selected}
-            total={STYLES.length}
-            onRemove={toggle}
-            onSelectAll={handleSelectAll}
-            onClear={clear}
-          />
-        )}
-
-        <p className="footnote">
-          Next.js App Router · Node · CSS variables · <code>:has()</code> ·{" "}
-          <code>backdrop-filter</code> · keyframes · no images · background{" "}
-          <b>#000000</b> · hand-built by <b>Z</b> · Rawalpindi, PK
-        </p>
       </main>
     </>
   );

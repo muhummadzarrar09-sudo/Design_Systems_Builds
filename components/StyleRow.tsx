@@ -7,37 +7,26 @@ import StyleChip from "./StyleChip";
 type Props = {
   style: StyleMeta;
   index: number;
-  checked: boolean;
-  onToggle: (name: string) => void;
-  onNavigate: (slug: string) => void;
+  onPick: (style: StyleMeta) => void;
 };
 
 /**
- * One pill row. Clicking it launches the design system's Mission Control
- * dashboard. The invisible checkbox is the hit target, so clicking,
- * Tab + Space and screen readers all work.
+ * One pill row. Single-select: the invisible hit-target is a RADIO
+ * (name="style"), so checking one unchecks the other six for free and
+ * `:has(input:checked)` styling keeps working. Picking one launches
+ * the per-style loader, which enters that system's Mission Control.
  */
-export default function StyleRow({
-  style,
-  index,
-  checked,
-  onToggle,
-  onNavigate,
-}: Props) {
+export default function StyleRow({ style, index, onPick }: Props) {
   return (
     <label
       className={`option option--${style.slug}`}
       style={{ "--i": index } as CSSProperties}
     >
       <input
-        type="checkbox"
+        type="radio"
         name="style"
         value={style.name}
-        checked={checked}
-        onChange={() => {
-          onToggle(style.name);
-          onNavigate(style.slug);
-        }}
+        onChange={() => onPick(style)}
         aria-label={`Open the ${style.name} dashboard`}
       />
       <span className="row">

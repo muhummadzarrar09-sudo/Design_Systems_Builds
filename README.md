@@ -1,6 +1,6 @@
 # Design Language Pills — Design Systems Builds
 
-A pure-black, muted-brass-accented multi-select picker. **Hover a pill and it becomes the design style it names** — brushed metal, blunt flat, ripples, frost, squish and silence. All hand-rolled CSS, no images, no UI libraries.
+A pure-black, muted-brass-accented picker. **Hover a pill and it becomes the design style it names** — brushed metal, blunt flat, ripples, frost, squish and silence. **Pick one** and a per-style loader hands you off to that system's Mission Control: Earth, the Aurora-9 spacecraft on its orbit, and a nebula — all rendered in the language you chose. All hand-rolled CSS, no images, no UI libraries.
 
 Built with **Next.js (App Router) + Node**, styled with CSS variables and `:has()`.
 
@@ -32,19 +32,18 @@ npm run build && npm start
 ```
 app/
   layout.tsx        # fonts, metadata, viewport (dark, #000000)
-  page.tsx          # hero + pill list + sticky summary bar
-  globals.css       # tokens + all per-style hover/checked states
+  page.tsx          # hero + single-pick pill list + per-style launch loader
+  dash/[slug]/      # Mission Control per design language (+ loading.tsx handoff)
+  globals.css       # tokens + per-style hover/checked states + §12 viewport + §13 loaders
 components/
   Background.tsx    # ambient glows + grain + cursor spotlight (delegated)
-  StyleRow.tsx      # one pill: label > hidden checkbox + styled row
+  StyleRow.tsx      # one pill: label > hidden radio + styled row (single select)
   StyleChip.tsx     # per-style idle mini-icon (pure CSS pseudo-elements)
-  SummaryBar.tsx    # sticky count, removable pills, select-all/clear
-hooks/
-  useStyleSelection.ts  # selection state, localStorage persistence
+  StyleLoader.tsx   # the loading state speaks its design language (7 skins)
+  SpaceViewport.tsx # Earth + Aurora-9 orbit + nebula, re-skinned 7 ways
+  MissionDashboard.tsx / MissionClock.tsx / TrajectoryChart.tsx / LabDemo.tsx
 lib/
   styles.ts         # the seven design languages, in order
-legacy/
-  index.html        # the original single-file version (kept for reference)
 ```
 
 ## The seven pills (hover to see each become itself)
@@ -59,11 +58,11 @@ legacy/
 
 ## Details that make it "true CSS"
 
-- Real `<input type="checkbox">` hit targets → click, `Tab`+`Space`, screen readers, all native
+- Real `<input type="radio">` hit targets → click, `Tab`+`Space`, screen readers, all native — and single-select for free
 - `:has(input:checked)` drives every selected state — no JS styling
-- Keyframes for: ripple, gloss sweeps, clay morph/squish, soft-UI float, check ping, entrance rows
-- `prefers-reduced-motion` support
-- Selection persists in `localStorage`
+- The loader is the design language: brass gauge sweep, slamming blocks, ripple rings, pressed-in soft UI, de-frosting sheen, a squish — or one hairline drawing itself (Minimalism)
+- Keyframes for: orbit + flame + nebula drift + twinkle, ripple, gloss sweeps, clay morph/squish, soft-UI float, check ping, entrance rows
+- `prefers-reduced-motion` support (viewport + loaders included)
 - Cursor-following gold spotlight via `--mx`/`--my` custom properties
 
 Hand-built by Z · Rawalpindi, PK

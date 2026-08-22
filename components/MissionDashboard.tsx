@@ -5,6 +5,7 @@ import Link from "next/link";
 import { STYLES, type StyleMeta } from "@/lib/styles";
 import MissionClock from "./MissionClock";
 import TrajectoryChart from "./TrajectoryChart";
+import SpaceViewport from "./SpaceViewport";
 
 const STATS = [
   { label: "Altitude", value: "412 km", delta: "+0.8 km" },
@@ -112,6 +113,14 @@ export default function MissionDashboard({ style }: { style: StyleMeta }) {
         </section>
 
         <section className="dash-panels">
+          <div className="panel panel--view">
+            <div className="panel-head">
+              <h3>Viewport · Aurora-9</h3>
+              <span className="panel-note">earth · orbit · live</span>
+            </div>
+            <SpaceViewport style={style} />
+          </div>
+
           <div className="panel panel--chart">
             <div className="panel-head">
               <h3>Trajectory · last 90 s</h3>
