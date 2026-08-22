@@ -252,8 +252,9 @@ h1 {
 .hint {
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
-  margin: 22px 0 0;
+  margin: 22px auto 0;
   padding: 0;
   list-style: none;
 }
@@ -272,7 +273,7 @@ h1 {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  margin-top: 44px;
+  margin: 44px auto 0;
   max-width: 860px;
 }
 
@@ -281,7 +282,7 @@ h1 {
   display: block;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  animation: rowIn 0.8s var(--ease-spring) both;
+  animation: rowIn 0.8s var(--ease-spring) backwards;
   animation-delay: calc(var(--i) * 90ms);
 }
 
@@ -301,9 +302,9 @@ h1 {
   display: flex;
   align-items: center;
   gap: 18px;
-  min-height: 92px;
+  height: 112px;
   padding: 18px 20px;
-  background: var(--surface);
+  background: linear-gradient(180deg, #131318, #0d0d10);
   border: 1px solid var(--line);
   border-radius: 16px;
   overflow: hidden;
@@ -353,13 +354,24 @@ h1 {
 /* row pieces */
 .num {
   flex: none;
-  width: 34px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
   font-family: var(--font-display);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   color: var(--text-faint);
-  transition: color 0.35s, opacity 0.35s;
+  border: 1px solid var(--line-strong);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.02);
+  transition:
+    color 0.35s,
+    opacity 0.35s,
+    background 0.3s,
+    border-color 0.3s,
+    box-shadow 0.3s;
 }
 
 .chip {
@@ -403,6 +415,28 @@ h1 {
   text-overflow: ellipsis;
 }
 
+/* flavor line — slides in under the note on hover, no layout shift */
+.flavor {
+  font-size: 12px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-3px);
+  transition:
+    max-height 0.4s var(--ease-out),
+    opacity 0.3s,
+    transform 0.4s var(--ease-out);
+}
+.option:hover .flavor,
+.option:focus-within .flavor {
+  max-height: 1.6em;
+  opacity: 1;
+  transform: none;
+}
+
 .tech {
   flex: none;
   margin-left: auto;
@@ -415,6 +449,9 @@ h1 {
 }
 
 /* selection */
+.option:has(input:checked) {
+  filter: drop-shadow(0 14px 30px rgba(232, 165, 60, 0.35));
+}
 .option:has(input:checked) .row {
   outline: 1.5px solid rgba(232, 165, 60, 0.85);
   outline-offset: 2px;
@@ -434,11 +471,19 @@ h1 {
   filter: brightness(0.92);
 }
 
+.option:hover .check,
+.option:focus-within .check {
+  border-color: rgba(232, 165, 60, 0.55);
+}
+
 .option:has(input:checked):not(:hover):not(:focus-within) .row .name {
   color: var(--accent-2);
 }
 .option:has(input:checked) .row .num {
-  color: var(--accent);
+  color: #14110c;
+  background: linear-gradient(135deg, var(--accent-2), var(--accent));
+  border-color: transparent;
+  box-shadow: 0 4px 10px rgba(232, 165, 60, 0.45);
 }
 
 /* check badge + select ping */
@@ -623,6 +668,26 @@ h1 {
   height: 14px;
   border-radius: 2px;
   background: var(--accent);
+}
+
+/* ambient glow on every chip so they pop off pure black */
+.chip--skeu {
+  filter: drop-shadow(0 6px 10px rgba(232, 165, 60, 0.35));
+}
+.chip--flat {
+  filter: drop-shadow(0 4px 8px rgba(242, 240, 234, 0.28));
+}
+.chip--material {
+  filter: drop-shadow(0 6px 10px rgba(43, 168, 158, 0.45));
+}
+.chip--neu {
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.7));
+}
+.chip--glass {
+  filter: drop-shadow(0 4px 8px rgba(255, 255, 255, 0.12));
+}
+.chip--clay {
+  filter: drop-shadow(0 6px 10px rgba(224, 122, 95, 0.45));
 }
 
 /* ---------- 7. AT-REST FLAVOUR: each card LOOKS like its type ---------- */
@@ -1074,6 +1139,23 @@ h1 {
   opacity: 0;
 }
 
+/* flavor line keeps the per-style palette on the backgrounds that change */
+.option--skeu:hover .row .flavor,
+.option--skeu:focus-within .row .flavor,
+.option--skeu:has(input:checked) .row .flavor {
+  color: #8f8878;
+}
+.option--flat:hover .row .flavor,
+.option--flat:focus-within .row .flavor,
+.option--flat:has(input:checked) .row .flavor {
+  color: rgba(20, 17, 12, 0.6);
+}
+.option--clay:hover .row .flavor,
+.option--clay:focus-within .row .flavor,
+.option--clay:has(input:checked) .row .flavor {
+  color: rgba(255, 255, 255, 0.72);
+}
+
 /* ---------- 9. STICKY SUMMARY BAR ---------- */
 .bar {
   position: sticky;
@@ -1083,7 +1165,8 @@ h1 {
   align-items: center;
   flex-wrap: wrap;
   gap: 14px;
-  margin-top: 48px;
+  margin: 48px auto 0;
+  max-width: 860px;
   padding: 12px 14px 12px 18px;
   background: rgba(8, 8, 10, 0.85);
   border: 1px solid var(--line);
@@ -1367,7 +1450,7 @@ h1 {
   .row {
     gap: 14px;
     padding: 15px 16px;
-    min-height: 84px;
+    height: 100px;
   }
 }
 
