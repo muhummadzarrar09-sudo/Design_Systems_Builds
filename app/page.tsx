@@ -46,6 +46,9 @@ export default function Home() {
             <li>
               <a href="/inspo">inspo board →</a>
             </li>
+            <li>
+              <a href="/states">states spec →</a>
+            </li>
           </ul>
         </header>
 

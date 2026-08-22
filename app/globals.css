@@ -2923,3 +2923,296 @@ h1 {
 .theme--material .dash-btn::after {
   pointer-events: none;
 }
+
+/* ============================================================
+   16. DEEP STATE SYSTEM — entrances, disabled, loading,
+       layered glass, state layers, letterpress, tokens
+   ============================================================ */
+
+/* ---------- entrance keyframes ---------- */
+@keyframes dEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes dFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes dSpring {
+  from { opacity: 0; transform: translateY(10px) scale(0.94); }
+  to   { opacity: 1; transform: none; }
+}
+
+.dash-main > * { animation-fill-mode: backwards; }
+
+/* skeu: quick physical rise */
+.theme--skeu .dash-main > * { animation: dEnter 0.25s ease-out; }
+.theme--skeu .dash-main > :nth-child(1) { animation-delay: 40ms; }
+.theme--skeu .dash-main > :nth-child(2) { animation-delay: 110ms; }
+.theme--skeu .dash-main > :nth-child(3) { animation-delay: 180ms; }
+.theme--skeu .dash-main > :nth-child(4) { animation-delay: 250ms; }
+
+/* flat: near-instant fade */
+.theme--flat .dash-main > * { animation: dFade 0.12s ease; }
+.theme--flat .dash-main > :nth-child(2) { animation-delay: 40ms; }
+.theme--flat .dash-main > :nth-child(3) { animation-delay: 80ms; }
+.theme--flat .dash-main > :nth-child(4) { animation-delay: 120ms; }
+
+/* material: emphasized decelerate */
+.theme--material .dash-main > * { animation: dEnter 0.3s cubic-bezier(0.05, 0.7, 0.1, 1); }
+.theme--material .dash-main > :nth-child(2) { animation-delay: 60ms; }
+.theme--material .dash-main > :nth-child(3) { animation-delay: 120ms; }
+.theme--material .dash-main > :nth-child(4) { animation-delay: 180ms; }
+
+/* neu: soft, unhurried */
+.theme--neu .dash-main > * { animation: dEnter 0.35s ease; }
+.theme--neu .dash-main > :nth-child(2) { animation-delay: 70ms; }
+.theme--neu .dash-main > :nth-child(3) { animation-delay: 140ms; }
+.theme--neu .dash-main > :nth-child(4) { animation-delay: 210ms; }
+
+/* glass: slower, premium fade-up */
+.theme--glass .dash-main > * { animation: dEnter 0.4s ease; }
+.theme--glass .dash-main > :nth-child(2) { animation-delay: 80ms; }
+.theme--glass .dash-main > :nth-child(3) { animation-delay: 160ms; }
+.theme--glass .dash-main > :nth-child(4) { animation-delay: 240ms; }
+
+/* clay: springy pop with overshoot */
+.theme--clay .dash-main > * { animation: dSpring 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.theme--clay .dash-main > :nth-child(2) { animation-delay: 60ms; }
+.theme--clay .dash-main > :nth-child(3) { animation-delay: 120ms; }
+.theme--clay .dash-main > :nth-child(4) { animation-delay: 180ms; }
+
+/* minimal: no entrance motion at all */
+.theme--minimal .dash-main > * { animation: none; }
+
+/* ---------- disabled states ---------- */
+.theme--skeu .dash-btn:disabled {
+  cursor: not-allowed;
+  filter: saturate(0.4) brightness(0.75);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  text-shadow: none;
+}
+.theme--flat .dash-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+  background: #2a2a2a;
+  border-color: #2a2a2a;
+  color: #9a9a94;
+}
+.theme--material .dash-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+  box-shadow: none;
+}
+.theme--neu .dash-btn:disabled {
+  cursor: not-allowed;
+  color: #6b685f;
+  box-shadow:
+    -3px -3px 8px rgba(255, 255, 255, 0.02),
+    3px 3px 8px rgba(0, 0, 0, 0.3);
+}
+.theme--glass .dash-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  background: rgba(255, 255, 255, 0.03);
+}
+.theme--clay .dash-btn:disabled {
+  cursor: not-allowed;
+  filter: saturate(0.5) brightness(0.85);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+.theme--minimal .dash-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.3;
+  color: #4f4f4f;
+}
+
+/* ---------- loading spinner (per theme) ---------- */
+.dash-btn .spin {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  margin-right: 8px;
+  vertical-align: -2px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  animation: spinTurn 0.8s linear infinite;
+}
+@keyframes spinTurn {
+  to { transform: rotate(360deg); }
+}
+.theme--skeu .dash-btn .spin { border-top-color: #14110c; border-right-color: #14110c; }
+.theme--flat .dash-btn .spin { border-top-color: #fff; border-right-color: #fff; }
+.theme--material .dash-btn .spin {
+  border-top-color: #14100a;
+  border-right-color: #14100a;
+  border-left-color: rgba(20, 16, 10, 0.25);
+  border-bottom-color: rgba(20, 16, 10, 0.25);
+}
+.theme--neu .dash-btn .spin {
+  border-top-color: #e2d8bd;
+  border-right-color: #e2d8bd;
+  border-left-color: rgba(226, 216, 189, 0.25);
+  border-bottom-color: rgba(226, 216, 189, 0.25);
+}
+.theme--glass .dash-btn .spin { border-top-color: #fff; border-right-color: #fff; }
+.theme--clay .dash-btn .spin { border-top-color: #4a2c1e; border-right-color: #4a2c1e; }
+.theme--minimal .dash-btn .spin {
+  width: 10px;
+  height: 10px;
+  border-top-color: #e2d2a4;
+  border-right-color: #e2d2a4;
+}
+
+/* ---------- glass: layered blur per depth + fallback ---------- */
+.theme--glass .dash-side {
+  -webkit-backdrop-filter: blur(14px) saturate(150%);
+  backdrop-filter: blur(14px) saturate(150%);
+}
+.theme--glass .panel,
+.theme--glass .stat {
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  backdrop-filter: blur(20px) saturate(150%);
+}
+.theme--glass .dash-btn,
+.theme--glass .dash-clock {
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  backdrop-filter: blur(24px) saturate(160%);
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .theme--glass .dash-side { background: rgba(16, 14, 20, 0.92); }
+  .theme--glass .panel,
+  .theme--glass .stat { background: rgba(24, 22, 32, 0.9); }
+  .theme--glass .dash-btn,
+  .theme--glass .dash-clock { background: rgba(30, 28, 40, 0.9); }
+}
+
+/* ---------- material: state layer on stat cards + FAB press ---------- */
+.theme--material .stat {
+  position: relative;
+  overflow: hidden;
+}
+.theme--material .stat::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #e8eaed;
+  opacity: 0;
+  transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
+  pointer-events: none;
+}
+.theme--material .stat:hover::before { opacity: 0.06; }
+.theme--material .stat > * { position: relative; }
+.theme--material .dash-fab:active {
+  transform: scale(0.92);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+/* ---------- skeu: letterpress labels + press gradient shift ---------- */
+.theme--skeu .stat-label,
+.theme--skeu .dash-kicker,
+.theme--skeu .panel h3,
+.theme--skeu .t-sub,
+.theme--skeu .t-val,
+.theme--skeu .panel-note {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.7);
+}
+.theme--skeu .dash-btn--primary:active {
+  background: linear-gradient(180deg, #c39a4e, #96702c 55%, #6b4c1e);
+}
+
+/* ---------- neu: tokenized shadow scale ---------- */
+.theme--neu {
+  --neu-rest: -8px -8px 18px rgba(255, 255, 255, 0.035), 8px 8px 20px rgba(0, 0, 0, 0.65);
+  --neu-hover: -12px -12px 26px rgba(255, 255, 255, 0.05), 12px 12px 28px rgba(0, 0, 0, 0.75);
+  --neu-pressed: inset 6px 6px 14px rgba(0, 0, 0, 0.7), inset -6px -6px 14px rgba(255, 255, 255, 0.04);
+}
+.theme--neu .stat,
+.theme--neu .panel {
+  box-shadow: var(--neu-rest);
+}
+.theme--neu .stat:hover,
+.theme--neu .panel:hover {
+  box-shadow: var(--neu-hover);
+}
+.theme--neu .dash-btn:active,
+.theme--neu .dash-nav button:active,
+.theme--neu .dash-themes a:active {
+  box-shadow: var(--neu-pressed);
+}
+
+/* ============================================================
+   17. STATES SPEC SHEET
+   ============================================================ */
+.spec-list {
+  display: grid;
+  gap: 22px;
+  margin-top: 44px;
+}
+.spec-card {
+  background: linear-gradient(180deg, #131316, #0c0c0e);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 22px;
+}
+.spec-head {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.spec-head h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 600;
+}
+.spec-num {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--accent-2);
+}
+.spec-tag {
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--text-dim);
+}
+.spec-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+.spec-row {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.spec-row b {
+  display: block;
+  font-size: 9.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  margin-bottom: 4px;
+}
+.spec-row span {
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+.spec-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.spec-chip {
+  font-size: 11px;
+  color: var(--text-dim);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.02);
+}

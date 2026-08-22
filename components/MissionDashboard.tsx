@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { STYLES, type StyleMeta } from "@/lib/styles";
 import MissionClock from "./MissionClock";
@@ -24,9 +25,20 @@ const NAV = ["Overview", "Telemetry", "Crew", "Logs", "Settings"];
 
 /**
  * Mission Control dashboard — one shared structure, re-skinned per
- * design system via the theme--{slug} class + CSS tokens.
+ * design system via the theme--{slug} class + CSS tokens. Includes
+ * live interactive states (nav switching, engage loading) so the
+ * per-system state system is actually exercised.
  */
 export default function MissionDashboard({ style }: { style: StyleMeta }) {
+  const [navActive, setNavActive] = useState(0);
+  const [engaging, setEngaging] = useState(false);
+
+  const engage = () => {
+    if (engaging) return;
+    setEngaging(true);
+    window.setTimeout(() => setEngaging(false), 2200);
+  };
+
   return (
     <div className={`dash theme--${style.slug}`}>
       <aside className="dash-side">
@@ -35,13 +47,22 @@ export default function MissionDashboard({ style }: { style: StyleMeta }) {
         </div>
         <nav className="dash-nav" aria-label="Dashboard sections">
           {NAV.map((n, i) => (
-            <button type="button" key={n} className={i === 0 ? "active" : ""}>
+            <button
+              type="button"
+              key={n}
+              className={i === navActive ? "active" : ""}
+              aria-pressed={i === navActive}
+              onClick={() => setNavActive(i)}
+            >
               {n}
             </button>
           ))}
         </nav>
         <div className="dash-side-foot">
           <p>aurora-9 · orbit 412 km</p>
+          <Link className="dash-back" href="/states">
+            states spec →
+          </Link>
           <Link className="dash-back" href="/">
             ← all styles
           </Link>
@@ -59,8 +80,20 @@ export default function MissionDashboard({ style }: { style: StyleMeta }) {
           </div>
           <div className="dash-head-right">
             <MissionClock />
-            <button type="button" className="dash-btn dash-btn--primary">
-              Engage
+            <button
+              type="button"
+              className="dash-btn dash-btn--primary"
+              onClick={engage}
+              disabled={engaging}
+            >
+              {engaging ? (
+                <>
+                  <span className="spin" aria-hidden="true" />
+                  Engaging…
+                </>
+              ) : (
+                "Engage"
+              )}
             </button>
             <button type="button" className="dash-btn">
               Abort
