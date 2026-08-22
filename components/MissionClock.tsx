@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 /** Live UTC mission clock. */
-export default function MissionClock() {
+export default function MissionClock({ className = "dash-clock" }: { className?: string }) {
   const [now, setNow] = useState("--:--:--");
 
   useEffect(() => {
@@ -13,5 +13,5 @@ export default function MissionClock() {
     return () => clearInterval(id);
   }, []);
 
-  return <span className="dash-clock">{now} UTC</span>;
+  return <span className={className}>{now} UTC</span>;
 }
