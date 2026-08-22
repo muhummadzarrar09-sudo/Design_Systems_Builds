@@ -2544,3 +2544,382 @@ h1 {
     overflow: visible;
   }
 }
+
+/* ============================================================
+   15. INTERACTION STATES PER DESIGN SYSTEM
+   Research-driven: rest → hover → pressed → focus → scroll/zoom
+   ============================================================ */
+.dash button,
+.dash a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- SKEUOMORPHISM: physical press, tactile ---------- */
+.theme--skeu .dash-btn,
+.theme--skeu .dash-nav button,
+.theme--skeu .dash-themes a {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease,
+    color 0.2s,
+    background 0.2s;
+}
+.theme--skeu .dash-btn:hover,
+.theme--skeu .dash-nav button:hover {
+  filter: brightness(1.14);
+}
+.theme--skeu .dash-btn:active,
+.theme--skeu .dash-nav button:active,
+.theme--skeu .dash-themes a:active {
+  transform: translateY(1px); /* the button physically depresses */
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.55),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.1),
+    0 1px 2px rgba(0, 0, 0, 0.5);
+}
+.theme--skeu .dash-btn--primary:active {
+  box-shadow:
+    inset 0 2px 5px rgba(0, 0, 0, 0.5),
+    inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+/* walnut trim + leather tone on the sidebar (matches AI frame) */
+.theme--skeu .dash-side {
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(90, 70, 45, 0.25), transparent 55%),
+    repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.012) 0 1px, rgba(0, 0, 0, 0) 1px 3px),
+    linear-gradient(180deg, #241d13, #171208);
+}
+.theme--skeu .dash-logo {
+  color: #d8c391;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.85);
+}
+.theme--skeu :focus-visible {
+  outline: 2px solid #d8c391;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.45);
+}
+.theme--skeu ::-webkit-scrollbar {
+  width: 10px;
+}
+.theme--skeu ::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #4a412e, #332c1d);
+  border: 2px solid #0c0b08;
+}
+
+/* ---------- FLAT DESIGN: color swaps only, zero depth ---------- */
+.theme--flat .dash-btn,
+.theme--flat .dash-nav button,
+.theme--flat .dash-themes a {
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease,
+    border-color 0.12s ease;
+}
+.theme--flat .dash-btn:hover {
+  background: #2a2a2a;
+  transform: none;
+  filter: none;
+}
+.theme--flat .dash-btn:active {
+  background: #3a3a3a;
+}
+.theme--flat .dash-btn--primary:hover {
+  background: #bd5a4c;
+}
+.theme--flat .dash-btn--primary:active {
+  background: #a94e41;
+}
+.theme--flat .dash-themes a:active {
+  background: #d0685a;
+  color: #fff;
+}
+.theme--flat .dash-nav button:active {
+  background: #1d1d1d;
+}
+.theme--flat :focus-visible {
+  outline: 3px solid #d0685a; /* solid color ring, per flat spec */
+  outline-offset: 2px;
+}
+.theme--flat ::-webkit-scrollbar {
+  width: 10px;
+}
+.theme--flat ::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border: 2px solid #0d0d0d;
+  border-radius: 0; /* blunt, like everything else */
+}
+
+/* ---------- MATERIAL 3: state layers + elevation + ripple ---------- */
+.theme--material .dash-btn,
+.theme--material .dash-themes a {
+  transition:
+    box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1),
+    background-color 0.2s cubic-bezier(0.2, 0, 0, 1),
+    transform 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+.theme--material .dash-btn {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+.theme--material .dash-btn:hover {
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.45),
+    0 4px 10px rgba(0, 0, 0, 0.35); /* +1 elevation on hover */
+  background: #2e343c;
+}
+.theme--material .dash-btn:active {
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.4); /* elevation collapses to 0 */
+  transform: scale(0.97);
+}
+.theme--material .dash-btn--primary:active {
+  background: #a8741f;
+}
+/* state layer on nav (hover 8% / press 12%) */
+.theme--material .dash-nav button {
+  position: relative;
+  overflow: hidden;
+}
+.theme--material .dash-nav button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #e8eaed;
+  opacity: 0;
+  transition: opacity 0.2s cubic-bezier(0.2, 0, 0, 1);
+}
+.theme--material .dash-nav button:hover::before {
+  opacity: 0.08; /* hover state layer */
+}
+.theme--material .dash-nav button:active::before {
+  opacity: 0.12; /* pressed state layer */
+}
+/* ripple from centre on press */
+.theme--material .dash-nav button::after,
+.theme--material .dash-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(circle at 50% 50%, rgba(224, 163, 74, 0.35), transparent 55%);
+  opacity: 0;
+}
+.theme--material .dash-nav button:active::after,
+.theme--material .dash-btn:active::after {
+  animation: m3ripple 0.35s cubic-bezier(0.2, 0, 0, 1);
+}
+/* teal accent from the AI frame (amber stays on actions) */
+.theme--material {
+  --chart-line: #35b3a8;
+  --chart-fill: rgba(53, 179, 168, 0.16);
+}
+.theme--material .dash-status i {
+  background: #35b3a8;
+}
+.theme--material .t-dot {
+  background: #35b3a8;
+}
+.theme--material .t-dot[data-ok="false"] {
+  background: #e0a34a;
+}
+.theme--material :focus-visible {
+  outline: 2px solid #e0a34a;
+  outline-offset: 2px;
+}
+/* material spec: thin 4px scrollbar */
+.theme--material ::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.theme--material ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border: 0;
+  border-radius: 2px;
+}
+
+/* ---------- NEUMORPHISM: extruded ⇄ pressed, 250ms ---------- */
+.theme--neu .dash-btn,
+.theme--neu .dash-nav button,
+.theme--neu .dash-themes a {
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.25s ease,
+    color 0.2s ease;
+}
+.theme--neu .dash-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    10px 10px 20px rgba(0, 0, 0, 0.75),
+    -10px -10px 20px rgba(255, 255, 255, 0.045);
+}
+.theme--neu .dash-btn:active {
+  transform: translateY(0);
+  box-shadow:
+    inset 4px 4px 8px rgba(0, 0, 0, 0.7),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.04);
+}
+.theme--neu .dash-btn--primary:active {
+  box-shadow:
+    inset 4px 4px 8px rgba(0, 0, 0, 0.7),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.04);
+}
+.theme--neu .dash-nav button:hover {
+  box-shadow:
+    inset 2px 2px 5px rgba(0, 0, 0, 0.5),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.03);
+  color: var(--dash-text);
+}
+.theme--neu .dash-themes a:active {
+  box-shadow:
+    inset 3px 3px 7px rgba(0, 0, 0, 0.6),
+    inset -3px -3px 7px rgba(255, 255, 255, 0.04);
+}
+.theme--neu :focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px rgba(201, 184, 143, 0.4),
+    4px 4px 10px rgba(0, 0, 0, 0.6);
+  border-radius: 999px;
+}
+.theme--neu ::-webkit-scrollbar {
+  width: 10px;
+}
+.theme--neu ::-webkit-scrollbar-thumb {
+  background: #26262c;
+  border: 2px solid #17171b;
+  border-radius: 8px;
+}
+
+/* ---------- GLASSMORPHISM: opacity shifts, never animate blur ---------- */
+.theme--glass .dash-btn,
+.theme--glass .dash-nav button,
+.theme--glass .dash-themes a,
+.theme--glass .stat,
+.theme--glass .panel {
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+.theme--glass .dash-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
+}
+.theme--glass .dash-btn:active {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(0) scale(0.99);
+}
+.theme--glass .dash-nav button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.theme--glass .dash-nav button:active {
+  background: rgba(255, 255, 255, 0.16);
+}
+.theme--glass .dash-themes a:active {
+  background: rgba(255, 255, 255, 0.22);
+}
+.theme--glass :focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.9); /* solid ring stays visible over blur */
+  outline-offset: 2px;
+}
+.theme--glass ::-webkit-scrollbar {
+  width: 8px;
+}
+.theme--glass ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border: 2px solid transparent;
+  border-radius: 8px;
+  background-clip: padding-box;
+}
+
+/* ---------- CLAYMORPHISM: springy squish ---------- */
+.theme--clay .dash-btn,
+.theme--clay .dash-nav button,
+.theme--clay .dash-themes a {
+  transition:
+    transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.2s ease-out,
+    background 0.2s ease-out;
+}
+.theme--clay .dash-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    0 20px 30px -14px rgba(0, 0, 0, 0.7),
+    inset 0 6px 10px rgba(255, 255, 255, 0.24),
+    inset 0 -8px 14px rgba(0, 0, 0, 0.2);
+}
+.theme--clay .dash-btn:active {
+  transform: translateY(1px) scale(0.96); /* squish into the surface */
+  box-shadow:
+    inset 0 4px 8px rgba(0, 0, 0, 0.28),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.15),
+    0 4px 8px rgba(0, 0, 0, 0.4);
+}
+.theme--clay .dash-nav button:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+}
+.theme--clay .dash-themes a:active {
+  transform: scale(0.94);
+}
+.theme--clay :focus-visible {
+  outline: 3px solid rgba(255, 217, 196, 0.75);
+  outline-offset: 3px;
+}
+.theme--clay ::-webkit-scrollbar {
+  width: 12px;
+}
+.theme--clay ::-webkit-scrollbar-thumb {
+  background: linear-gradient(145deg, #a56f56, #7a4c38);
+  border: 2px solid #17110e;
+  border-radius: 999px;
+}
+
+/* ---------- MINIMALISM: hairline, instant ---------- */
+.theme--minimal .dash-btn,
+.theme--minimal .dash-nav button,
+.theme--minimal .dash-themes a {
+  transition: color 0.15s ease;
+}
+.theme--minimal .dash-btn:active {
+  color: #fff;
+}
+.theme--minimal .dash-nav button:active {
+  color: #fff;
+}
+.theme--minimal .dash-themes a:active {
+  color: var(--dash-accent-2);
+}
+.theme--minimal :focus-visible {
+  outline: 1px solid #e2d2a4; /* hairline focus, nothing more */
+  outline-offset: 4px;
+}
+.theme--minimal ::-webkit-scrollbar {
+  width: 4px;
+}
+.theme--minimal ::-webkit-scrollbar-thumb {
+  background: #4f4f4f;
+  border: 0;
+  border-radius: 0;
+}
+
+/* ---------- ripple keyframe (Material) ---------- */
+@keyframes m3ripple {
+  from {
+    opacity: 0.45;
+    transform: scale(0.2);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+/* ripple container fix for Material buttons */
+.theme--material .dash-btn {
+  position: relative;
+  overflow: hidden;
+}
+.theme--material .dash-btn::after {
+  pointer-events: none;
+}
