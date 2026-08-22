@@ -11,10 +11,8 @@ type Props = {
 };
 
 /**
- * One pill row. Single-select: the invisible hit-target is a RADIO
- * (name="style"), so checking one unchecks the other six for free and
- * `:has(input:checked)` styling keeps working. Picking one launches
- * the per-style loader, which enters that system's Mission Control.
+ * One language row. Radio for free single-select + :has() styling.
+ * The right affordance is a launch chevron — picking one enters that system.
  */
 export default function StyleRow({ style, index, onPick }: Props) {
   return (
@@ -40,7 +38,9 @@ export default function StyleRow({ style, index, onPick }: Props) {
           <span className="desc">{style.desc}</span>
           <span className="tag">{style.tag}</span>
         </span>
-        <span className="check" aria-hidden="true" />
+        <span className="go" aria-hidden="true">
+          Launch
+        </span>
       </span>
     </label>
   );

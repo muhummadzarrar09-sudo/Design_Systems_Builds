@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SPECS } from "@/lib/states";
+import SiteNav from "@/components/SiteNav";
 
 export const metadata: Metadata = {
   title: "States spec — Design Systems Builds",
@@ -13,13 +14,9 @@ const ROW_KEYS = ["rest", "hover", "pressed", "focus", "disabled"] as const;
 export default function StatesPage() {
   return (
     <main className="wrap">
+      <SiteNav active="states" />
       <header className="hero">
-        <div className="hero__row">
-          <span className="mark" aria-hidden="true">
-            Z
-          </span>
-          <p className="kicker">Design systems spec</p>
-        </div>
+        <p className="kicker">Design systems spec</p>
         <h1>
           How each system <span className="grad">feels</span>.
         </h1>

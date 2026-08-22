@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import LabDemo from "@/components/LabDemo";
+import SiteNav from "@/components/SiteNav";
 
 export const metadata: Metadata = {
   title: "State lab — Design Systems Builds",
@@ -11,13 +12,9 @@ export const metadata: Metadata = {
 export default function LabPage() {
   return (
     <main className="wrap">
+      <SiteNav active="lab" />
       <header className="hero">
-        <div className="hero__row">
-          <span className="mark" aria-hidden="true">
-            Z
-          </span>
-          <p className="kicker">State lab</p>
-        </div>
+        <p className="kicker">State lab</p>
         <h1>
           Every state, <span className="grad">seven ways</span>.
         </h1>
