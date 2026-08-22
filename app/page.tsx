@@ -40,6 +40,9 @@ export default function Home() {
             <li>click to pick</li>
             <li>Tab + Space works too</li>
             <li>your picks are saved</li>
+            <li>
+              <a href="/inspo">inspo board →</a>
+            </li>
           </ul>
         </header>
 

@@ -257,6 +257,14 @@ h1 {
   background: rgba(255, 255, 255, 0.02);
 }
 
+.hint a {
+  color: var(--accent-2);
+  text-decoration: none;
+}
+.hint a:hover {
+  text-decoration: underline;
+}
+
 /* ---------- 5. THE VERTICAL PILL LIST ---------- */
 .list {
   display: flex;
@@ -1180,6 +1188,91 @@ h1 {
 .footnote b {
   color: var(--text-dim);
   font-weight: 600;
+}
+.footnote a {
+  color: var(--accent-2);
+  text-decoration: none;
+}
+.footnote a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- 9b. INSPIRATION BOARD ---------- */
+.back-link {
+  display: inline-block;
+  margin-top: 22px;
+  padding: 6px 14px;
+  font-size: 13px;
+  color: var(--text-dim);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  transition:
+    color 0.2s,
+    border-color 0.2s;
+}
+.back-link:hover {
+  color: var(--accent-2);
+  border-color: rgba(184, 146, 92, 0.4);
+}
+
+.inspo-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 400px), 1fr));
+  gap: 22px;
+  margin-top: 44px;
+}
+
+.inspo-card {
+  background: linear-gradient(180deg, #131316, #0c0c0e);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  transition:
+    translate 0.3s var(--ease-out),
+    border-color 0.3s;
+}
+.inspo-card:hover {
+  translate: 0 -3px;
+  border-color: rgba(184, 146, 92, 0.35);
+}
+
+.inspo-figure {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  margin: 0;
+  background: #000;
+}
+
+.inspo-img {
+  object-fit: cover;
+}
+
+.inspo-body {
+  padding: 16px 18px 18px;
+}
+
+.inspo-body h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin: 0 0 8px;
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.inspo-num {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  color: var(--accent-2);
+}
+
+.inspo-steal {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-dim);
 }
 
 /* ---------- 10. KEYFRAMES + MOTION SAFETY ---------- */
