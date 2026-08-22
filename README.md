@@ -39,6 +39,8 @@ components/
   StyleRow.tsx      # one pill: label > hidden checkbox + styled row
   StyleChip.tsx     # per-style idle mini-icon (pure CSS pseudo-elements)
   SummaryBar.tsx    # sticky count, removable pills, select-all/clear
+  SmoothScroll.tsx  # hand-rolled Lenis-style inertial wheel scrolling
+  ScrollFX.tsx      # reveal-on-scroll observer + progress bar + back-to-top
 hooks/
   useStyleSelection.ts  # selection state, localStorage persistence
 lib/
@@ -65,5 +67,31 @@ legacy/
 - `prefers-reduced-motion` support
 - Selection persists in `localStorage`
 - Cursor-following gold spotlight via `--mx`/`--my` custom properties
+
+## Motion system
+
+Zero dependencies, all hand-rolled:
+
+- **Inertia scrolling** (`SmoothScroll.tsx`) — a Lenis-style lerp glide over
+  wheel input. Touch devices keep native momentum, pinch-zoom and horizontal
+  swipes pass through, inner scrollers (the dashboard rail) consume their own
+  delta, and keyboard/anchor/scrollbar scrolls resync instantly so it never
+  fights the user.
+- **Reveal-on-scroll** (`ScrollFX.tsx`) — anything tagged `data-reveal`
+  (`up` / `left` / `zoom` / `fade`) fades in when it enters the viewport, with
+  per-element stagger via a `--rd` delay custom property. A MutationObserver
+  catches late-mounting nodes (the sticky summary bar, client-side route
+  changes). The pill rows reuse their `rowIn` look as scroll reveals with a
+  capped stagger. Without JS the hiding never arms — everything stays visible.
+- **Reading progress** — a hairline brass bar, driven by CSS scroll-driven
+  animations (`animation-timeline: scroll()`) where available, rAF-fed `--p`
+  everywhere else.
+- **Scroll-linked parallax** — the hero falls away and the ambient background
+  drifts lagged behind the content, pure CSS under `@supports`.
+- **Back-to-top** — glassy spring button past 640px; hides on `/dash/*` so it
+  never collides with the Material FAB.
+
+Everything respects `prefers-reduced-motion`: reveals resolve instantly, the
+glide never engages, parallax stands still.
 
 Hand-built by Z · Rawalpindi, PK

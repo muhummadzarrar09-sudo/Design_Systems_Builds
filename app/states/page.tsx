@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SPECS } from "@/lib/states";
@@ -14,16 +15,20 @@ export default function StatesPage() {
   return (
     <main className="wrap">
       <header className="hero">
-        <div className="hero__row">
+        <div className="hero__row" data-reveal="fade">
           <span className="mark" aria-hidden="true">
             Z
           </span>
           <p className="kicker">Design systems spec</p>
         </div>
-        <h1>
+        <h1 data-reveal="up" style={{ "--rd": "80ms" } as CSSProperties}>
           How each system <span className="grad">feels</span>.
         </h1>
-        <p className="sub">
+        <p
+          className="sub"
+          data-reveal="up"
+          style={{ "--rd": "160ms" } as CSSProperties}
+        >
           The exact behavior of every state — rest, hover, pressed, focus,
           disabled — plus motion, scroll and zoom, for all seven design
           systems. This is the contract the dashboards are coded to.
@@ -38,7 +43,12 @@ export default function StatesPage() {
 
       <section className="spec-list">
         {SPECS.map((spec, i) => (
-          <article className="spec-card" key={spec.slug}>
+          <article
+            className="spec-card"
+            key={spec.slug}
+            data-reveal="up"
+            style={{ "--rd": `${(i % 2) * 90}ms` } as CSSProperties}
+          >
             <div className="spec-head">
               <span className="spec-num">{String(i + 1).padStart(2, "0")}</span>
               <h2>{spec.name}</h2>
@@ -63,7 +73,7 @@ export default function StatesPage() {
         ))}
       </section>
 
-      <p className="footnote">
+      <p className="footnote" data-reveal="fade">
         Research-driven · implemented in <b>every dashboard</b> · hover, press
         and focus a dashboard to verify
       </p>

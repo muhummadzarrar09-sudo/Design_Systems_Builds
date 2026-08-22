@@ -3332,3 +3332,193 @@ h1 {
 .stat.is-hover {
   translate: 0 -2px;
 }
+
+/* ============================================================
+   19. MOTION SYSTEM — inertia scroll, reveals, progress, parallax
+   Gated on html.fx (set pre-paint by a tiny inline script) so a
+   no-JS visit shows everything, animated only when we can drive it.
+   ============================================================ */
+
+/* ---------- reading progress hairline ---------- */
+.progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  z-index: 80;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    var(--accent-deep),
+    var(--accent) 55%,
+    var(--accent-2)
+  );
+  transform-origin: 0 50%;
+  transform: scaleX(var(--p, 0));
+  opacity: 0.9;
+}
+
+/* ---------- reveal-on-scroll ---------- */
+html.fx [data-reveal] {
+  opacity: 0;
+  transition:
+    opacity 0.75s var(--ease-out),
+    transform 0.75s var(--ease-out),
+    filter 0.75s var(--ease-out);
+  transition-delay: var(--rd, 0ms);
+}
+html.fx [data-reveal="up"] {
+  transform: translateY(32px);
+}
+html.fx [data-reveal="left"] {
+  transform: translateX(-46px);
+  filter: blur(8px);
+}
+html.fx [data-reveal="zoom"] {
+  transform: scale(0.93);
+  filter: blur(5px);
+}
+html.fx [data-reveal="fade"] {
+  filter: blur(3px);
+}
+
+html.fx [data-reveal].is-inview {
+  opacity: 1;
+  transform: none;
+  filter: none;
+}
+
+/* pill rows: swap the load-in stagger for scroll reveals, capped so
+   deep rows never wait on ghosts above them */
+html.fx .option {
+  animation: none;
+}
+html.fx .option[data-reveal] {
+  transition-duration: 0.8s;
+  transition-timing-function: var(--ease-spring);
+  transition-delay: calc(min(var(--i, 0), 3) * 70ms);
+}
+
+/* ---------- back-to-top ---------- */
+.to-top {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 60;
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+  background: rgba(13, 13, 15, 0.82);
+  color: var(--text-dim);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 14px 30px -16px rgba(0, 0, 0, 0.9);
+  opacity: 0;
+  translate: 0 14px;
+  pointer-events: none;
+  transition:
+    opacity 0.35s var(--ease-out),
+    translate 0.35s var(--ease-spring),
+    color 0.2s,
+    border-color 0.2s;
+}
+.to-top.show {
+  opacity: 1;
+  translate: 0 0;
+  pointer-events: auto;
+}
+.to-top:hover {
+  color: var(--accent-2);
+  border-color: rgba(184, 146, 92, 0.5);
+}
+.to-top:active {
+  translate: 0 0;
+  scale: 0.92;
+}
+.to-top:focus-visible {
+  outline: 2px solid var(--accent-2);
+  outline-offset: 3px;
+}
+@media (max-width: 640px) {
+  .to-top {
+    bottom: 96px; /* clear the sticky summary bar */
+  }
+}
+
+/* ---------- scroll-linked parallax (progressive enhancement) ---------- */
+/* the bg gains a little bleed top/bottom so it can drift without
+   ever baring an edge of pure grain */
+.bg {
+  inset: -8vh 0;
+}
+
+@supports (animation-timeline: scroll()) {
+  .progress {
+    animation: progressGrow linear both;
+    animation-timeline: scroll(root);
+  }
+
+  .bg {
+    animation: bgDrift linear both;
+    animation-timeline: scroll(root);
+  }
+
+  /* the hero falls away faster than the page as you scroll off it */
+  .hero {
+    animation: heroDrift linear both;
+    animation-timeline: scroll(root);
+    animation-range: 0vh 75vh;
+  }
+}
+
+@keyframes progressGrow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes bgDrift {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(6.5vh);
+  }
+}
+@keyframes heroDrift {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0.25;
+    transform: translateY(-42px) scale(0.985);
+  }
+}
+
+/* ---------- motion safety ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html.fx [data-reveal] {
+    transition-duration: 0.01s;
+    transition-delay: 0s;
+  }
+  .to-top {
+    transition: opacity 0.01s;
+  }
+  .progress,
+  .bg,
+  .hero {
+    animation: none;
+  }
+  .progress {
+    transform: scaleX(var(--p, 0)); /* JS-fed fallback stays live */
+  }
+}

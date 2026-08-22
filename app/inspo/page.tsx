@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import { INSPOS } from "@/lib/inspo";
@@ -12,17 +13,21 @@ export default function InspoPage() {
   return (
     <main className="wrap">
       <header className="hero">
-        <div className="hero__row">
+        <div className="hero__row" data-reveal="fade">
           <span className="mark" aria-hidden="true">
             Z
           </span>
           <p className="kicker">Inspiration board</p>
         </div>
 
-        <h1>
+        <h1 data-reveal="up" style={{ "--rd": "80ms" } as CSSProperties}>
           One brief, <span className="grad">seven styles</span>.
         </h1>
-        <p className="sub">
+        <p
+          className="sub"
+          data-reveal="up"
+          style={{ "--rd": "160ms" } as CSSProperties}
+        >
           Every frame is the same brief — a space <strong>Mission Control</strong>{" "}
           dashboard — re-skinned in each design language. These are our
           reference cards for building the real dashboards, portfolios and
@@ -34,8 +39,13 @@ export default function InspoPage() {
       </header>
 
       <section className="inspo-list">
-        {INSPOS.map((item) => (
-          <article className="inspo-card" key={item.slug}>
+        {INSPOS.map((item, i) => (
+          <article
+            className="inspo-card"
+            key={item.slug}
+            data-reveal="up"
+            style={{ "--rd": `${(i % 2) * 90}ms` } as CSSProperties}
+          >
             <figure className="inspo-figure">
               <Image
                 src={`/inspo/${item.slug}.png`}
@@ -56,7 +66,7 @@ export default function InspoPage() {
         ))}
       </section>
 
-      <p className="footnote">
+      <p className="footnote" data-reveal="fade">
         AI-generated concept art · topic: <b>Mission Control</b> · the visual
         language for the real builds
       </p>

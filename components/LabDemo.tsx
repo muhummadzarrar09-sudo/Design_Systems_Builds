@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import Link from "next/link";
 import { STYLES } from "@/lib/styles";
 
@@ -55,8 +55,13 @@ export default function LabDemo() {
       </div>
 
       <div className="lab-grid">
-        {STYLES.map((style) => (
-          <div key={style.slug} className={`lab-frame theme--${style.slug}`}>
+        {STYLES.map((style, i) => (
+          <div
+            key={style.slug}
+            className={`lab-frame theme--${style.slug}`}
+            data-reveal="up"
+            style={{ "--rd": `${(i % 2) * 90}ms` } as CSSProperties}
+          >
             <div className="lab-frame-head">
               <span className="lab-frame-name">{style.name}</span>
               <Link className="lab-frame-link" href={`/dash/${style.slug}`}>
@@ -88,7 +93,7 @@ export default function LabDemo() {
         ))}
       </div>
 
-      <p className="footnote">
+      <p className="footnote" data-reveal="fade">
         These are the exact styles from the dashboards — see the written
         contract on the <a href="/states">states spec</a>, or open a dashboard
         and hover / press / tab for real.

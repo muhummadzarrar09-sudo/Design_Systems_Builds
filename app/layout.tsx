@@ -6,6 +6,8 @@ import "@fontsource/space-grotesk/500.css";
 import "@fontsource/space-grotesk/600.css";
 import "@fontsource/space-grotesk/700.css";
 import "./globals.css";
+import SmoothScroll from "@/components/SmoothScroll";
+import ScrollFX from "@/components/ScrollFX";
 
 export const metadata: Metadata = {
   title: "Z's design language pills — Design Systems Builds",
@@ -23,7 +25,21 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+        {/*
+          Flip the motion system on before first paint so [data-reveal]
+          elements never flash in un-animated. Runs ahead of the content;
+          with JS off the class never lands and everything stays visible.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{document.documentElement.classList.add("fx")}catch(e){}`,
+          }}
+        />
+        {children}
+        <SmoothScroll />
+        <ScrollFX />
+      </body>
     </html>
   );
 }

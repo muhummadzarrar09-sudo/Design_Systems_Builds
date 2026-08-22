@@ -27,6 +27,7 @@ export default function StyleRow({
   return (
     <label
       className={`option option--${style.slug}`}
+      data-reveal="left"
       style={{ "--i": index } as CSSProperties}
     >
       <input

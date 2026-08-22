@@ -31,7 +31,7 @@ export default function SummaryBar({
   const allPicked = selected.length === total;
 
   return (
-    <footer className="bar" aria-live="polite">
+    <footer className="bar" data-reveal="up" aria-live="polite">
       <div className="bar__count">
         <strong ref={countRef}>{selected.length}</strong>
         <span>of {total} picked</span>

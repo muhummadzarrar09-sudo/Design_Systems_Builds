@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import Background from "@/components/Background";
 import StyleRow from "@/components/StyleRow";
@@ -22,24 +23,32 @@ export default function Home() {
 
       <main className="wrap">
         <header className="hero">
-          <div className="hero__row">
+          <div className="hero__row" data-reveal="fade">
             <span className="mark" aria-hidden="true">
               Z
             </span>
             <p className="kicker">Design Systems Builds · personal edition</p>
           </div>
 
-          <h1>
+          <h1 data-reveal="up" style={{ "--rd": "80ms" } as CSSProperties}>
             Pick a <span className="grad">design language</span>.
           </h1>
-          <p className="sub">
+          <p
+            className="sub"
+            data-reveal="up"
+            style={{ "--rd": "160ms" } as CSSProperties}
+          >
             Seven design systems, one Mission Control dashboard.{" "}
             <strong>Click a style</strong> and you enter the dashboard coded in
             that system — brushed metal, blunt flat, ripples, frost, squish or
             silence. Built with <strong>Next.js</strong> on Node, styled with
             hand-rolled CSS on a pure <strong>#000000</strong> canvas.
           </p>
-          <ul className="hint">
+          <ul
+            className="hint"
+            data-reveal="up"
+            style={{ "--rd": "240ms" } as CSSProperties}
+          >
             <li>click a style to enter its dashboard</li>
             <li>hover to preview the look</li>
             <li>Tab + Space works too</li>
@@ -80,7 +89,7 @@ export default function Home() {
           />
         )}
 
-        <p className="footnote">
+        <p className="footnote" data-reveal="fade">
           Next.js App Router · Node · CSS variables · <code>:has()</code> ·{" "}
           <code>backdrop-filter</code> · keyframes · no images · background{" "}
           <b>#000000</b> · hand-built by <b>Z</b> · Rawalpindi, PK
