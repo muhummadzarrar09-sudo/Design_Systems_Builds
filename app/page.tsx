@@ -46,9 +46,6 @@ export default function Home() {
             <li>
               <a href="/inspo">inspo board →</a>
             </li>
-            <li>
-              <a href="/showcase">carousel slides →</a>
-            </li>
           </ul>
         </header>
 
