@@ -32,6 +32,13 @@ Every component renders using CSS variables (`--bg`, `--fg`, `--primary`, `--sha
 
 No recompile. No flicker. Instant rebrand.
 
+Typography follows the same rule: the `[data-theme="X"]` blocks are the single
+source of truth for `--font-stack` / `--font-heading` / `--font-accent`, and
+only reference family names that are actually registered via `@fontsource`
+(e.g. `"Inter Variable"`, not `"Inter"`). Mode blocks own color only — they
+must not define fonts, or their higher specificity silently overrides the
+theme fonts.
+
 ## Run it
 
 ```bash
@@ -40,6 +47,44 @@ npm run dev
 ```
 
 Open <http://localhost:3000>.
+
+## Using it
+
+- **Hub (`/`)** — every card is a link straight into that theme's app, and each card
+  carries a **live preview island**: a real mini-UI rendered in that theme's own
+  design language (scoped `data-theme`, never interactive).
+- **Themed app (`/app?theme=X&page=Y`)** — the theme's real pages are listed in
+  the header tabs; the dropdown switches theme and updates the URL; the 🌙/☀️
+  button toggles light/dark. Choices persist across refreshes with no flash.
+- **Gear icon (hub + app)** — slide-in appearance panel: all 7 styles with live
+  color swatches and a Light/Dark segmented toggle.
+- **Hub footer** — live status from the internal API (`API: 7 themes online ✓`).
+
+## Motion & feedback
+
+Theme switching plays a **theme-aware ink-splash overlay** — it renders in the
+new theme's colors with a spinner in that style's own language (minimal thin
+ring, flat bouncing squares, material ripple rings, skeuo gear, neumo soft
+pulse, glass frosted ring, clay squish blob). Sections enter with per-theme
+entrance animations (fade-up, block rise, scale bloom, settle, blur-fade,
+blur-drift, spring bounce), and the Material theme gets a true click ripple
+that emanates from the cursor position. All of it honors
+`prefers-reduced-motion`, and none of it needed an animation library.
+
+## What each theme actually ships
+
+Honest page counts — this table is generated from the same registry the router
+uses (`src/themes/definitions.ts`), so it cannot drift from reality:
+
+| Theme | Pages |
+|---|---|
+| 🪵 Skeuomorphism | 2 — Home, Dashboard |
+| 🎨 Flat Design | 4 — Home, Pricing, Team, Stats |
+| 📐 Material Design | 3 — Home, Principles, FAQ |
+| 🫧 Neumorphism | 3 — Media, Settings, Profile |
+| 🪟 Glassmorphism | 3 — Home, Features, Pricing |
+| 🏺 Claymorphism | 2 — Home, Plans |
+| ✦ Minimalism | 5 — Home, Principles, Writings, Contact, Works |
 
 ## Internal API
 
@@ -60,8 +105,13 @@ src/
 │   └── globals.css        # ALL theme CSS variables
 ├── components/
 │   ├── dashboard/
-│   │   ├── theme-hub.tsx      # hub UI
-│   │   └── theme-selector.tsx # dropdown switcher
+│   │   ├── theme-hub.tsx      # hub UI (live preview islands + API status)
+│   │   ├── theme-selector.tsx # dropdown switcher
+│   │   ├── settings-panel.tsx # gear slide-in appearance panel
+│   │   └── preview-islands.tsx
+│   ├── effects/
+│   │   ├── ink-splash.tsx     # theme-aware switch overlay + spinners
+│   │   └── material-ripple.tsx# cursor-position ripple (material only)
 │   └── sections/<theme>/     # one folder per design style
 ├── contexts/theme-context.tsx  # theme + persistence
 ├── themes/definitions.ts       # theme metadata

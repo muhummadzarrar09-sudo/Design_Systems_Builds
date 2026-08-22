@@ -1,17 +1,45 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { THEME_DEFINITIONS, THEME_IDS } from "@/themes/definitions";
 import { ThemeSelector } from "@/components/dashboard/theme-selector";
+import { ThemePreviewIsland } from "@/components/dashboard/preview-islands";
+import { SettingsPanel } from "@/components/dashboard/settings-panel";
+
+type ApiStatus = "checking" | "online" | "offline";
 
 /**
- * ThemeHub — simple, bulletproof Hub page.
- * - Shows the brand title
- * - Shows a single ThemeSelector dropdown (always works)
- * - Shows a static grid of all 7 themes for reference — no nested data-theme
- *   (nested data-theme was the bug all along)
+ * ThemeHub — hub page.
+ * - Brand title + a ThemeSelector dropdown (always works)
+ * - Every card is a real link into that theme's app (/app?theme=X)
+ * - Static grid — no nested data-theme (nested data-theme was the bug all along)
  */
 export function ThemeHub() {
+  // Live check of the internal API on mount — frontend ↔ backend wiring, for real
+  const [apiStatus, setApiStatus] = useState<ApiStatus>("checking");
+  const [apiCount, setApiCount] = useState<number>(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/themes", { cache: "no-store" })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data: { count?: number }) => {
+        if (cancelled) return;
+        setApiCount(data.count ?? 0);
+        setApiStatus("online");
+      })
+      .catch(() => {
+        if (!cancelled) setApiStatus("offline");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   return (
     <div
       className="min-h-screen flex flex-col"
@@ -37,8 +65,9 @@ export function ThemeHub() {
           </p>
         </div>
 
-        <div className="shrink-0">
+        <div className="shrink-0 flex items-center gap-2">
           <ThemeSelector />
+          <SettingsPanel />
         </div>
       </header>
 
@@ -51,9 +80,10 @@ export function ThemeHub() {
             {THEME_IDS.map((id) => {
               const def = THEME_DEFINITIONS[id];
               return (
-                <div
+                <Link
                   key={id}
-                  className="p-5"
+                  href={`/app?theme=${id}&page=${def.pages[0].key}`}
+                  className="theme-card block p-5"
                   style={{
                     backgroundColor: "var(--card)",
                     color: "var(--card-fg)",
@@ -66,12 +96,13 @@ export function ThemeHub() {
                     <span className="text-2xl">{def.icon}</span>
                     <h3 className="text-base font-black">{def.name}</h3>
                   </div>
-                  <p className="text-xs font-bold mb-1" style={{ color: "var(--accent)" }}>
+                  <p className="text-xs font-bold mb-2" style={{ color: "var(--accent)" }}>
                     {def.tagline}
                   </p>
-                  <p className="text-xs leading-relaxed mb-3" style={{ color: "var(--muted-fg)" }}>
-                    {def.description}
-                  </p>
+                  {/* Live preview — a real mini-UI in this theme's own language */}
+                  <div className="mb-3">
+                    <ThemePreviewIsland id={def.id} />
+                  </div>
                   <div className="flex items-center gap-2 text-[10px]">
                     <span
                       className="px-2 py-0.5 rounded-full font-medium"
@@ -83,16 +114,19 @@ export function ThemeHub() {
                       className="px-2 py-0.5 rounded-full font-medium"
                       style={{ backgroundColor: "var(--accent)", color: "var(--accent-fg)" }}
                     >
-                      {def.sections.length} sections
+                      {def.pages.length} page{def.pages.length === 1 ? "" : "s"}
+                    </span>
+                    <span className="ml-auto font-bold" style={{ color: "var(--primary)" }}>
+                      Open →
                     </span>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>
 
           <p className="mt-8 text-center text-xs" style={{ color: "var(--muted-fg)" }}>
-            Use the dropdown above to switch themes → entire app rebrands instantly.
+            Click any card (or use the dropdown) to open that theme&apos;s app — the whole UI rebrands instantly.
           </p>
         </div>
       </main>
@@ -102,6 +136,18 @@ export function ThemeHub() {
         style={{ borderColor: "var(--border)", color: "var(--muted-fg)" }}
       >
         Built with Next.js &amp; TypeScript &middot; 7 design styles &middot; Light + Dark per style
+        <span className="mx-2" aria-hidden="true">·</span>
+        {apiStatus === "checking" && <span>API: connecting…</span>}
+        {apiStatus === "online" && (
+          <span style={{ color: "var(--primary)", fontWeight: 600 }}>
+            API: {apiCount} themes online ✓
+          </span>
+        )}
+        {apiStatus === "offline" && (
+          <span style={{ color: "var(--destructive)", fontWeight: 600 }}>
+            API offline ✗
+          </span>
+        )}
       </footer>
     </div>
   );

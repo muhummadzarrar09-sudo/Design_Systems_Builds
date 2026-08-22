@@ -6,6 +6,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
+  useRef,
 } from "react";
 import { ThemeId, ThemeMode, ThemeContextType } from "@/types/theme";
 import { DEFAULT_THEME, THEME_IDS } from "@/themes/definitions";
@@ -43,7 +44,15 @@ export function ThemeProvider({
     const stored = readStored(STORAGE_MODE, initialMode);
     return stored === "dark" ? "dark" : "light";
   });
+  // True while the ink-splash overlay is up — consumed by <InkSplash />
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const splashTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (splashTimer.current) clearTimeout(splashTimer.current);
+    };
+  }, []);
 
   // Apply theme to DOM
   const applyTheme = useCallback((theme: ThemeId, mode: ThemeMode) => {
@@ -66,7 +75,7 @@ export function ThemeProvider({
     }
   }, [currentTheme, currentMode]);
 
-  // Set theme — instant CSS variable swap, with ink-splash transition flag
+  // Set theme — instant CSS variable swap under an ink-splash overlay
   const setTheme = useCallback(
     (theme: ThemeId) => {
       if (theme === currentTheme) return;
@@ -74,11 +83,12 @@ export function ThemeProvider({
         console.warn(`Theme "${theme}" not found, using default`);
         return;
       }
+      if (splashTimer.current) clearTimeout(splashTimer.current);
       setIsTransitioning(true);
       setCurrentTheme(theme);
       applyTheme(theme, currentMode);
-      // Release transition flag after the splash animation
-      setTimeout(() => setIsTransitioning(false), 800);
+      // Content is revealed after the splash
+      splashTimer.current = setTimeout(() => setIsTransitioning(false), 800);
     },
     [currentTheme, currentMode, applyTheme]
   );

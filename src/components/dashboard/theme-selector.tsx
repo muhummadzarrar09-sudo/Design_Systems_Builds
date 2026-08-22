@@ -7,7 +7,11 @@ import { THEME_DEFINITIONS, THEME_IDS } from "@/themes/definitions";
 import { ThemeId } from "@/types/theme";
 
 interface ThemeSelectorProps {
-  variant?: "default" | "compact";
+  /**
+   * Custom selection handler. When provided, it fully replaces the default
+   * behavior (e.g. the themed app passes one that also updates the URL).
+   */
+  onSelect?: (id: ThemeId) => void;
 }
 
 /**
@@ -17,7 +21,7 @@ interface ThemeSelectorProps {
  * - On mobile / any frame, the menu opens downward and stays in normal DOM flow
  * - NO nested data-theme (that was the bug)
  */
-export function ThemeSelector({ variant = "default" }: ThemeSelectorProps) {
+export function ThemeSelector({ onSelect }: ThemeSelectorProps) {
   const { currentTheme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -51,7 +55,7 @@ export function ThemeSelector({ variant = "default" }: ThemeSelectorProps) {
         aria-expanded={open}
       >
         <span className="text-base">{current.icon}</span>
-        {variant === "default" && <span className="hidden sm:inline">{current.name}</span>}
+        <span className="hidden sm:inline">{current.name}</span>
         <ChevronDown
           size={14}
           className="transition-transform"
@@ -90,7 +94,11 @@ export function ThemeSelector({ variant = "default" }: ThemeSelectorProps) {
                   aria-selected={active}
                   key={id}
                   onClick={() => {
-                    setTheme(id as ThemeId);
+                    if (onSelect) {
+                      onSelect(id as ThemeId);
+                    } else {
+                      setTheme(id as ThemeId);
+                    }
                     setOpen(false);
                   }}
                   className="w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors"
