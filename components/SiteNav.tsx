@@ -1,35 +1,39 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
-const LINKS = [
-  { href: "/", id: "home", label: "Languages" },
-  { href: "/states", id: "states", label: "Spec" },
-  { href: "/lab", id: "lab", label: "Lab" },
-  { href: "/inspo", id: "inspo", label: "Inspo" },
-] as const;
+const links = [
+  { href: "/", label: "Cockpit" },
+  { href: "/inspo", label: "Inspo" },
+  { href: "/lab", label: "Lab" },
+  { href: "/dash/skeuomorphism", label: "Skeuo" },
+  { href: "/dash/glassmorphism", label: "Glass" },
+  { href: "/dash/neumorphism", label: "Neumo" },
+];
 
-export default function SiteNav({
-  active = "home",
-}: {
-  active?: (typeof LINKS)[number]["id"];
-}) {
+export default function SiteNav() {
+  const pathname = usePathname();
   return (
-    <nav className="site-nav" aria-label="Site">
-      <Link href="/" className="site-nav__brand">
-        Z<span>//DS</span>
-      </Link>
-      <ul className="site-nav__links">
-        {LINKS.map((l) => (
-          <li key={l.id}>
-            <Link
-              href={l.href}
-              className={l.id === active ? "is-on" : undefined}
-              aria-current={l.id === active ? "page" : undefined}
-            >
-              {l.label}
-            </Link>
-          </li>
-        ))}
-      </ul>
+    <nav className="site-nav">
+      <div className="site-nav-inner">
+        <div className="site-brand">
+          <span className="brand-bolt" />
+          <span className="brand-text">SKEUO·LAB</span>
+        </div>
+        <div className="site-links">
+          {links.map((l) => {
+            const active = l.href === "/" ? pathname === "/" : pathname.startsWith(l.href);
+            return (
+              <Link key={l.href} href={l.href} className={`nav-link ${active ? "active" : ""}`}>
+                <span className="nav-link-text">{l.label}</span>
+                <span className="nav-link-screw l" />
+                <span className="nav-link-screw r" />
+              </Link>
+            );
+          })}
+        </div>
+      </div>
     </nav>
   );
 }
