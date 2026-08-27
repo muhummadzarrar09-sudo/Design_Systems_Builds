@@ -16,6 +16,7 @@ import {
   makeSpoolTexture,
   makeCounterTexture,
   makeGlowTexture,
+  makeSoftShadow,
   makeEngravedLabel,
 } from "@/lib/textures";
 
@@ -129,6 +130,17 @@ export function HiFi() {
       <EngravedLabel text="STEREO RECEIVER" position={[-3.08, -0.28, FRONT + 0.002]} size={0.24} />
       <EngravedLabel text="VOLUME" position={[3.77, -0.13, FRONT + 0.002]} size={0.18} />
 
+      {/* ── Contact-shadow decals (key light comes from upper-right) */}
+      <Decal position={[-3.12, 0.75, FRONT + 0.001]} w={1.95} h={1.95} />
+      <Decal position={[3.04, 0.75, FRONT + 0.001]} w={1.95} h={1.95} />
+      <Decal position={[-0.05, 0.86, FRONT + 0.001]} w={4.6} h={1.55} o={0.3} />
+      <Decal position={[-0.05, -0.32, FRONT + 0.001]} w={4.5} h={0.62} o={0.28} />
+      <Decal position={[3.15, -0.54, FRONT + 0.001]} w={1.55} h={1.55} />
+      <Decal position={[1.71, -1.38, FRONT + 0.001]} w={1.0} h={1.0} o={0.32} />
+      <Decal position={[2.56, -1.38, FRONT + 0.001]} w={1.0} h={1.0} o={0.32} />
+      <Decal position={[3.44, -1.38, FRONT + 0.001]} w={1.0} h={1.0} o={0.32} />
+      <Decal position={[-0.51, -1.37, FRONT + 0.001]} w={3.45} h={1.2} o={0.3} />
+
       {/* ── ROW 1: VU meters + tuner ────────────────────────────── */}
       <VuMeter position={[-3.08, 0.81, FRONT]} radius={0.72} subtitle="LEFT CHANNEL" level={level} side="l" powerOn={powerOn} />
       <Tuner position={[0, 0.92, FRONT]} width={4.12} height={1.18} freq={tunerFreq} onChange={setTunerFreq} powerOn={powerOn} />
@@ -188,6 +200,30 @@ function EngravedLabel({
     <mesh position={position} renderOrder={4}>
       <planeGeometry args={[size * aspect, size]} />
       <meshStandardMaterial map={tex} transparent depthWrite={false} roughness={0.55} metalness={0.3} />
+    </mesh>
+  );
+}
+
+/* ===================================================================
+   DECAL — soft occlusion blob that grounds a part on the faceplate
+   =================================================================== */
+
+function Decal({
+  position,
+  w,
+  h,
+  o = 0.38,
+}: {
+  position: [number, number, number];
+  w: number;
+  h: number;
+  o?: number;
+}) {
+  const tex = useMemo(() => makeSoftShadow(0.6), []);
+  return (
+    <mesh position={position} renderOrder={1}>
+      <planeGeometry args={[w, h]} />
+      <meshBasicMaterial map={tex} transparent opacity={o} depthWrite={false} />
     </mesh>
   );
 }
@@ -268,6 +304,11 @@ function VuMeter({
       <mesh material={chromeMat} position={[0, 0, 0.03]}>
         <torusGeometry args={[r * 1.0, r * 0.075, 24, 72]} />
       </mesh>
+      {/* Inner shadow ring between bezel and face */}
+      <mesh position={[0, 0, 0.048]}>
+        <torusGeometry args={[r * 0.95, r * 0.024, 16, 64]} />
+        <meshStandardMaterial color="#0a0603" roughness={0.6} />
+      </mesh>
       {/* Dark well */}
       <mesh rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.0]}>
         <cylinderGeometry args={[r * 0.97, r * 0.97, 0.08, 48]} />
@@ -308,6 +349,8 @@ function VuMeter({
           depthWrite={false}
         />
       </mesh>
+      {/* Warm lamp spill onto the plate below the meter */}
+      <pointLight position={[0, -r * 0.25, 0.55]} color="#ff9030" intensity={powerOn ? 0.5 : 0} distance={1.8} decay={2} />
     </group>
   );
 }
@@ -367,10 +410,10 @@ function Tuner({
     <group position={position}>
       {/* Chrome frame + recessed well */}
       <mesh material={frameMat} position={[0, 0, -0.015]} castShadow>
-        <boxGeometry args={[width + 0.24, height + 0.24, 0.07]} />
+        <boxGeometry args={[width + 0.18, height + 0.18, 0.07]} />
       </mesh>
       <mesh position={[0, 0, 0.0]}>
-        <boxGeometry args={[width + 0.1, height + 0.1, 0.09]} />
+        <boxGeometry args={[width + 0.08, height + 0.08, 0.09]} />
         <meshStandardMaterial color="#0e0804" roughness={0.7} />
       </mesh>
       {/* Backlit face */}
@@ -445,6 +488,7 @@ function PushButton({
   onClick: () => void;
 }) {
   const glow = useMemo(() => makeGlowTexture("#d8ffb0", "#40e020"), []);
+  const [hover, setHover] = useState(false);
   const bezelMat = useMemo(
     () => new THREE.MeshStandardMaterial({ color: "#c0c4c8", roughness: 0.22, metalness: 1.0, envMapIntensity: 1.3 }),
     []
@@ -452,12 +496,12 @@ function PushButton({
   const capMat = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: pressed ? "#8a8e92" : "#e0e4e8",
+        color: pressed ? "#8a8e92" : hover ? "#f4f7fa" : "#e0e4e8",
         roughness: 0.24,
         metalness: 1.0,
-        envMapIntensity: 1.4,
+        envMapIntensity: hover ? 1.7 : 1.4,
       }),
-    [pressed]
+    [pressed, hover]
   );
   return (
     <group position={[x, 0, 0]}>
@@ -473,8 +517,15 @@ function PushButton({
           e.stopPropagation();
           onClick();
         }}
-        onPointerOver={() => (document.body.style.cursor = "pointer")}
-        onPointerOut={() => (document.body.style.cursor = "auto")}
+        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation();
+          setHover(true);
+          document.body.style.cursor = "pointer";
+        }}
+        onPointerOut={() => {
+          setHover(false);
+          document.body.style.cursor = "auto";
+        }}
       >
         <cylinderGeometry args={[0.105, 0.115, 0.06, 32]} />
       </mesh>
@@ -529,8 +580,15 @@ function Knob({
   const bodyRef = useRef<THREE.Group>(null);
   const camera = useThree((s) => s.camera);
   const gl = useThree((s) => s.gl);
-  const controls = useThree((s) => s.controls) as unknown as { enabled: boolean } | null;
+  const controls = useThree((s) => s.controls) as unknown as { enabled: boolean; enableZoom: boolean } | null;
   const center = useRef<{ x: number; y: number } | null>(null);
+  const [hover, setHover] = useState(false);
+  useEffect(() => {
+    if (controls) controls.enableZoom = !hover;
+    return () => {
+      if (controls) controls.enableZoom = true;
+    };
+  }, [hover, controls]);
 
   const rotZ = THREE.MathUtils.degToRad(135 - value * 27);
 
@@ -566,6 +624,10 @@ function Knob({
     () => new THREE.MeshStandardMaterial({ map: knurl, color: "#e8ebee", roughness: 0.25, metalness: 1.0, envMapIntensity: 1.4 }),
     [knurl]
   );
+  useEffect(() => {
+    bodyMat.color.set(hover ? "#ffffff" : "#e8ebee");
+    bodyMat.envMapIntensity = hover ? 1.7 : 1.4;
+  }, [hover, bodyMat]);
   const topMat = useMemo(
     () => new THREE.MeshStandardMaterial({ map: spun, roughness: 0.3, metalness: 0.9, envMapIntensity: 1.2 }),
     [spun]
@@ -592,8 +654,23 @@ function Knob({
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onPointerOver={() => (document.body.style.cursor = "grab")}
-        onPointerOut={() => (document.body.style.cursor = "auto")}
+        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+          e.stopPropagation();
+          setHover(true);
+          document.body.style.cursor = "grab";
+        }}
+        onPointerOut={() => {
+          setHover(false);
+          document.body.style.cursor = "auto";
+        }}
+        onWheel={(e: ThreeEvent<WheelEvent>) => {
+          e.stopPropagation();
+          onChange(Math.max(0, Math.min(10, value + (e.deltaY < 0 ? 1 : -1))));
+        }}
+        onDoubleClick={(e: ThreeEvent<MouseEvent>) => {
+          e.stopPropagation();
+          onChange(5);
+        }}
       >
         <mesh material={bodyMat} rotation={[Math.PI / 2, 0, 0]} castShadow>
           <cylinderGeometry args={[radius * 0.96, radius, length, 48]} />

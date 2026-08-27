@@ -24,7 +24,7 @@ export default function SceneHost() {
 
       <div className="hud hud-bottom">
         <div className="hud-hint">
-          <b>DRAG</b> TO ORBIT · <b>SCROLL</b> TO ZOOM · <b>DRAG</b> KNOBS &amp; TUNER
+          <b>DRAG</b> ORBIT · <b>DRAG</b> KNOBS &amp; TUNER · <b>SCROLL</b> ON KNOB = TRIM · <b>2×CLICK</b> = CENTER
         </div>
         <div className="hud-hint">SKEUO · HI-FI · 1970s STEREO RECEIVER</div>
       </div>

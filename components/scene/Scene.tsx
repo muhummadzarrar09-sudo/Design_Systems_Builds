@@ -1,13 +1,54 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
-import { Environment, Lightformer, OrbitControls } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Environment, Lightformer, OrbitControls, MeshReflectorMaterial } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette, ToneMapping } from "@react-three/postprocessing";
 import { ToneMappingMode } from "postprocessing";
-import { Suspense, useMemo } from "react";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { HiFi } from "./HiFi";
 import { makeDeskWood } from "@/lib/textures";
+
+const CAM_TARGET = new THREE.Vector3(0, 0.25, 9.9);
+
+/* Gentle dolly-in on load; hands over to OrbitControls on first input */
+function CameraIntro() {
+  const camera = useThree((s) => s.camera);
+  const gl = useThree((s) => s.gl);
+  const controls = useThree((s) => s.controls) as unknown as { enabled: boolean } | null;
+  const done = useRef(false);
+
+  useEffect(() => {
+    if (controls && !done.current) controls.enabled = false;
+  }, [controls]);
+
+  useEffect(() => {
+    const finish = () => {
+      if (!done.current) {
+        done.current = true;
+        if (controls) controls.enabled = true;
+      }
+    };
+    const el = gl.domElement;
+    el.addEventListener("pointerdown", finish);
+    el.addEventListener("wheel", finish);
+    return () => {
+      el.removeEventListener("pointerdown", finish);
+      el.removeEventListener("wheel", finish);
+    };
+  }, [gl, controls]);
+
+  useFrame((st, dt) => {
+    if (done.current) return;
+    camera.position.lerp(CAM_TARGET, Math.min(1, dt * 2.0));
+    camera.lookAt(0, -0.15, 0);
+    if (st.clock.elapsedTime > 3 || camera.position.distanceTo(CAM_TARGET) < 0.04) {
+      done.current = true;
+      if (controls) controls.enabled = true;
+    }
+  });
+  return null;
+}
 
 export function Scene() {
   const deskTex = useMemo(() => {
@@ -15,11 +56,16 @@ export function Scene() {
     t.repeat.set(3, 2);
     return t;
   }, []);
+  const deskEdgeTex = useMemo(() => {
+    const t = makeDeskWood();
+    t.repeat.set(4, 1);
+    return t;
+  }, []);
 
   return (
     <Canvas
       shadows
-      camera={{ position: [0, 0.25, 9.9], fov: 40 }}
+      camera={{ position: [0, 1.6, 12.8], fov: 40 }}
       gl={{ antialias: true }}
       dpr={[1, 2]}
     >
@@ -63,11 +109,49 @@ export function Scene() {
         <HiFi />
       </Suspense>
 
-      {/* Wood desk the receiver sits on */}
-      <mesh position={[0, -2.35, 0]} receiveShadow>
-        <boxGeometry args={[36, 0.5, 20]} />
-        <meshStandardMaterial map={deskTex} roughness={0.34} metalness={0.05} envMapIntensity={0.5} />
+      {/* Studio backdrop wall (catches the rim light like the photo) */}
+      <mesh position={[0, 4, -7]}>
+        <planeGeometry args={[70, 30]} />
+        <meshStandardMaterial color="#191512" roughness={0.95} metalness={0} />
       </mesh>
+      {/* Soft halo pool on the wall behind the unit */}
+      <spotLight
+        position={[0, 3, -2.5]}
+        angle={0.8}
+        penumbra={1}
+        intensity={45}
+        color="#b89878"
+        onUpdate={(s) => {
+          s.target.position.set(0, 2, -7);
+          s.target.updateMatrixWorld();
+        }}
+      />
+
+      {/* Wood desk with a blurred reflection of the receiver */}
+      <mesh position={[0, -2.1, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+        <planeGeometry args={[40, 24]} />
+        <MeshReflectorMaterial
+          map={deskTex}
+          blur={[280, 90]}
+          resolution={1024}
+          mixBlur={1}
+          mixStrength={1.1}
+          mixContrast={1.2}
+          roughness={0.6}
+          metalness={0.25}
+          depthScale={0.3}
+          minDepthThreshold={0.4}
+          maxDepthThreshold={1.5}
+          color="#6a4a2c"
+        />
+      </mesh>
+      {/* Desk edge below the polished top */}
+      <mesh position={[0, -2.37, 0]}>
+        <boxGeometry args={[40, 0.5, 24]} />
+        <meshStandardMaterial map={deskEdgeTex} color="#8a5a34" roughness={0.5} metalness={0.05} />
+      </mesh>
+
+      <CameraIntro />
 
       <OrbitControls
         makeDefault

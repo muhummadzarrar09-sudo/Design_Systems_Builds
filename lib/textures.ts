@@ -1007,6 +1007,21 @@ export function makeCounterTexture(count: number) {
   return tex;
 }
 
+/* Soft radial occlusion decal (grounds parts against the faceplate) */
+export function makeSoftShadow(strength = 0.6) {
+  const SIZE = 256;
+  const { c, ctx } = makeCanvas(SIZE);
+  const g = ctx.createRadialGradient(SIZE / 2, SIZE / 2, 4, SIZE / 2, SIZE / 2, SIZE / 2);
+  g.addColorStop(0, `rgba(0,0,0,${strength})`);
+  g.addColorStop(0.55, `rgba(0,0,0,${strength * 0.45})`);
+  g.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, SIZE, SIZE);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
 /* Engraved text on a thin plane (used for all the labels) */
 export function makeEngravedLabel(text: string, fontSize = 32, color = "#1a1208"): THREE.CanvasTexture {
   const c = document.createElement("canvas");
