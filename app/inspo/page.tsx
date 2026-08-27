@@ -1,5 +1,6 @@
 "use client";
 
+import type { JSX } from "react";
 import { Rivets, BrassPlate, Strap } from "@/components/Skeuo";
 
 type Style = {

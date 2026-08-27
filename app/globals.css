@@ -116,6 +116,60 @@ body {
 .hud-hint { color: #8a6a4a; }
 .hud-hint b { color: #d4b87a; font-weight: 700; }
 
+/* Floating top nav (shared by all routes) */
+.site-nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  padding: 10px 16px;
+  background: linear-gradient(180deg, rgba(8, 5, 3, 0.85) 0%, rgba(8, 5, 3, 0) 100%);
+  pointer-events: none;
+}
+.site-nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  pointer-events: auto;
+}
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "Courier New", monospace;
+  font-size: 11px;
+  letter-spacing: 0.3em;
+  color: #f3d27a;
+  text-transform: uppercase;
+}
+.brand-bolt {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff5d0, #a87a2a 70%, #5a3a10);
+  box-shadow: inset 0 -1px 1px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.6);
+}
+.site-links { display: flex; gap: 2px; }
+.nav-link {
+  position: relative;
+  padding: 6px 12px;
+  font-family: "Courier New", monospace;
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: #b89a6a;
+  border-radius: 4px;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.nav-link:hover { color: #e8c870; }
+.nav-link.active {
+  color: #f3d27a;
+  background: rgba(212, 166, 74, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(212, 166, 74, 0.35);
+}
+.nav-link-screw { display: none; }
+
 .loading {
   position: absolute;
   inset: 0;
