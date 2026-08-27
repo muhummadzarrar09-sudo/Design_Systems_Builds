@@ -9,7 +9,7 @@ import * as THREE from "three";
 import { HiFi } from "./HiFi";
 import { makeDeskWood } from "@/lib/textures";
 
-const CAM_TARGET = new THREE.Vector3(0, 0.25, 9.9);
+const CAM_TARGET = new THREE.Vector3(0, 0.2, 10.8);
 
 /* Gentle dolly-in on load; hands over to OrbitControls on first input */
 function CameraIntro() {
@@ -41,7 +41,7 @@ function CameraIntro() {
   useFrame((st, dt) => {
     if (done.current) return;
     camera.position.lerp(CAM_TARGET, Math.min(1, dt * 2.0));
-    camera.lookAt(0, -0.15, 0);
+    camera.lookAt(0, -0.2, 0);
     if (st.clock.elapsedTime > 3 || camera.position.distanceTo(CAM_TARGET) < 0.04) {
       done.current = true;
       if (controls) controls.enabled = true;
@@ -65,7 +65,7 @@ export function Scene() {
   return (
     <Canvas
       shadows
-      camera={{ position: [0, 1.6, 12.8], fov: 40 }}
+      camera={{ position: [0, 1.8, 13.8], fov: 40 }}
       gl={{ antialias: true }}
       dpr={[1, 2]}
     >
@@ -128,7 +128,7 @@ export function Scene() {
       />
 
       {/* Wood desk with a blurred reflection of the receiver */}
-      <mesh position={[0, -2.1, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <mesh position={[0, -2.45, 0]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
         <planeGeometry args={[40, 24]} />
         <MeshReflectorMaterial
           map={deskTex}
@@ -146,7 +146,7 @@ export function Scene() {
         />
       </mesh>
       {/* Desk edge below the polished top */}
-      <mesh position={[0, -2.37, 0]}>
+      <mesh position={[0, -2.72, 0]}>
         <boxGeometry args={[40, 0.5, 24]} />
         <meshStandardMaterial map={deskEdgeTex} color="#8a5a34" roughness={0.5} metalness={0.05} />
       </mesh>
@@ -157,10 +157,10 @@ export function Scene() {
         makeDefault
         enablePan={false}
         minDistance={5}
-        maxDistance={16}
+        maxDistance={18}
         minPolarAngle={Math.PI * 0.3}
         maxPolarAngle={Math.PI * 0.56}
-        target={[0, -0.15, 0]}
+        target={[0, -0.2, 0]}
         enableDamping
         dampingFactor={0.08}
       />

@@ -584,11 +584,11 @@ export function makeNumberRing(max = 10) {
     // Tick dot (just outside the knob flange)
     ctx.fillStyle = "rgba(26,18,8,0.9)";
     ctx.beginPath();
-    ctx.arc(cx + Math.sin(rad) * SIZE * 0.385, cy - Math.cos(rad) * SIZE * 0.385, 4, 0, Math.PI * 2);
+    ctx.arc(cx + Math.sin(rad) * SIZE * 0.425, cy - Math.cos(rad) * SIZE * 0.425, 5, 0, Math.PI * 2);
     ctx.fill();
     // Engraved number (light shadow below = pressed-in look)
-    const nx = cx + Math.sin(rad) * SIZE * 0.465;
-    const ny = cy - Math.cos(rad) * SIZE * 0.465;
+    const nx = cx + Math.sin(rad) * SIZE * 0.472;
+    const ny = cy - Math.cos(rad) * SIZE * 0.472;
     ctx.font = "700 40px 'Helvetica Neue', 'Arial Black', sans-serif";
     ctx.fillStyle = "rgba(255,255,255,0.55)";
     ctx.fillText(String(i), nx, ny + 2);
@@ -650,11 +650,11 @@ export function makeVuMeterFace(opts: { subtitle: string }) {
     return [cx + Math.sin(rad) * r, cy - Math.cos(rad) * r] as const;
   };
 
-  // Red zone band (values 70..100 on the right)
+  // Red zone band (values 70..100 on the right of the -50..+50 scale)
   ctx.strokeStyle = "rgba(200,32,20,0.85)";
   ctx.lineWidth = R * 0.075;
   ctx.beginPath();
-  ctx.arc(cx, cy, R * 0.885, ((70 - 90) * Math.PI) / 180, ((100 - 90) * Math.PI) / 180);
+  ctx.arc(cx, cy, R * 0.885, ((20 - 90) * Math.PI) / 180, ((50 - 90) * Math.PI) / 180);
   ctx.stroke();
 
   // Ticks: majors every 20, minors every 5, across -50°..+50°
@@ -662,9 +662,9 @@ export function makeVuMeterFace(opts: { subtitle: string }) {
     const a = -50 + v; // degrees
     const major = v % 20 === 0;
     const [x1, y1] = polar(a, R * 0.93);
-    const [x2, y2] = polar(a, R * (major ? 0.8 : 0.86));
+    const [x2, y2] = polar(a, R * (major ? 0.78 : 0.85));
     ctx.strokeStyle = "#1a1208";
-    ctx.lineWidth = major ? 5 : 2.4;
+    ctx.lineWidth = major ? 7 : 3;
     ctx.beginPath();
     ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
@@ -673,16 +673,16 @@ export function makeVuMeterFace(opts: { subtitle: string }) {
 
   // Main numbers 0..100
   ctx.fillStyle = "#1a1208";
-  ctx.font = "800 44px 'Helvetica Neue', 'Arial Black', sans-serif";
+  ctx.font = "800 54px 'Helvetica Neue', 'Arial Black', sans-serif";
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   for (let v = 0; v <= 100; v += 20) {
-    const [x, y] = polar(-50 + v, R * 0.68);
+    const [x, y] = polar(-50 + v, R * 0.66);
     ctx.fillText(String(v), x, y);
   }
 
   // dB sub-scale
-  ctx.font = "700 24px 'Helvetica Neue', sans-serif";
+  ctx.font = "700 30px 'Helvetica Neue', sans-serif";
   const subs = ["-20", "-10", "-5", "-3", "0", "+3"];
   for (let i = 0; i < subs.length; i++) {
     const a = -50 + (i * 100) / (subs.length - 1);
@@ -778,7 +778,7 @@ export function makeTunerFace() {
 
   // FM row: label, numbers, unit
   ctx.fillStyle = "#ff9838";
-  ctx.font = "800 46px 'Helvetica Neue', 'Arial Black', sans-serif";
+  ctx.font = "800 52px 'Helvetica Neue', 'Arial Black', sans-serif";
   ctx.textAlign = "left";
   ctx.fillText("FM", 90, H * 0.3);
   ctx.textAlign = "right";
@@ -786,7 +786,7 @@ export function makeTunerFace() {
 
   const fm = ["88", "92", "96", "100", "104", "108"];
   ctx.textAlign = "center";
-  ctx.font = "800 58px 'Helvetica Neue', 'Arial Black', sans-serif";
+  ctx.font = "800 68px 'Helvetica Neue', 'Arial Black', sans-serif";
   for (let i = 0; i < fm.length; i++) {
     const x = L + (i * (Rt - L)) / (fm.length - 1);
     ctx.fillStyle = "#ffc070";
@@ -803,7 +803,7 @@ export function makeTunerFace() {
   for (let i = 0; i <= 40; i++) {
     const x = L + (i * (Rt - L)) / 40;
     const major = i % 4 === 0;
-    ctx.lineWidth = major ? 3 : 1.6;
+    ctx.lineWidth = major ? 4 : 2;
     ctx.beginPath();
     ctx.moveTo(x, H * 0.5 - (major ? 26 : 14));
     ctx.lineTo(x, H * 0.5);
@@ -812,7 +812,7 @@ export function makeTunerFace() {
 
   // AM row
   ctx.fillStyle = "#e07820";
-  ctx.font = "800 42px 'Helvetica Neue', 'Arial Black', sans-serif";
+  ctx.font = "800 48px 'Helvetica Neue', 'Arial Black', sans-serif";
   ctx.textAlign = "left";
   ctx.fillText("AM", 90, H * 0.74);
   ctx.textAlign = "right";
@@ -820,7 +820,7 @@ export function makeTunerFace() {
 
   const am = ["550", "700", "1000", "1300", "1600"];
   ctx.textAlign = "center";
-  ctx.font = "700 46px 'Helvetica Neue', sans-serif";
+  ctx.font = "700 54px 'Helvetica Neue', sans-serif";
   for (let i = 0; i < am.length; i++) {
     const x = L + (i * (Rt - L)) / (am.length - 1);
     ctx.fillStyle = "#ffab58";
