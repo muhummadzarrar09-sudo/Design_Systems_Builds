@@ -142,6 +142,9 @@ export function HiFi() {
       <Decal position={[3.44, -1.71, FRONT + 0.001]} w={1.0} h={1.0} o={0.32} />
       <Decal position={[-0.51, -1.7, FRONT + 0.001]} w={3.45} h={1.2} o={0.3} />
 
+      {/* ── Model badge, bottom-left like real receivers ────────── */}
+      <EngravedLabel text="SOLID STATE · MODEL MK-VII" position={[-3.05, -2.16, FRONT + 0.002]} size={0.13} />
+
       {/* ── Corner screws ───────────────────────────────────────── */}
       <Screw position={[-3.97, 2.02, FRONT + 0.005]} rot={0.7} />
       <Screw position={[3.97, 2.02, FRONT + 0.005]} rot={2.2} />
@@ -150,7 +153,7 @@ export function HiFi() {
 
       {/* ── ROW 1: VU meters + tuner ────────────────────────────── */}
       <VuMeter position={[-3.08, 1.0, FRONT]} radius={0.72} subtitle="LEFT CHANNEL" level={level} side="l" powerOn={powerOn} />
-      <Tuner position={[0, 1.08, FRONT]} width={4.12} height={1.18} freq={tunerFreq} onChange={setTunerFreq} powerOn={powerOn} />
+      <Tuner position={[0, 1.08, FRONT]} width={4.12} height={1.18} freq={tunerFreq} onChange={setTunerFreq} powerOn={powerOn} stereo={powerOn && selectedInput === 4} />
       <VuMeter position={[3.08, 1.0, FRONT]} radius={0.72} subtitle="RIGHT CHANNEL" level={level} side="r" powerOn={powerOn} />
 
       {/* ── ROW 2: 8 push-buttons + volume knob ─────────────────── */}
@@ -206,7 +209,7 @@ function EngravedLabel({
   return (
     <mesh position={position} renderOrder={4}>
       <planeGeometry args={[size * aspect, size]} />
-      <meshStandardMaterial map={tex} transparent depthWrite={false} roughness={0.55} metalness={0.3} />
+      <meshStandardMaterial map={tex} transparent depthWrite={false} roughness={0.62} metalness={0} />
     </mesh>
   );
 }
@@ -337,6 +340,10 @@ function VuMeter({
     () => new THREE.MeshStandardMaterial({ color: "#c89030", roughness: 0.28, metalness: 1.0, envMapIntensity: 1.3 }),
     []
   );
+  const needleShadowMat = useMemo(
+    () => new THREE.MeshBasicMaterial({ color: "#000000", transparent: true, opacity: 0.28, depthWrite: false }),
+    []
+  );
 
   const r = radius;
   return (
@@ -364,6 +371,10 @@ function VuMeter({
       </mesh>
       {/* Needle (pivot sits at the drawn dial center) */}
       <group ref={needleRef} position={[0, VU_PIVOT_Y * r, 0.075]}>
+        {/* Needle shadow cast on the face, offset toward lower-left */}
+        <mesh material={needleShadowMat} position={[-0.018, r * 0.39, -0.02]} rotation={[0, 0, 0.04]}>
+          <boxGeometry args={[0.02, r * 0.84, 0.004]} />
+        </mesh>
         <mesh material={needleMat} position={[0, r * 0.4, 0]}>
           <boxGeometry args={[0.016, r * 0.84, 0.008]} />
         </mesh>
@@ -410,6 +421,7 @@ function Tuner({
   freq,
   onChange,
   powerOn,
+  stereo,
 }: {
   position: [number, number, number];
   width: number;
@@ -417,6 +429,7 @@ function Tuner({
   freq: number;
   onChange: (f: number) => void;
   powerOn: boolean;
+  stereo: boolean;
 }) {
   const face = useMemo(() => makeTunerFace(), []);
   const glow = useMemo(() => makeGlowTexture("#ffd9a0", "#ff7010"), []);
@@ -440,7 +453,7 @@ function Tuner({
         metalness: 0.1,
         emissive: "#ffffff",
         emissiveMap: face,
-        emissiveIntensity: 1.35,
+        emissiveIntensity: 1.15,
       }),
     [face]
   );
@@ -454,7 +467,7 @@ function Tuner({
     }
     const w = powerOn ? Math.min(1, (t - warm0.current) / 0.9) : 1;
     const flick = powerOn && w < 1 ? 0.7 + 0.3 * Math.abs(Math.sin(t * 61) * Math.sin(t * 29)) : 1;
-    const target = powerOn ? 1.35 * Math.max(0.05, w * flick) : 0.12;
+    const target = powerOn ? 1.15 * Math.max(0.05, w * flick) : 0.12;
     faceMat.emissiveIntensity += (target - faceMat.emissiveIntensity) * Math.min(1, dt * 30);
   });
 
@@ -496,15 +509,33 @@ function Tuner({
       {/* Tuned-frequency indicator */}
       {powerOn && (
         <group position={[indicatorX, 0, 0.062]}>
-          <mesh>
-            <planeGeometry args={[0.035, height * 0.94]} />
+          {/* Physical pointer rod, not a flat line */}
+          <mesh castShadow>
+            <boxGeometry args={[0.028, height * 0.94, 0.016]} />
             <meshBasicMaterial color={indColor} toneMapped={false} />
           </mesh>
           <sprite scale={[0.5, height * 1.25, 1]}>
-            <spriteMaterial map={glow} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.55} />
+            <spriteMaterial map={glow} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.45} />
           </sprite>
         </group>
       )}
+      {/* STEREO lock lamp */}
+      <group position={[-1.76, -0.024, 0.06]}>
+        <mesh>
+          <sphereGeometry args={[0.035, 16, 16]} />
+          <meshStandardMaterial
+            color={stereo ? "#ffb040" : "#3a2008"}
+            emissive={stereo ? "#ff9020" : "#000000"}
+            emissiveIntensity={stereo ? 2.5 : 0}
+            roughness={0.3}
+          />
+        </mesh>
+        {stereo && (
+          <sprite scale={[0.22, 0.22, 1]} position={[0, 0, 0.01]}>
+            <spriteMaterial map={glow} transparent depthWrite={false} blending={THREE.AdditiveBlending} opacity={0.6} />
+          </sprite>
+        )}
+      </group>
       {/* Glass */}
       <mesh position={[0, 0, 0.075]} renderOrder={10}>
         <planeGeometry args={[width + 0.06, height + 0.06]} />
@@ -560,16 +591,24 @@ function PushButton({
       }),
     [pressed, hover]
   );
+  const spunBtn = useMemo(() => makeSpunMetalTop(false), []);
+  const capFaceMat = useMemo(
+    () => new THREE.MeshStandardMaterial({ map: spunBtn, roughness: 0.3, metalness: 0.9, envMapIntensity: hover ? 1.6 : 1.2 }),
+    [spunBtn, hover]
+  );
+  const gapMat = useMemo(() => new THREE.MeshStandardMaterial({ color: "#0a0806", roughness: 0.7 }), []);
+  const capZ = pressed ? 0.005 : 0.03;
   return (
     <group position={[x, 0, 0]}>
+      <Decal position={[0, -0.05, 0.0008]} w={0.52} h={0.52} o={0.3} />
       <mesh material={bezelMat} position={[0, 0, 0.015]}>
         <torusGeometry args={[0.125, 0.024, 16, 40]} />
       </mesh>
-      <mesh
-        material={capMat}
-        rotation={[Math.PI / 2, 0, 0]}
-        position={[0, 0, pressed ? 0.005 : 0.03]}
-        castShadow
+      {/* Dark gap ring behind the cap (depth when pressed) */}
+      <mesh material={gapMat} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, 0.012]}>
+        <cylinderGeometry args={[0.112, 0.112, 0.03, 32]} />
+      </mesh>
+      <group
         onClick={(e: ThreeEvent<MouseEvent>) => {
           e.stopPropagation();
           click("button");
@@ -585,8 +624,14 @@ function PushButton({
           document.body.style.cursor = "auto";
         }}
       >
-        <cylinderGeometry args={[0.105, 0.115, 0.06, 32]} />
-      </mesh>
+        <mesh material={capMat} rotation={[Math.PI / 2, 0, 0]} position={[0, 0, capZ]} castShadow>
+          <cylinderGeometry args={[0.105, 0.115, 0.06, 32]} />
+        </mesh>
+        {/* Radial-brushed cap face, like the photo's buttons */}
+        <mesh material={capFaceMat} position={[0, 0, capZ + 0.032]}>
+          <circleGeometry args={[0.1, 32]} />
+        </mesh>
+      </group>
       {isPower && (
         <group position={[-0.3, 0, 0.02]}>
           <mesh material={bezelMat}>
@@ -714,7 +759,7 @@ function Knob({
       {/* Numbered skirt ring */}
       <mesh position={[0, 0, 0.004]} renderOrder={2}>
         <planeGeometry args={[radius * 3.0, radius * 3.0]} />
-        <meshStandardMaterial map={ring} transparent depthWrite={false} roughness={0.5} metalness={0.3} />
+        <meshStandardMaterial map={ring} transparent depthWrite={false} roughness={0.6} metalness={0} />
       </mesh>
       {label && <EngravedLabel text={label} position={[0, radius * 1.85, 0.004]} size={0.16} />}
       {/* Mounting flange */}

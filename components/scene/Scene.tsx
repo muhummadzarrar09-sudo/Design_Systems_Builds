@@ -167,7 +167,7 @@ export function Scene() {
 
       {/* Glow for the backlight / LED / needles + filmic grade */}
       <EffectComposer multisampling={4}>
-        <Bloom mipmapBlur intensity={0.85} luminanceThreshold={1.0} luminanceSmoothing={0.25} />
+        <Bloom mipmapBlur intensity={0.7} luminanceThreshold={1.0} luminanceSmoothing={0.15} />
         <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
         <Vignette eskil={false} offset={0.22} darkness={0.85} />
       </EffectComposer>

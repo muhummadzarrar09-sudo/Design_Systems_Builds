@@ -521,8 +521,8 @@ export function makeKnurlChrome() {
   return tex;
 }
 
-/* Spun-metal knob top with a pointer line at 12 o'clock */
-export function makeSpunMetalTop() {
+/* Spun-metal knob top; optional pointer line at 12 o'clock */
+export function makeSpunMetalTop(withPointer = true) {
   const SIZE = 512;
   const { c, ctx } = makeCanvas(SIZE);
   const cx = SIZE / 2;
@@ -547,13 +547,15 @@ export function makeSpunMetalTop() {
   }
 
   // Pointer line at top
-  ctx.strokeStyle = "#16100a";
-  ctx.lineCap = "round";
-  ctx.lineWidth = 22;
-  ctx.beginPath();
-  ctx.moveTo(cx, SIZE * 0.1);
-  ctx.lineTo(cx, SIZE * 0.24);
-  ctx.stroke();
+  if (withPointer) {
+    ctx.strokeStyle = "#16100a";
+    ctx.lineCap = "round";
+    ctx.lineWidth = 22;
+    ctx.beginPath();
+    ctx.moveTo(cx, SIZE * 0.1);
+    ctx.lineTo(cx, SIZE * 0.24);
+    ctx.stroke();
+  }
 
   // Center dimple
   const dim = ctx.createRadialGradient(cx, cx, 2, cx, cx, 40);
@@ -590,7 +592,7 @@ export function makeNumberRing(max = 10) {
     const nx = cx + Math.sin(rad) * SIZE * 0.472;
     const ny = cy - Math.cos(rad) * SIZE * 0.472;
     ctx.font = "700 40px 'Helvetica Neue', 'Arial Black', sans-serif";
-    ctx.fillStyle = "rgba(255,255,255,0.55)";
+    ctx.fillStyle = "rgba(255,255,255,0.35)";
     ctx.fillText(String(i), nx, ny + 2);
     ctx.fillStyle = "#1a1208";
     ctx.fillText(String(i), nx, ny);
@@ -670,6 +672,17 @@ export function makeVuMeterFace(opts: { subtitle: string }) {
     ctx.lineTo(x2, y2);
     ctx.stroke();
   }
+
+  // Printed arc lines through the tick bases (real meter printing)
+  ctx.strokeStyle = "rgba(26,18,8,0.85)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * 0.78, ((-50 - 90) * Math.PI) / 180, ((50 - 90) * Math.PI) / 180);
+  ctx.stroke();
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  ctx.arc(cx, cy, R * 0.52, ((-50 - 90) * Math.PI) / 180, ((50 - 90) * Math.PI) / 180);
+  ctx.stroke();
 
   // Main numbers 0..100
   ctx.fillStyle = "#1a1208";
@@ -826,6 +839,29 @@ export function makeTunerFace() {
     ctx.fillStyle = "#ffab58";
     ctx.fillText(am[i], x, H * 0.74);
   }
+
+  // STEREO lamp mark (left middle) — the 3D lamp sits on this spot
+  ctx.strokeStyle = "rgba(255,170,80,0.8)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(150, H * 0.52, 17, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.fillStyle = "rgba(255,170,80,0.85)";
+  ctx.font = "700 26px 'Helvetica Neue', sans-serif";
+  ctx.textAlign = "left";
+  ctx.fillText("STEREO", 180, H * 0.52 + 2);
+
+  // Ribbed dial glass — fine vertical prism lines
+  ctx.globalAlpha = 0.05;
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 1;
+  for (let x = 0; x < W; x += 6) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, H);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
 
   // Glass glare
   const gl = ctx.createLinearGradient(0, 0, 0, H);
@@ -1022,23 +1058,24 @@ export function makeSoftShadow(strength = 0.6) {
   return tex;
 }
 
-/* Engraved text on a thin plane (used for all the labels) */
+/* Engraved text on a thin plane (used for all the labels) — 2× supersampled for crisp edges */
 export function makeEngravedLabel(text: string, fontSize = 32, color = "#1a1208"): THREE.CanvasTexture {
+  const ss = 2;
   const c = document.createElement("canvas");
-  c.width = Math.max(256, text.length * fontSize * 0.72);
-  c.height = fontSize * 1.7;
+  c.width = Math.max(256, text.length * fontSize * 0.72) * ss;
+  c.height = fontSize * 1.7 * ss;
   const ctx = c.getContext("2d")!;
   ctx.clearRect(0, 0, c.width, c.height);
-  ctx.font = `800 ${fontSize}px "Helvetica Neue", "Arial Black", sans-serif`;
+  ctx.font = `800 ${fontSize * ss}px "Helvetica Neue", "Arial Black", sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
   // Light edge below = pressed-into-metal look
   ctx.fillStyle = "rgba(255,255,255,0.5)";
-  ctx.fillText(text, c.width / 2, c.height / 2 + fontSize * 0.05);
+  ctx.fillText(text, c.width / 2, c.height / 2 + fontSize * 0.06 * ss);
   ctx.fillStyle = color;
-  ctx.fillText(text, c.width / 2, c.height / 2 - fontSize * 0.03);
+  ctx.fillText(text, c.width / 2, c.height / 2 - fontSize * 0.03 * ss);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 8;
+  tex.anisotropy = 16;
   return tex;
 }
