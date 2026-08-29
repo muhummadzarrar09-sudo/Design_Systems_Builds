@@ -180,6 +180,26 @@ function makeClusterTexture() {
   return tex;
 }
 
+function makeDotTexture() {
+  const c = document.createElement("canvas");
+  c.width = 256;
+  c.height = 64;
+  const x = c.getContext("2d")!;
+  x.fillStyle = "#26282a";
+  x.fillRect(0, 0, 256, 64);
+  x.fillStyle = "#0c0d0e";
+  for (let i = 0; i < 16; i++)
+    for (let j = 0; j < 4; j++) {
+      x.beginPath();
+      x.arc(8 + i * 16, 8 + j * 16, 4, 0, Math.PI * 2);
+      x.fill();
+    }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.repeat.set(3, 1);
+  return t;
+}
+
 /* ---------------- extruded side-profile body ---------------- */
 
 function profileShape(pts: [number, number][]) {
@@ -368,11 +388,12 @@ export function JetourT1() {
     [clusterTex]
   );
 
-  const dashes = useMemo(() => {
-    const d: [number, number][] = [];
-    for (let row = 0; row < 2; row++) for (let i = 0; i < 7; i++) d.push([-0.42 + i * 0.14, row === 0 ? 1.0 : 0.92]);
-    return d;
-  }, []);
+  const grilleTex = useMemo(() => makeLetterTexture("JETOUR", "#eaf2f8", "#08090a", 46), []);
+  const grilleMat = useMemo(
+    () => new THREE.MeshStandardMaterial({ color: "#08090a", emissive: "#ffffff", emissiveMap: grilleTex, emissiveIntensity: 1.9, roughness: 0.4 }),
+    [grilleTex]
+  );
+  const dotTex = useMemo(() => makeDotTexture(), []);
 
   return (
     <group>
@@ -402,8 +423,8 @@ export function JetourT1() {
       ))}
       {[1, -1].map((s) => (
         <group key={s} position={[s * 0.84, 1.52, -1.52]}>
-          {[0, 1, 2].map((i) => (
-            <mesh key={i} material={mats.plasticSoft} position={[0, -i * 0.07, 0]} rotation={[0.5, 0, 0]}>
+          {[0, 1, 2, 3].map((i) => (
+            <mesh key={i} material={mats.plasticSoft} position={[0, -i * 0.065, 0]} rotation={[0.5, 0, 0]}>
               <boxGeometry args={[0.02, 0.03, 0.3]} />
             </mesh>
           ))}
@@ -414,6 +435,13 @@ export function JetourT1() {
       {[1, -1].map((s) => (
         <mesh key={s} material={mats.seam} position={[s * 0.975, 1.165, -0.5]}>
           <boxGeometry args={[0.015, 0.035, 4.2]} />
+        </mesh>
+      ))}
+
+      {/* Shoulder crease */}
+      {[1, -1].map((s) => (
+        <mesh key={s} material={mats.paint} position={[s * 0.978, 1.06, -0.45]}>
+          <boxGeometry args={[0.018, 0.025, 3.9]} />
         </mesh>
       ))}
 
@@ -429,8 +457,8 @@ export function JetourT1() {
       {/* ══ ARCH CLADDING ══ */}
       {[WB / 2, -WB / 2].map((z) => (
         <group key={z} position={[0, 0, z]}>
-          <mesh geometry={archGeo} material={mats.plastic} position={[1.06, 0, 0]} castShadow />
-          <mesh geometry={archGeo} material={mats.plastic} position={[-0.94, 0, 0]} castShadow />
+          <mesh geometry={archGeo} material={mats.plastic} position={[1.08, 0, 0]} castShadow />
+          <mesh geometry={archGeo} material={mats.plastic} position={[-0.96, 0, 0]} castShadow />
         </group>
       ))}
 
@@ -447,14 +475,12 @@ export function JetourT1() {
       ))}
 
       {/* ══ FRONT END ══ */}
-      <mesh position={[0, 0.96, 2.29]} material={mats.plastic}>
-        <boxGeometry args={[1.56, 0.3, 0.05]} />
+      <mesh position={[0, 0.98, 2.29]} material={mats.plastic}>
+        <boxGeometry args={[1.72, 0.34, 0.05]} />
       </mesh>
-      {dashes.map(([x, y], i) => (
-        <mesh key={i} material={mats.drl} position={[x, y, 2.325]}>
-          <boxGeometry args={[0.095, 0.032, 0.02]} />
-        </mesh>
-      ))}
+      <mesh material={grilleMat} position={[0, 0.98, 2.322]}>
+        <planeGeometry args={[1.42, 0.2]} />
+      </mesh>
       {[1, -1].map((s) => (
         <group key={s} position={[s * 0.77, 0.96, 2.3]}>
           <mesh material={mats.plasticSoft}>
@@ -473,7 +499,25 @@ export function JetourT1() {
           ))}
         </group>
       ))}
+      <mesh position={[0, 0.78, 2.3]} material={mats.paint}>
+        <boxGeometry args={[1.5, 0.06, 0.05]} />
+      </mesh>
+      <mesh position={[0, 0.71, 2.31]} material={mats.plastic}>
+        <boxGeometry args={[1.4, 0.06, 0.05]} />
+      </mesh>
       <RoundedBox args={[W + 0.01, 0.4, 0.3]} radius={0.06} position={[0, 0.42, 2.2]} material={mats.plastic} castShadow />
+      {[1, -1].map((s) => (
+        <RoundedBox key={s} args={[0.16, 0.52, 0.55]} radius={0.04} material={mats.plastic} position={[s * 0.92, 0.52, 2.08]} castShadow />
+      ))}
+      {[1, -1].map((s) => (
+        <mesh key={s} material={mats.drl} position={[s * 0.78, 0.52, 2.355]}>
+          <boxGeometry args={[0.12, 0.05, 0.02]} />
+        </mesh>
+      ))}
+      <mesh position={[0, 0.3, 2.357]}>
+        <planeGeometry args={[1.2, 0.16]} />
+        <meshStandardMaterial map={dotTex} roughness={0.8} />
+      </mesh>
       <mesh position={[0, 0.3, 2.32]} material={mats.plasticSoft}>
         <boxGeometry args={[1.2, 0.16, 0.06]} />
       </mesh>
@@ -492,8 +536,23 @@ export function JetourT1() {
       <mesh position={[0, 1.145, 2.05]} material={mats.silver}>
         <boxGeometry args={[0.12, 0.015, 0.06]} />
       </mesh>
+      {[1, -1].map((s) => (
+        <mesh key={s} material={mats.paint} position={[s * 0.38, 1.15, 1.5]} rotation={[0, 0, s * 0.05]}>
+          <boxGeometry args={[0.05, 0.02, 1.1]} />
+        </mesh>
+      ))}
+      {/* wipers on the cowl */}
+      <mesh material={mats.plastic} position={[-0.28, 1.175, 0.94]} rotation={[0, 0.5, 0]}>
+        <boxGeometry args={[0.5, 0.015, 0.03]} />
+      </mesh>
+      <mesh material={mats.plastic} position={[0.3, 1.175, 0.96]} rotation={[0, 0.35, 0]}>
+        <boxGeometry args={[0.45, 0.015, 0.03]} />
+      </mesh>
 
       {/* ══ REAR END ══ */}
+      <mesh position={[0, 0.8, -2.315]} material={mats.plasticSoft}>
+        <boxGeometry args={[1.6, 0.55, 0.05]} />
+      </mesh>
       <mesh position={[0, 1.16, -2.31]} material={mats.paint}>
         <boxGeometry args={[W - 0.2, 0.3, 0.06]} />
       </mesh>
