@@ -11,7 +11,7 @@
    +Z = front, +Y = up. LHD per press fleet.
    =================================================================== */
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { RoundedBox } from "@react-three/drei";
 
@@ -252,13 +252,13 @@ function useBodyGeometries() {
 
     const upper = profileShape([
       [1.0, 1.1],
-      [0.78, 1.42],
-      [0.58, 1.66],
-      [0.4, 1.72],
+      [0.86, 1.42],
+      [0.66, 1.66],
+      [0.5, 1.72],
       [-1.55, 1.75],
       [-1.85, 1.7],
-      [-2.16, 1.32],
-      [-2.2, 1.1],
+      [-2.12, 1.34],
+      [-2.18, 1.1],
     ]);
     const upperGeo = new THREE.ExtrudeGeometry(upper, {
       depth: 1.52,
@@ -372,8 +372,34 @@ function Seat({ position, mats, wide = false }: { position: [number, number, num
 
 /* ---------------- the car ---------------- */
 
-export function JetourT1() {
+function HeadBeam({ x }: { x: number }) {
+  const { light, target } = useMemo(() => {
+    const l = new THREE.SpotLight("#eaf4ff", 90, 22, 0.5, 0.55, 1.4);
+    l.position.set(x, 0.95, 2.3);
+    const t = new THREE.Object3D();
+    t.position.set(x * 1.6, 0.05, 13);
+    l.target = t;
+    return { light: l, target: t };
+  }, [x]);
+  return (
+    <>
+      <primitive object={light} />
+      <primitive object={target} />
+    </>
+  );
+}
+
+export function JetourT1({ paint = "#9fb8a8", night = false }: { paint?: string; night?: boolean }) {
   const mats = useMats();
+  useEffect(() => {
+    mats.paint.color.set(paint);
+  }, [mats, paint]);
+  useEffect(() => {
+    mats.drl.emissiveIntensity = night ? 5.5 : 3.2;
+    mats.tail.emissiveIntensity = night ? 4.5 : 2.4;
+    mats.ambient.emissiveIntensity = night ? 3.2 : 2.2;
+    mats.dome.emissiveIntensity = night ? 3.2 : 2.0;
+  }, [mats, night]);
   const { lowerGeo, upperGeo, archGeo } = useBodyGeometries();
   const jetourTex = useMemo(() => makeLetterTexture("JETOUR", "#e0e4e8"), []);
   const plateTex = useMemo(() => makeLetterTexture("T1", "#e8e8e8", "#101010", 8), []);
@@ -442,6 +468,13 @@ export function JetourT1() {
       {[1, -1].map((s) => (
         <mesh key={s} material={mats.paint} position={[s * 0.978, 1.06, -0.45]}>
           <boxGeometry args={[0.018, 0.025, 3.9]} />
+        </mesh>
+      ))}
+
+      {/* Door surface sculpt shadow */}
+      {[1, -1].map((s) => (
+        <mesh key={s} material={mats.plasticSoft} position={[s * 0.968, 0.88, -0.45]}>
+          <boxGeometry args={[0.012, 0.16, 1.7]} />
         </mesh>
       ))}
 
@@ -514,6 +547,13 @@ export function JetourT1() {
           <boxGeometry args={[0.12, 0.05, 0.02]} />
         </mesh>
       ))}
+      {[1, -1].map((s) =>
+        [0, 1, 2].map((i) => (
+          <mesh key={`${s}-${i}`} material={mats.plasticSoft} position={[s * (0.86 + i * 0.045), 0.5, 2.345]}>
+            <boxGeometry args={[0.018, 0.26, 0.02]} />
+          </mesh>
+        ))
+      )}
       <mesh position={[0, 0.3, 2.357]}>
         <planeGeometry args={[1.2, 0.16]} />
         <meshStandardMaterial map={dotTex} roughness={0.8} />
@@ -805,6 +845,20 @@ export function JetourT1() {
       <mesh material={mats.plastic} position={[-0.7, 0.95, 1.75]}>
         <boxGeometry args={[0.22, 0.14, 0.26]} />
       </mesh>
+
+      {/* Night: working headlight beams */}
+      {night && (
+        <>
+          <HeadBeam x={0.7} />
+          <HeadBeam x={-0.7} />
+          {[1, -1].map((sd) => (
+            <mesh key={sd} position={[sd * 0.77, 0.96, 2.34]}>
+              <sphereGeometry args={[0.09, 12, 12]} />
+              <meshBasicMaterial color="#dff2ff" />
+            </mesh>
+          ))}
+        </>
+      )}
 
       {/* ══ WHEELS ══ */}
       <Wheel position={[TRACK_X, TIRE_R, WB / 2]} mats={mats} />

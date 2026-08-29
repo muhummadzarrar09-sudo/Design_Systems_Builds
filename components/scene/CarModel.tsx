@@ -50,7 +50,7 @@ function RealGltf() {
   return <primitive object={normalized} />;
 }
 
-export function CarModel() {
+export function CarModel({ paint, night }: { paint?: string; night?: boolean }) {
   const [mode, setMode] = useState<"checking" | "glb" | "procedural">("checking");
   useEffect(() => {
     let on = true;
@@ -64,9 +64,9 @@ export function CarModel() {
 
   if (mode === "glb")
     return (
-      <Suspense fallback={<JetourT1 />}>
+      <Suspense fallback={<JetourT1 paint={paint} night={night} />}>
         <RealGltf />
       </Suspense>
     );
-  return <JetourT1 />;
+  return <JetourT1 paint={paint} night={night} />;
 }
