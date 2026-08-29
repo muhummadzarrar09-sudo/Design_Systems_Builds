@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 
-const Scene = dynamic(() => import("./scene/Scene").then((m) => m.Scene), {
+const Scene = dynamic(() => import("./scene/CarScene").then((m) => m.CarScene), {
   ssr: false,
   loading: () => null,
 });
