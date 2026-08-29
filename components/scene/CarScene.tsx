@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useThree } from "@react-three/fiber";
-import { OrbitControls, Sky, Environment, Lightformer } from "@react-three/drei";
+import { OrbitControls, Sky, Environment, Lightformer, MeshReflectorMaterial } from "@react-three/drei";
 import { EffectComposer, Bloom, Vignette, ToneMapping } from "@react-three/postprocessing";
 import { ToneMappingMode } from "postprocessing";
 import { Suspense, useEffect } from "react";
@@ -61,10 +61,22 @@ export function CarScene() {
         </Environment>
       </Suspense>
 
-      {/* Concrete plaza ground */}
+      {/* Polished concrete plaza — soft mirror for the hero shot */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
         <circleGeometry args={[90, 64]} />
-        <meshStandardMaterial color="#b4b7b9" roughness={0.9} metalness={0.05} />
+        <MeshReflectorMaterial
+          blur={[300, 100]}
+          resolution={1024}
+          mixBlur={1}
+          mixStrength={0.55}
+          mixContrast={1.1}
+          roughness={0.75}
+          metalness={0.15}
+          depthScale={0.2}
+          minDepthThreshold={0.4}
+          maxDepthThreshold={1.5}
+          color="#b4b7b9"
+        />
       </mesh>
 
       <Suspense fallback={null}>
