@@ -5,7 +5,7 @@ import { OrbitControls, Sky, Environment, Lightformer, MeshReflectorMaterial } f
 import { EffectComposer, Bloom, Vignette, ToneMapping } from "@react-three/postprocessing";
 import { ToneMappingMode } from "postprocessing";
 import { Suspense, useEffect } from "react";
-import { JetourT1 } from "./JetourT1";
+import { CarModel } from "./CarModel";
 
 /* Turntable that yields to the user on first interaction */
 function ShowcaseControls() {
@@ -80,7 +80,7 @@ export function CarScene() {
       </mesh>
 
       <Suspense fallback={null}>
-        <JetourT1 />
+        <CarModel />
       </Suspense>
 
       <ShowcaseControls />
