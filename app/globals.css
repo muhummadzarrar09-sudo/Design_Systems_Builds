@@ -1,4 +1,4 @@
-/* Minimal global styles — the 3D canvas does the heavy lifting now */
+/* Minimal global styles — the 3D canvas does all the work */
 
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; height: 100%; }
@@ -7,7 +7,7 @@ body {
   background: #0a0604;
   color: #d4b87a;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  overflow: hidden;
 }
 
 .scene-host {
@@ -18,103 +18,6 @@ body {
     radial-gradient(ellipse at 50% 30%, #2a1a10 0%, #0a0604 70%, #050302 100%);
   overflow: hidden;
 }
-
-.scene-canvas {
-  position: absolute;
-  inset: 0;
-  cursor: grab;
-}
-.scene-canvas:active { cursor: grabbing; }
-
-.hud {
-  position: absolute;
-  z-index: 10;
-  pointer-events: none;
-}
-.hud > * { pointer-events: auto; }
-
-.hud-top {
-  top: 0; left: 0; right: 0;
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: linear-gradient(180deg, rgba(10,6,4,0.7) 0%, transparent 100%);
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  background: linear-gradient(180deg, #f3d27a 0%, #a87a2a 100%);
-  border-radius: 4px;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 200, 0.6),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.4),
-    0 2px 6px rgba(0, 0, 0, 0.5);
-}
-.brand-mark {
-  width: 12px; height: 16px;
-  background: linear-gradient(180deg, #fff5d0, #d4a64a);
-  clip-path: polygon(50% 0, 0 50%, 40% 50%, 30% 100%, 100% 40%, 60% 40%);
-}
-.brand-text {
-  font-family: "Trajan Pro", "Cinzel", "Times New Roman", serif;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.3em;
-  color: #3a2208;
-  text-shadow: 0 1px 0 rgba(255, 235, 180, 0.7);
-}
-
-.nav-tabs {
-  display: flex;
-  gap: 4px;
-  background: rgba(20, 12, 8, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  padding: 4px;
-  border-radius: 6px;
-  border: 1px solid rgba(180, 130, 70, 0.2);
-}
-.nav-tab {
-  padding: 8px 16px;
-  font-family: "Courier New", monospace;
-  font-size: 10px;
-  letter-spacing: 0.25em;
-  color: #b89a6a;
-  background: transparent;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  text-transform: uppercase;
-}
-.nav-tab:hover { color: #e8c870; }
-.nav-tab.active {
-  color: #f3d27a;
-  background: linear-gradient(180deg, rgba(212, 166, 74, 0.2), rgba(212, 166, 74, 0.05));
-  box-shadow: inset 0 0 0 1px rgba(212, 166, 74, 0.4);
-}
-
-.hud-bottom {
-  bottom: 0; left: 0; right: 0;
-  padding: 16px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: linear-gradient(0deg, rgba(10, 6, 4, 0.7) 0%, transparent 100%);
-  font-family: "Courier New", monospace;
-  font-size: 10px;
-  letter-spacing: 0.25em;
-  color: #6a4a30;
-  text-transform: uppercase;
-}
-.hud-hint { color: #8a6a4a; }
-.hud-hint b { color: #d4b87a; font-weight: 700; }
 
 .loading {
   position: absolute;

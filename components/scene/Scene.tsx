@@ -1,75 +1,121 @@
 "use client";
 
-import { Canvas } from "@react-three/fiber";
-import { Environment, OrbitControls, ContactShadows } from "@react-three/drei";
-import { Suspense } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Environment, Lightformer, OrbitControls } from "@react-three/drei";
+import { EffectComposer, Bloom, Vignette, ToneMapping } from "@react-three/postprocessing";
+import { ToneMappingMode } from "postprocessing";
+import { Suspense, useEffect, useRef } from "react";
+import * as THREE from "three";
 import { HiFi } from "./HiFi";
+
+const CAM_TARGET = new THREE.Vector3(0, 0.2, 10.8);
+
+/* Gentle dolly-in on load; hands over to OrbitControls on first input */
+function CameraIntro() {
+  const camera = useThree((s) => s.camera);
+  const gl = useThree((s) => s.gl);
+  const controls = useThree((s) => s.controls) as unknown as { enabled: boolean } | null;
+  const done = useRef(false);
+
+  useEffect(() => {
+    if (controls && !done.current) controls.enabled = false;
+  }, [controls]);
+
+  useEffect(() => {
+    const finish = () => {
+      if (!done.current) {
+        done.current = true;
+        if (controls) controls.enabled = true;
+      }
+    };
+    const el = gl.domElement;
+    el.addEventListener("pointerdown", finish);
+    el.addEventListener("wheel", finish);
+    return () => {
+      el.removeEventListener("pointerdown", finish);
+      el.removeEventListener("wheel", finish);
+    };
+  }, [gl, controls]);
+
+  useFrame((st, dt) => {
+    if (done.current) return;
+    camera.position.lerp(CAM_TARGET, Math.min(1, dt * 2.0));
+    camera.lookAt(0, 0, 0);
+    if (st.clock.elapsedTime > 3 || camera.position.distanceTo(CAM_TARGET) < 0.04) {
+      done.current = true;
+      if (controls) controls.enabled = true;
+    }
+  });
+  return null;
+}
 
 export function Scene() {
   return (
     <Canvas
       shadows
-      camera={{ position: [0, 0, 8.5], fov: 38 }}
-      gl={{ antialias: true, toneMappingExposure: 1.0 }}
+      camera={{ position: [0, 1.8, 13.8], fov: 40 }}
+      gl={{ antialias: true }}
       dpr={[1, 2]}
     >
-      <color attach="background" args={["#0a0604"]} />
-      <fog attach="fog" args={["#0a0604", 12, 24]} />
+      <color attach="background" args={["#0b0908"]} />
 
-      <ambientLight intensity={0.3} color="#a89878" />
-
-      {/* Warm key light from upper-right (matches the reference image's lighting) */}
+      {/* Warm key from upper-right, like the photo's side-light */}
+      <ambientLight intensity={0.28} color="#a89878" />
       <directionalLight
         castShadow
-        position={[4, 4, 5]}
-        intensity={2.4}
-        color="#ffe8c0"
+        position={[4.5, 4, 6]}
+        intensity={2.6}
+        color="#ffd9a8"
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
-        shadow-camera-far={20}
-        shadow-camera-left={-6}
-        shadow-camera-right={6}
-        shadow-camera-top={6}
-        shadow-camera-bottom={-6}
-        shadow-bias={-0.0005}
+        shadow-camera-far={25}
+        shadow-camera-left={-7}
+        shadow-camera-right={7}
+        shadow-camera-top={7}
+        shadow-camera-bottom={-7}
+        shadow-bias={-0.0004}
+        shadow-normalBias={0.02}
       />
-
       {/* Cool fill from the left */}
-      <directionalLight position={[-4, 2, 3]} intensity={0.5} color="#88a0c0" />
+      <directionalLight position={[-6, 2, 4]} intensity={0.5} color="#90a8c8" />
+      {/* Warm rim from behind/above */}
+      <directionalLight position={[0, 5, -6]} intensity={0.6} color="#ffb060" />
 
-      {/* Warm back-rim */}
-      <directionalLight position={[0, 1, -4]} intensity={0.4} color="#ffb060" />
-
-      {/* IBL for proper chrome / aluminum reflections */}
+      {/* Local studio environment for chrome/aluminum reflections (no network) */}
       <Suspense fallback={null}>
-        <Environment preset="apartment" environmentIntensity={0.8} />
+        <Environment resolution={256} frames={1}>
+          <Lightformer form="rect" intensity={2.2} color="#ffe8c8" position={[0, 6, 0]} scale={[10, 5, 1]} onUpdate={(m) => m.lookAt(0, 0, 0)} />
+          <Lightformer form="rect" intensity={3.0} color="#ffd9a0" position={[8, 2, 4]} scale={[6, 3, 1]} onUpdate={(m) => m.lookAt(0, 0, 0)} />
+          <Lightformer form="rect" intensity={1.1} color="#a8c0e0" position={[-8, 1, 3]} scale={[5, 2, 1]} onUpdate={(m) => m.lookAt(0, 0, 0)} />
+          <Lightformer form="rect" intensity={1.6} color="#ffffff" position={[0, 3, 8]} scale={[8, 1.5, 1]} onUpdate={(m) => m.lookAt(0, 0, 0)} />
+          <Lightformer form="rect" intensity={0.8} color="#ff9040" position={[0, -4, 6]} scale={[8, 2, 1]} onUpdate={(m) => m.lookAt(0, 0, 0)} />
+        </Environment>
       </Suspense>
 
       <Suspense fallback={null}>
         <HiFi />
       </Suspense>
 
-      {/* Soft contact shadow under the unit */}
-      <ContactShadows
-        position={[0, -1.75, 0]}
-        opacity={0.6}
-        scale={14}
-        blur={2.8}
-        far={2}
-        resolution={1024}
-        color="#000000"
-      />
+      <CameraIntro />
 
       <OrbitControls
+        makeDefault
         enablePan={false}
-        minDistance={5.5}
-        maxDistance={14}
-        minPolarAngle={Math.PI / 4}
-        maxPolarAngle={Math.PI / 2.2}
+        minDistance={5}
+        maxDistance={18}
+        minPolarAngle={Math.PI * 0.3}
+        maxPolarAngle={Math.PI * 0.62}
         target={[0, 0, 0]}
         enableDamping
         dampingFactor={0.08}
       />
+
+      {/* Glow for the backlight / LED / needles + filmic grade */}
+      <EffectComposer multisampling={4}>
+        <Bloom mipmapBlur intensity={0.7} luminanceThreshold={1.0} luminanceSmoothing={0.15} />
+        <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+        <Vignette eskil={false} offset={0.22} darkness={0.85} />
+      </EffectComposer>
     </Canvas>
   );
 }
