@@ -38,11 +38,11 @@ function makeMats() {
     roughness: 0.06,
     metalness: 0.1,
     transparent: true,
-    opacity: 0.4,
+    opacity: 0.5,
     envMapIntensity: 1.5,
     side: THREE.DoubleSide,
   });
-  const silver = new THREE.MeshStandardMaterial({ color: "#c8ccd0", roughness: 0.22, metalness: 1.0, envMapIntensity: 1.3 });
+  const silver = new THREE.MeshStandardMaterial({ color: "#d6dadb", roughness: 0.3, metalness: 0.7, envMapIntensity: 1.3 });
   const darkMetal = new THREE.MeshStandardMaterial({ color: "#3a3d40", roughness: 0.4, metalness: 0.9 });
   const drl = new THREE.MeshStandardMaterial({ color: "#e8f4ff", emissive: "#cfe8ff", emissiveIntensity: 3.2 });
   const tail = new THREE.MeshStandardMaterial({ color: "#400808", emissive: "#ff1820", emissiveIntensity: 2.4 });
@@ -231,7 +231,7 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
     ? new THREE.MeshStandardMaterial({ map: makeLetterTexture("T1", "#e8e8e8", "#101010", 8), roughness: 0.5 })
     : new THREE.MeshStandardMaterial({ color: "#101010", roughness: 0.5 });
   const grilleMat = textures
-    ? new THREE.MeshStandardMaterial({ color: "#08090a", emissive: "#ffffff", emissiveMap: makeLetterTexture("JETOUR", "#eaf2f8", "#08090a", 46), emissiveIntensity: 1.9, roughness: 0.4 })
+    ? new THREE.MeshStandardMaterial({ color: "#08090a", emissive: "#ffffff", emissiveMap: makeLetterTexture("JETOUR", "#eaf2f8", "#08090a", 46), emissiveIntensity: 2.6, roughness: 0.4 })
     : new THREE.MeshStandardMaterial({ color: "#08090a", emissive: "#dfeaf2", emissiveIntensity: 1.2, roughness: 0.4 });
   const screenMat = textures
     ? new THREE.MeshStandardMaterial({ color: "#000000", emissive: "#ffffff", emissiveMap: makeScreenTexture(), emissiveIntensity: 1.5, roughness: 0.3 })
@@ -247,8 +247,8 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
   const lower = profileShape([
     [2.28, 0.24], [2.33, 0.34], [2.33, 0.66], [2.29, 0.78], [2.3, 1.0], [2.24, 1.1],
     [1.7, 1.13], [0.95, 1.16], [-1.9, 1.18], [-2.28, 1.16], [-2.33, 1.0], [-2.33, 0.6],
-    [-2.28, 0.26], [-2.05, 0.21], [-1.94, 0.22], [-1.9, 0.6], [-1.66, 0.84], [-1.14, 0.84],
-    [-0.9, 0.6], [-0.86, 0.22], [0.86, 0.22], [0.9, 0.6], [1.14, 0.84], [1.66, 0.84],
+    [-2.28, 0.26], [-2.05, 0.21], [-1.94, 0.22], [-1.9, 0.6], [-1.64, 0.8], [-1.16, 0.8],
+    [-0.9, 0.6], [-0.86, 0.22], [0.86, 0.22], [0.9, 0.6], [1.16, 0.8], [1.64, 0.8],
     [1.9, 0.6], [1.94, 0.22],
   ]);
   const lowerGeo = new THREE.ExtrudeGeometry(lower, { depth: 1.86, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.03, bevelSegments: 3 });
@@ -257,7 +257,7 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
   add(lowerGeo, mats.paint);
 
   const upper = profileShape([
-    [1.0, 1.1], [0.86, 1.42], [0.66, 1.66], [0.5, 1.72], [-1.55, 1.75], [-1.85, 1.7], [-2.12, 1.34], [-2.18, 1.1],
+    [1.0, 1.1], [0.86, 1.42], [0.66, 1.66], [0.5, 1.68], [-1.55, 1.7], [-1.85, 1.66], [-2.12, 1.32], [-2.18, 1.1],
   ]);
   const upperGeo = new THREE.ExtrudeGeometry(upper, { depth: 1.52, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.06, bevelSegments: 4 });
   upperGeo.rotateY(-Math.PI / 2);
@@ -265,27 +265,27 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
   add(upperGeo, mats.glass);
 
   /* roof + pano */
-  rbox(1.56, 0.07, 2.4, 0.03, mats.paint, [0, 1.73, -0.68]);
-  box(1.1, 0.02, 1.5, mats.glass, [0, 1.768, -0.5]);
+  rbox(1.56, 0.07, 2.4, 0.03, mats.paint, [0, 1.745, -0.68]);
+  box(1.1, 0.02, 1.5, mats.glass, [0, 1.782, -0.6]);
 
   /* pillars + louvers */
   for (const s of [1, -1]) {
-    box(0.05, 0.72, 0.06, mats.paint, [s * 0.83, 1.42, 0.82], [-0.66, 0, 0]);
+    box(0.07, 0.72, 0.07, mats.paint, [s * 0.83, 1.42, 0.82], [-0.66, 0, 0]);
     box(0.03, 0.5, 0.09, mats.seam, [s * 0.84, 1.4, -0.12]);
-    box(0.05, 0.62, 0.06, mats.paint, [s * 0.83, 1.44, -1.86], [0.55, 0, 0]);
+    box(0.07, 0.62, 0.07, mats.paint, [s * 0.83, 1.44, -1.86], [0.55, 0, 0]);
     for (let i = 0; i < 4; i++) box(0.02, 0.03, 0.3, mats.plasticSoft, [s * 0.8, 1.52 - i * 0.065, -1.52], [0.5, 0, 0]);
   }
 
   /* beltline + shoulder crease + door sculpt + seams */
   for (const s of [1, -1]) {
-    box(0.015, 0.035, 4.3, mats.seam, [s * 0.975, 1.165, 0]);
+    box(0.015, 0.035, 4.3, mats.seam, [s * 0.972, 1.165, 0]);
   }
-  for (const z of [0.88, -0.02, -0.92]) for (const s of [1, -1]) box(0.012, 0.82, 0.008, mats.seam, [s * 0.972, 0.72, z]);
+  for (const z of [0.88, -0.02, -0.92]) for (const s of [1, -1]) box(0.012, 0.82, 0.008, mats.seam, [s * 0.968, 0.72, z]);
 
   /* arch cladding */
   const arch = profileShape([
-    [-0.7, 0.18], [-0.66, 0.62], [-0.42, 0.94], [0.42, 0.94], [0.66, 0.62], [0.7, 0.18],
-    [0.54, 0.18], [0.5, 0.56], [0.36, 0.8], [-0.36, 0.8], [-0.5, 0.56], [-0.54, 0.18],
+    [-0.68, 0.18], [-0.64, 0.6], [-0.42, 0.88], [0.42, 0.88], [0.64, 0.6], [0.68, 0.18],
+    [0.52, 0.18], [0.48, 0.54], [0.36, 0.78], [-0.36, 0.78], [-0.48, 0.54], [-0.52, 0.18],
   ]);
   const archGeo = new THREE.ExtrudeGeometry(arch, { depth: 0.12, bevelEnabled: false });
   archGeo.rotateY(-Math.PI / 2);
@@ -305,7 +305,7 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
   add(new THREE.PlaneGeometry(1.12, 0.2), grilleMat, [0, 0.98, 2.322]);
   for (const s of [1, -1]) {
     box(0.36, 0.3, 0.06, mats.plasticSoft, [s * 0.8, 0.96, 2.3]);
-    for (const [dx, dy] of [[0.09, 0.07], [-0.09, 0.07], [0.09, -0.07], [-0.09, -0.07], [0, 0]])
+    for (const [dx, dy] of [[0.075, 0.06], [-0.075, 0.06], [0.075, -0.06], [-0.075, -0.06], [0, 0]])
       box(0.055, 0.055, 0.02, mats.drl, [s * 0.8 + dx, 0.96 + dy, 2.335]);
   }
   box(1.5, 0.06, 0.05, mats.paint, [0, 0.78, 2.3]);
@@ -347,13 +347,13 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
   for (const s of [1, -1]) {
     box(0.12, 0.04, 0.06, mats.plastic, [s * 1.04 - s * 0.06, 1.22, 0.86]);
     rbox(0.06, 0.13, 0.22, 0.02, mats.paint, [s * 1.04, 1.26, 0.86]);
-    box(0.008, 0.02, 0.12, mats.drl, [s * 1.04 + s * 0.032, 1.26, 0.92]);
+    box(0.006, 0.015, 0.08, mats.drl, [s * 1.04 + s * 0.032, 1.26, 0.92]);
     box(0.015, 0.2, 0.24, mats.paint, [0.972, 1.12, -1.75]);
   }
 
   /* ══ ROOF FURNITURE ══ */
   for (const s of [1, -1]) {
-    box(0.05, 0.05, 2.0, mats.plastic, [s * 0.74, 1.8, -0.5]);
+    box(0.05, 0.05, 1.8, mats.plastic, [s * 0.74, 1.8, -0.5]);
     for (const z of [0.35, -1.35]) box(0.05, 0.04, 0.12, mats.plastic, [s * 0.74, 1.775, z]);
   }
   box(0.03, 0.08, 0.16, mats.plastic, [0, 1.81, -1.62]);
@@ -457,7 +457,7 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
       sp2.rotation.set(a, 0, 0);
       void sp2;
     }
-    torus(0.25, 0.018, mats.silver, [px + out * 0.118, TIRE_R, pz], [0, Math.PI / 2, 0]);
+    torus(0.25, 0.02, mats.silver, [px + out * 0.118, TIRE_R, pz], [0, Math.PI / 2, 0]);
     cyl(0.055, 0.055, 0.03, mats.silver, [px + out * 0.118, TIRE_R, pz], [0, 0, Math.PI / 2], 20);
   };
   wheel(TRACK_X, WB / 2);
