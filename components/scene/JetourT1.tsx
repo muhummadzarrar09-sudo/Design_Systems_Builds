@@ -39,7 +39,7 @@ function makeMats() {
     roughness: 0.06,
     metalness: 0.1,
     transparent: true,
-    opacity: 0.5,
+    opacity: 0.58,
     envMapIntensity: 1.5,
     side: THREE.DoubleSide,
   });
@@ -217,6 +217,14 @@ function ghPts(hw: number, yt: number): [number, number][] {
   ];
 }
 
+function roofPts(hw: number, yt: number): [number, number][] {
+  const yb = yt - 0.14;
+  return [
+    [-hw * 0.4, yb], [-hw, yb + 0.03], [-hw, yt - 0.1], [-hw + 0.15, yt],
+    [hw - 0.15, yt], [hw, yt - 0.1], [hw, yb + 0.03], [hw * 0.4, yb],
+  ];
+}
+
 function bridgeLoft(st: { z: number; pts: [number, number][] }[]): THREE.BufferGeometry {
   const n = st[0].pts.length;
   const pos: number[] = [];
@@ -346,15 +354,24 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
   ];
   add(bridgeLoft(ghStations.map((st) => ({ z: st.z, pts: ghPts(st.hw, st.yt) }))), mats.glass);
 
+  /* roof skin lofted onto the glass — no floating slab */
+  const roofStations = [
+    { z: 0.55, hw: 0.76, yt: 1.68 },
+    { z: 0.0, hw: 0.81, yt: 1.77 },
+    { z: -1.0, hw: 0.81, yt: 1.78 },
+    { z: -1.6, hw: 0.79, yt: 1.74 },
+    { z: -1.98, hw: 0.75, yt: 1.6 },
+  ];
+  add(bridgeLoft(roofStations.map((st) => ({ z: st.z, pts: roofPts(st.hw, st.yt) }))), mats.paint);
+
   /* roof + pano */
-  rbox(1.56, 0.07, 2.4, 0.03, mats.paint, [0, 1.745, -0.68]);
-  box(1.1, 0.02, 1.5, mats.glass, [0, 1.782, -0.6]);
+  box(1.1, 0.02, 1.5, mats.glass, [0, 1.795, -0.6]);
 
   /* pillars + louvers */
   for (const s of [1, -1]) {
-    box(0.07, 0.72, 0.07, mats.paint, [s * 0.82, 1.4, 0.78], [-0.8, 0, 0]);
-    box(0.03, 0.5, 0.09, mats.seam, [s * 0.84, 1.4, -0.12]);
-    box(0.07, 0.62, 0.07, mats.paint, [s * 0.8, 1.42, -1.9], [0.8, 0, 0]);
+    box(0.07, 0.72, 0.07, mats.paint, [s * 0.79, 1.4, 0.78], [-0.8, 0, 0]);
+    box(0.03, 0.5, 0.09, mats.seam, [s * 0.8, 1.4, -0.12]);
+    box(0.07, 0.62, 0.07, mats.paint, [s * 0.78, 1.42, -1.9], [0.8, 0, 0]);
     for (let i = 0; i < 4; i++) box(0.02, 0.03, 0.3, mats.plasticSoft, [s * 0.8, 1.52 - i * 0.065, -1.52], [0.5, 0, 0]);
   }
 
@@ -378,8 +395,8 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
 
   /* rockers + steps */
   for (const s of [1, -1]) {
-    box(0.09, 0.2, 2.4, mats.plastic, [s * 0.955, 0.36, -0.1]);
-    box(0.18, 0.05, 2.1, mats.plasticSoft, [s * 0.93, 0.28, -0.1]);
+    box(0.08, 0.14, 2.4, mats.plastic, [s * 0.95, 0.33, -0.1]);
+    box(0.18, 0.05, 2.1, mats.plasticSoft, [s * 0.92, 0.26, -0.1]);
   }
 
   /* ══ FRONT END ══ */
@@ -410,15 +427,15 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
 
   /* ══ REAR END ══ */
   box(1.6, 0.55, 0.05, mats.plasticSoft, [0, 0.8, -2.315]);
-  box(W - 0.2, 0.3, 0.06, mats.paint, [0, 1.16, -2.31]);
-  add(new THREE.PlaneGeometry(1.3, 0.2), jetourMat, [0, 1.16, -2.345]);
+  box(W - 0.2, 0.26, 0.06, mats.paint, [0, 1.06, -2.31]);
+  add(new THREE.PlaneGeometry(1.3, 0.18), jetourMat, [0, 1.06, -2.345]);
   for (const s of [1, -1]) {
-    box(0.34, 0.28, 0.05, mats.plasticSoft, [s * 0.8, 1.2, -2.32]);
+    box(0.34, 0.26, 0.05, mats.plasticSoft, [s * 0.8, 1.06, -2.32]);
     for (const [dx, dy] of [[0.08, 0.06], [-0.08, 0.06], [0.08, -0.06], [-0.08, -0.06]])
-      box(0.05, 0.05, 0.02, mats.tail, [s * 0.8 + dx, 1.2 + dy, -2.35]);
+      box(0.05, 0.05, 0.02, mats.tail, [s * 0.8 + dx, 1.06 + dy, -2.35]);
   }
-  box(W - 0.3, 0.09, 0.34, mats.plastic, [0, 1.72, -1.78]);
-  box(0.7, 0.025, 0.02, mats.tail, [0, 1.7, -1.95]);
+  box(W - 0.3, 0.09, 0.34, mats.plastic, [0, 1.62, -2.0]);
+  box(0.7, 0.025, 0.02, mats.tail, [0, 1.585, -2.16]);
   rbox(W + 0.01, 0.42, 0.3, 0.06, mats.plastic, [0, 0.42, -2.2]);
   for (const s of [1, -1]) box(0.16, 0.05, 0.02, mats.tail, [s * 0.7, 0.42, -2.36]);
   add(new THREE.PlaneGeometry(0.48, 0.16), plateMat, [0, 0.82, -2.34], [0, Math.PI, 0]);
@@ -427,18 +444,18 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
   for (const [z, s] of [[0.12, 1], [0.12, -1], [-0.78, 1], [-0.78, -1]])
     box(0.03, 0.045, 0.22, mats.paint, [s * 0.955, 1.1, z]);
   for (const s of [1, -1]) {
-    box(0.12, 0.04, 0.06, mats.plastic, [s * 1.04 - s * 0.06, 1.22, 0.86]);
-    rbox(0.06, 0.13, 0.22, 0.02, mats.paint, [s * 1.04, 1.26, 0.86]);
-    box(0.006, 0.015, 0.08, mats.drl, [s * 1.04 + s * 0.032, 1.26, 0.92]);
+    box(0.1, 0.05, 0.07, mats.plastic, [s * 0.99 - s * 0.05, 1.22, 0.82]);
+    rbox(0.06, 0.13, 0.22, 0.02, mats.paint, [s * 0.99, 1.26, 0.82]);
+    box(0.006, 0.015, 0.08, mats.drl, [s * 0.99 + s * 0.032, 1.26, 0.93]);
     box(0.015, 0.2, 0.24, mats.paint, [0.952, 1.12, -1.75]);
   }
 
   /* ══ ROOF FURNITURE ══ */
   for (const s of [1, -1]) {
-    box(0.05, 0.05, 1.8, mats.plastic, [s * 0.74, 1.8, -0.5]);
-    for (const z of [0.35, -1.35]) box(0.05, 0.04, 0.12, mats.plastic, [s * 0.74, 1.775, z]);
+    box(0.05, 0.05, 1.8, mats.plastic, [s * 0.72, 1.83, -0.5]);
+    for (const z of [0.35, -1.35]) box(0.05, 0.04, 0.12, mats.plastic, [s * 0.72, 1.8, z]);
   }
-  box(0.03, 0.08, 0.16, mats.plastic, [0, 1.81, -1.62]);
+  box(0.03, 0.08, 0.16, mats.plastic, [0, 1.82, -1.62]);
   box(W - 0.35, 0.12, L - 0.9, mats.plastic, [0, 0.28, 0]);
 
   /* ══ INTERIOR ══ */
