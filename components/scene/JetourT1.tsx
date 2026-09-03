@@ -13,6 +13,7 @@
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three-stdlib";
+import { Brush, Evaluator, SUBTRACTION } from "three-bvh-csg";
 
 const L = 4.705;
 const W = 1.967;
@@ -195,6 +196,60 @@ function profileShape(pts: [number, number][]) {
   return s;
 }
 
+type Sec = { z: number; hw: number; yt: number; b: number };
+
+function lowerPts(sec: Sec): [number, number][] {
+  const { hw, yt, b } = sec;
+  const yb = 0.24;
+  return [
+    [-hw * 0.8, yb], [0, yb - 0.03], [hw * 0.8, yb],
+    [hw, yb + 0.18], [hw + b, yt - 0.35], [hw + b * 0.6, yt - 0.08],
+    [hw * 0.55, yt], [0, yt + 0.02], [-hw * 0.55, yt],
+    [-hw - b * 0.6, yt - 0.08], [-hw - b, yt - 0.35], [-hw, yb + 0.18],
+  ];
+}
+
+function ghPts(hw: number, yt: number): [number, number][] {
+  const yb = 1.06;
+  return [
+    [-hw, yb + 0.05], [-hw, yt - 0.18], [-hw + 0.18, yt], [hw - 0.18, yt],
+    [hw, yt - 0.18], [hw, yb + 0.05], [hw * 0.4, yb], [-hw * 0.4, yb],
+  ];
+}
+
+function bridgeLoft(st: { z: number; pts: [number, number][] }[]): THREE.BufferGeometry {
+  const n = st[0].pts.length;
+  const pos: number[] = [];
+  const idx: number[] = [];
+  for (const sec of st) for (const [x, y] of sec.pts) pos.push(x, y, sec.z);
+  for (let i = 0; i < st.length - 1; i++)
+    for (let j = 0; j < n; j++) {
+      const a = i * n + j, b = i * n + ((j + 1) % n), c = (i + 1) * n + ((j + 1) % n), d = (i + 1) * n + j;
+      idx.push(a, c, b, a, d, c);
+    }
+  let cx = 0, cy = 0;
+  for (const [x, y] of st[0].pts) { cx += x; cy += y; }
+  cx /= n; cy /= n;
+  pos.push(cx, cy, st[0].z);
+  const cF = pos.length / 3 - 1;
+  let cx2 = 0, cy2 = 0;
+  for (const [x, y] of st[st.length - 1].pts) { cx2 += x; cy2 += y; }
+  cx2 /= n; cy2 /= n;
+  pos.push(cx2, cy2, st[st.length - 1].z);
+  const cB = pos.length / 3 - 1;
+  for (let j = 0; j < n; j++) {
+    const j2 = (j + 1) % n;
+    idx.push(cF, j, j2);
+    idx.push(cB, (st.length - 1) * n + j2, (st.length - 1) * n + j);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("uv", new THREE.Float32BufferAttribute(new Float32Array((pos.length / 3) * 2), 2));
+  g.setIndex(idx);
+  g.computeVertexNormals();
+  return g;
+}
+
 export function buildJetourT1(opts?: { textures?: boolean }) {
   const textures = opts?.textures ?? typeof document !== "undefined";
   const mats = makeMats();
@@ -243,26 +298,53 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
     ? new THREE.MeshStandardMaterial({ map: makeDotTexture(), roughness: 0.8 })
     : new THREE.MeshStandardMaterial({ color: "#26282a", roughness: 0.8 });
 
-  /* ══ BODY: extruded side profiles ══ */
-  const lower = profileShape([
-    [2.28, 0.24], [2.33, 0.34], [2.33, 0.66], [2.29, 0.78], [2.3, 1.0], [2.24, 1.1],
-    [1.7, 1.13], [0.95, 1.16], [-1.9, 1.18], [-2.28, 1.16], [-2.33, 1.0], [-2.33, 0.6],
-    [-2.28, 0.26], [-2.05, 0.21], [-1.94, 0.22], [-1.9, 0.6], [-1.64, 0.8], [-1.16, 0.8],
-    [-0.9, 0.6], [-0.86, 0.22], [0.86, 0.22], [0.9, 0.6], [1.16, 0.8], [1.64, 0.8],
-    [1.9, 0.6], [1.94, 0.22],
-  ]);
-  const lowerGeo = new THREE.ExtrudeGeometry(lower, { depth: 1.86, bevelEnabled: true, bevelThickness: 0.04, bevelSize: 0.03, bevelSegments: 3 });
-  lowerGeo.rotateY(-Math.PI / 2);
-  lowerGeo.translate(1.86 / 2, 0, 0);
-  add(lowerGeo, mats.paint);
+  /* ══ BODY: lofted cross-sections + CSG arches ══ */
+  const lowerStations: Sec[] = [
+    { z: 2.3, hw: 0.9, yt: 1.06, b: 0 },
+    { z: 2.05, hw: 0.93, yt: 1.1, b: 0.01 },
+    { z: 1.7, hw: 0.96, yt: 1.12, b: 0.02 },
+    { z: 1.4, hw: 0.98, yt: 1.12, b: 0.03 },
+    { z: 0.9, hw: 0.95, yt: 1.14, b: 0.01 },
+    { z: 0.0, hw: 0.94, yt: 1.16, b: 0 },
+    { z: -0.9, hw: 0.95, yt: 1.17, b: 0.01 },
+    { z: -1.4, hw: 0.98, yt: 1.17, b: 0.03 },
+    { z: -1.9, hw: 0.96, yt: 1.17, b: 0.02 },
+    { z: -2.3, hw: 0.92, yt: 1.16, b: 0 },
+  ];
+  const bodyGeo = bridgeLoft(lowerStations.map((st) => ({ z: st.z, pts: lowerPts(st) })));
+  const bodyBrush = new Brush(bodyGeo, mats.paint);
+  bodyBrush.updateMatrixWorld(true);
+  const ev = new Evaluator();
+  const cylGeo = () => {
+    const g = new THREE.CylinderGeometry(0.47, 0.47, 2.6, 24);
+    g.rotateZ(Math.PI / 2);
+    return g;
+  };
+  const cutF = new Brush(cylGeo(), mats.plastic);
+  cutF.position.set(0, 0.4, 1.4);
+  cutF.updateMatrixWorld(true);
+  const cutR = new Brush(cylGeo(), mats.plastic);
+  cutR.position.set(0, 0.4, -1.4);
+  cutR.updateMatrixWorld(true);
+  const cut1 = ev.evaluate(bodyBrush, cutF, SUBTRACTION);
+  const cut2 = ev.evaluate(cut1, cutR, SUBTRACTION);
+  const bodyMesh = new THREE.Mesh(cut2.geometry, mats.paint);
+  bodyMesh.castShadow = true;
+  bodyMesh.receiveShadow = true;
+  group.add(bodyMesh);
 
-  const upper = profileShape([
-    [1.0, 1.1], [0.86, 1.42], [0.66, 1.66], [0.5, 1.68], [-1.55, 1.7], [-1.85, 1.66], [-2.12, 1.32], [-2.18, 1.1],
-  ]);
-  const upperGeo = new THREE.ExtrudeGeometry(upper, { depth: 1.52, bevelEnabled: true, bevelThickness: 0.06, bevelSize: 0.06, bevelSegments: 4 });
-  upperGeo.rotateY(-Math.PI / 2);
-  upperGeo.translate(1.52 / 2, 0, 0);
-  add(upperGeo, mats.glass);
+  /* greenhouse: lofted glass cabin */
+  const ghStations = [
+    { z: 1.02, hw: 0.74, yt: 1.14 },
+    { z: 0.72, hw: 0.77, yt: 1.44 },
+    { z: 0.48, hw: 0.78, yt: 1.66 },
+    { z: 0.0, hw: 0.8, yt: 1.73 },
+    { z: -1.0, hw: 0.8, yt: 1.74 },
+    { z: -1.6, hw: 0.78, yt: 1.7 },
+    { z: -1.95, hw: 0.74, yt: 1.52 },
+    { z: -2.18, hw: 0.7, yt: 1.14 },
+  ];
+  add(bridgeLoft(ghStations.map((st) => ({ z: st.z, pts: ghPts(st.hw, st.yt) }))), mats.glass);
 
   /* roof + pano */
   rbox(1.56, 0.07, 2.4, 0.03, mats.paint, [0, 1.745, -0.68]);
@@ -270,17 +352,17 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
 
   /* pillars + louvers */
   for (const s of [1, -1]) {
-    box(0.07, 0.72, 0.07, mats.paint, [s * 0.83, 1.42, 0.82], [-0.66, 0, 0]);
+    box(0.07, 0.72, 0.07, mats.paint, [s * 0.82, 1.4, 0.78], [-0.8, 0, 0]);
     box(0.03, 0.5, 0.09, mats.seam, [s * 0.84, 1.4, -0.12]);
-    box(0.07, 0.62, 0.07, mats.paint, [s * 0.83, 1.44, -1.86], [0.55, 0, 0]);
+    box(0.07, 0.62, 0.07, mats.paint, [s * 0.8, 1.42, -1.9], [0.8, 0, 0]);
     for (let i = 0; i < 4; i++) box(0.02, 0.03, 0.3, mats.plasticSoft, [s * 0.8, 1.52 - i * 0.065, -1.52], [0.5, 0, 0]);
   }
 
   /* beltline + shoulder crease + door sculpt + seams */
   for (const s of [1, -1]) {
-    box(0.015, 0.035, 4.3, mats.seam, [s * 0.972, 1.165, 0]);
+    box(0.015, 0.035, 4.3, mats.seam, [s * 0.952, 1.165, 0]);
   }
-  for (const z of [0.88, -0.02, -0.92]) for (const s of [1, -1]) box(0.012, 0.82, 0.008, mats.seam, [s * 0.968, 0.72, z]);
+  for (const z of [0.88, -0.02, -0.92]) for (const s of [1, -1]) box(0.012, 0.82, 0.008, mats.seam, [s * 0.947, 0.72, z]);
 
   /* arch cladding */
   const arch = profileShape([
@@ -301,12 +383,12 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
   }
 
   /* ══ FRONT END ══ */
-  box(1.72, 0.34, 0.05, mats.plastic, [0, 0.98, 2.29]);
-  add(new THREE.PlaneGeometry(1.12, 0.2), grilleMat, [0, 0.98, 2.322]);
+  box(1.72, 0.28, 0.05, mats.plastic, [0, 0.92, 2.29]);
+  add(new THREE.PlaneGeometry(1.12, 0.18), grilleMat, [0, 0.92, 2.322]);
   for (const s of [1, -1]) {
-    box(0.36, 0.3, 0.06, mats.plasticSoft, [s * 0.8, 0.96, 2.3]);
+    box(0.36, 0.28, 0.06, mats.plasticSoft, [s * 0.8, 0.92, 2.3]);
     for (const [dx, dy] of [[0.075, 0.06], [-0.075, 0.06], [0.075, -0.06], [-0.075, -0.06], [0, 0]])
-      box(0.055, 0.055, 0.02, mats.drl, [s * 0.8 + dx, 0.96 + dy, 2.335]);
+      box(0.055, 0.055, 0.02, mats.drl, [s * 0.8 + dx, 0.92 + dy, 2.335]);
   }
   box(1.5, 0.06, 0.05, mats.paint, [0, 0.78, 2.3]);
   box(1.4, 0.06, 0.05, mats.plastic, [0, 0.71, 2.31]);
@@ -321,10 +403,10 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
   box(1.4, 0.08, 0.22, mats.darkMetal, [0, 0.21, 2.26]);
   for (const s of [1, -1]) box(0.14, 0.06, 0.02, mats.amber, [s * 0.62, 0.44, 2.36]);
   add(new THREE.PlaneGeometry(0.48, 0.16), plateMat, [0, 0.52, 2.37]);
-  box(0.12, 0.015, 0.06, mats.silver, [0, 1.145, 2.05]);
-  for (const s of [1, -1]) box(0.05, 0.02, 1.1, mats.paint, [s * 0.38, 1.15, 1.5], [0, 0, s * 0.05]);
-  box(0.5, 0.015, 0.03, mats.plastic, [-0.28, 1.175, 0.94], [0, 0.5, 0]);
-  box(0.45, 0.015, 0.03, mats.plastic, [0.3, 1.175, 0.96], [0, 0.35, 0]);
+  box(0.12, 0.015, 0.06, mats.silver, [0, 1.105, 2.05]);
+  for (const s of [1, -1]) box(0.05, 0.02, 1.1, mats.paint, [s * 0.38, 1.115, 1.5], [0, 0, s * 0.05]);
+  box(0.5, 0.015, 0.03, mats.plastic, [-0.28, 1.15, 0.94], [0, 0.5, 0]);
+  box(0.45, 0.015, 0.03, mats.plastic, [0.3, 1.15, 0.96], [0, 0.35, 0]);
 
   /* ══ REAR END ══ */
   box(1.6, 0.55, 0.05, mats.plasticSoft, [0, 0.8, -2.315]);
@@ -335,20 +417,20 @@ export function buildJetourT1(opts?: { textures?: boolean }) {
     for (const [dx, dy] of [[0.08, 0.06], [-0.08, 0.06], [0.08, -0.06], [-0.08, -0.06]])
       box(0.05, 0.05, 0.02, mats.tail, [s * 0.8 + dx, 1.2 + dy, -2.35]);
   }
-  box(W - 0.3, 0.09, 0.34, mats.plastic, [0, 1.73, -1.95]);
-  box(0.7, 0.025, 0.02, mats.tail, [0, 1.71, -2.12]);
+  box(W - 0.3, 0.09, 0.34, mats.plastic, [0, 1.72, -1.78]);
+  box(0.7, 0.025, 0.02, mats.tail, [0, 1.7, -1.95]);
   rbox(W + 0.01, 0.42, 0.3, 0.06, mats.plastic, [0, 0.42, -2.2]);
   for (const s of [1, -1]) box(0.16, 0.05, 0.02, mats.tail, [s * 0.7, 0.42, -2.36]);
   add(new THREE.PlaneGeometry(0.48, 0.16), plateMat, [0, 0.82, -2.34], [0, Math.PI, 0]);
 
   /* ══ SIDES ══ */
   for (const [z, s] of [[0.12, 1], [0.12, -1], [-0.78, 1], [-0.78, -1]])
-    box(0.03, 0.045, 0.22, mats.paint, [s * 0.975, 1.1, z]);
+    box(0.03, 0.045, 0.22, mats.paint, [s * 0.955, 1.1, z]);
   for (const s of [1, -1]) {
     box(0.12, 0.04, 0.06, mats.plastic, [s * 1.04 - s * 0.06, 1.22, 0.86]);
     rbox(0.06, 0.13, 0.22, 0.02, mats.paint, [s * 1.04, 1.26, 0.86]);
     box(0.006, 0.015, 0.08, mats.drl, [s * 1.04 + s * 0.032, 1.26, 0.92]);
-    box(0.015, 0.2, 0.24, mats.paint, [0.972, 1.12, -1.75]);
+    box(0.015, 0.2, 0.24, mats.paint, [0.952, 1.12, -1.75]);
   }
 
   /* ══ ROOF FURNITURE ══ */
