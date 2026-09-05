@@ -297,10 +297,12 @@ export function makeWheelTemplate(kit: Kit) {
   side2.rotation.x = Math.PI / 2;
   g.add(side2);
 
-  /* rim: outer lip, 5 petal spokes, hub, nuts */
+  /* rim: outer lip, 5 petal spokes, hub, nuts.
+     The barrel is dark gunmetal (the T1 alloy is a dark two-tone wheel);
+     only the machined petal faces read bright. */
   const R = DIM.rimR;
-  put(new THREE.Mesh(new THREE.CylinderGeometry(R, R * 0.99, 0.235, 40), m.alu));
-  const lip = new THREE.Mesh(new THREE.TorusGeometry(R * 0.995, 0.014, 10, 44), m.alu);
+  put(new THREE.Mesh(new THREE.CylinderGeometry(R, R * 0.99, 0.235, 40), m.darkMetal));
+  const lip = new THREE.Mesh(new THREE.TorusGeometry(R * 0.995, 0.014, 10, 44), m.darkMetal);
   lip.rotation.x = Math.PI / 2;
   lip.position.y = 0.117;
   g.add(lip);

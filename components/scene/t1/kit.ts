@@ -619,8 +619,9 @@ export function makeMats() {
     map: sidewallTex(),
     bumpMap: sidewallTex(),
     bumpScale: 0.0016,
-    color: "#ffffff",
-    roughness: 0.86,
+    /* near-black carcass: the T1 has no whitewall, only faint moulded lettering */
+    color: "#191b1d",
+    roughness: 0.9,
     metalness: 0,
   });
 
