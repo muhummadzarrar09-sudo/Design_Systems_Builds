@@ -117,6 +117,20 @@ const DECK_KEYS = [
 const DECK_SAMPLES = smoothKeys(DECK_KEYS, 6);
 
 /** Y of the painted deck skin over the bonnet at (x, z). */
+/** Z of the tailgate's outer skin at (x, y) — the loft bulges rearward
+    towards the centre line, so anything mounted on it has to follow. */
+export function tailgateZ(x: number, y: number): number {
+  const t = clamp((y - 0.85) / 0.918, 0, 1);
+  const zR = -2.255 + t * 0.155;
+  const hw = 0.9 - (1 - t) * 0.05;
+  const r = 0.07 + t * 0.02;
+  const ax = Math.min(Math.abs(x), hw);
+  return ax <= hw - r ? zR - 1.05 * r + (ax / (hw - r)) * 0.05 * r : zR - r + (ax - hw + r);
+}
+
+/* rear-screen aperture (the tailgate is cut away so the glass shows) */
+export const SCREEN = { x: 0.845, y0: 1.12, y1: 1.69, inset: 0.022 };
+
 export function deckY(x: number, z: number): number {
   const S = DECK_SAMPLES;
   let i = 0;
@@ -351,24 +365,53 @@ export function buildGreenhouse(kit: Kit) {
     kit.box(0.014, 0.014, 2.75, m.trim, [s * 0.918, 1.712, -0.55]);
   });
 
-  /* rear screen in the tailgate */
-  kit.add(
-    curvedQuad(
-      [
-        [-0.83, 1.1, -2.12],
-        [0.83, 1.1, -2.12],
-        [0.8, 1.68, -2.145],
-        [-0.8, 1.68, -2.145],
-      ],
-      0.03,
-      12,
-      8,
-    ),
-    m.glass,
-  );
-  kit.both((s) => kit.box(0.07, 0.62, 0.05, m.paint, [s * 0.865, 1.39, -2.13], [0.06, 0, 0]));
-  kit.box(1.72, 0.07, 0.05, m.paint, [0, 1.71, -2.135], [0.06, 0, 0]);
-  kit.box(1.72, 0.07, 0.05, m.paint, [0, 1.07, -2.118], [0.06, 0, 0]);
+  /* rear screen — laid 22 mm inside the tailgate skin so it reads as
+     glass set into an aperture instead of a pane floating behind it */
+  {
+    const nx = 14;
+    const ny = 12;
+    const y0 = 1.05;
+    const y1 = 1.75;
+    const pos: number[] = [];
+    const uv: number[] = [];
+    const idx: number[] = [];
+    for (let j = 0; j <= ny; j++)
+      for (let i = 0; i <= nx; i++) {
+        const y = y0 + ((y1 - y0) * j) / ny;
+        /* taper with the tailgate so no sliver of glass escapes the shell */
+        const hwv = 0.9 - (1 - (y - 0.85) / 0.918) * 0.05 - 0.008;
+        const x = hwv * ((2 * i) / nx - 1);
+        pos.push(x, y, tailgateZ(x, y) + SCREEN.inset);
+        uv.push(i / nx, j / ny);
+      }
+    for (let j = 0; j < ny; j++)
+      for (let i = 0; i < nx; i++) {
+        const a = j * (nx + 1) + i;
+        idx.push(a, a + 1, a + nx + 2, a, a + nx + 2, a + nx + 1);
+      }
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+    g.setAttribute("uv", new THREE.Float32BufferAttribute(uv, 2));
+    g.setIndex(idx);
+    g.computeVertexNormals();
+    const scr = kit.add(g, m.glassDark);
+    scr.name = "rear-screen";
+  }
+  /* black aperture surround, seated in the step between skin and glass */
+  {
+    const zAt = (x: number, y: number) => tailgateZ(x, y) + SCREEN.inset;
+    const seg = 10;
+    for (const sx of [1, -1])
+      for (let i = 0; i < seg; i++) {
+        const y = SCREEN.y0 + ((SCREEN.y1 - SCREEN.y0) * (i + 0.5)) / seg;
+        kit.box(0.032, (SCREEN.y1 - SCREEN.y0) / seg, 0.05, m.trim, [sx * 0.862, y, zAt(0.862, y)]);
+      }
+    for (const y of [SCREEN.y0 - 0.016, SCREEN.y1 + 0.016])
+      for (let i = 0; i < seg; i++) {
+        const x = -0.875 + (1.75 * (i + 0.5)) / seg;
+        kit.box(1.75 / seg, 0.032, 0.05, m.trim, [x, y, zAt(x, y)]);
+      }
+  }
 }
 
 /* ---------------- roof ---------------- */
@@ -584,32 +627,34 @@ export function buildTailgate(kit: Kit, plateMat?: THREE.Material | null) {
   };
   const stations = [];
   for (let i = 0; i <= 14; i++) stations.push(sec(0.85 + (i / 14) * 0.918));
-  kit.add(loftY(stations), m.paint);
+  let tgGeo = loftY(stations);
+  /* cut the rear-screen aperture right through the skin */
+  {
+    const cut = new THREE.BoxGeometry(SCREEN.x * 2, SCREEN.y1 - SCREEN.y0, 0.7);
+    cut.translate(0, (SCREEN.y0 + SCREEN.y1) / 2, -2.05);
+    const ev = new Evaluator();
+    ev.useGroups = false;
+    const a = new Brush(tgGeo);
+    a.updateMatrixWorld(true);
+    const b = new Brush(cut);
+    b.updateMatrixWorld(true);
+    const out = ev.evaluate(a, b, SUBTRACTION);
+    const arr = out.geometry.getAttribute("position").array as ArrayLike<number>;
+    let ok = true;
+    for (let i = 0; i < arr.length; i++) if (!Number.isFinite(arr[i])) { ok = false; break; }
+    if (ok) tgGeo = out.geometry;
+  }
+  kit.add(tgGeo, m.paint);
 
   /* tailgate shut line — traced on the (curved) outer skin */
   {
-    const tg = (y: number, x: number) => {
-      const t = (y - 0.85) / 0.918;
-      const zR = -2.255 + t * 0.155;
-      const hw = 0.9 - (1 - t) * 0.05;
-      const r = 0.07 + t * 0.02;
-      const ax = Math.min(Math.abs(x), hw);
-      const z =
-        ax <= hw - r
-          ? zR - 1.05 * r + (ax / (hw - r)) * 0.05 * r
-          : zR - r + (ax - hw + r);
-      return z - 0.006; // outward on a rear-facing skin is -Z
-    };
+    const tg = (y: number, x: number) => tailgateZ(x, y) - 0.006; // outward is -Z
     for (let i = 0; i < 8; i++) {
       const x = -0.76 + (i + 0.5) * (1.52 / 8);
       kit.box(1.52 / 8, 0.012, 0.012, m.seam, [x, 0.872, tg(0.872, x)]);
       kit.box(1.66 / 8, 0.012, 0.012, m.seam, [x, 1.749, tg(1.749, x)]);
     }
-    for (const s of [1, -1])
-      for (let i = 0; i < 8; i++) {
-        const y = 0.92 + (i + 0.5) * (0.8 / 8);
-        kit.box(0.012, 0.8 / 8, 0.012, m.seam, [s * 0.845, y, tg(y, 0.845)]);
-      }
+    /* no side runs — the aperture surround reads as the tailgate edge */
   }
 
   /* body-colour band carrying the spaced JETOUR letters */
