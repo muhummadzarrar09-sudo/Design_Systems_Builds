@@ -7,7 +7,7 @@
    =================================================================== */
 
 import * as THREE from "three";
-import { deckY } from "./body";
+import { deckY, SCREEN, tailgateZ } from "./body";
 import { DIM, Kit, Mats, mergeByMaterial, poly, type V3 } from "./kit";
 
 /* ---------------- FRONT ---------------- */
@@ -165,6 +165,21 @@ export function buildRear(kit: Kit, wordMat?: THREE.Material | null) {
   /* rear camera above the plate */
   kit.cyl(0.02, 0.02, 0.03, m.plastic, [0, 0.93, -2.275], [Math.PI / 2, 0, 0], 12);
 
+  /* rear wiper, parked along the base of the backlight */
+  {
+    const zg = (x: number, y: number) => tailgateZ(x, y) + SCREEN.inset - 0.02;
+    const px = 0.44;
+    const py = 1.17;
+    const bx = 0.02;
+    const by = 1.205;
+    const len = Math.hypot(bx - px, by - py);
+    const ang = Math.atan2(by - py, bx - px);
+    kit.cyl(0.028, 0.028, 0.03, m.plastic, [px, py, zg(px, py)], [Math.PI / 2, 0, 0], 14);
+    kit.box(len, 0.024, 0.02, m.trim, [(px + bx) / 2, (py + by) / 2, zg((px + bx) / 2, (py + by) / 2)], [0, 0, ang]);
+    kit.box(0.46, 0.032, 0.016, m.plastic, [0, by, zg(0, by)], [0, 0, 0.02]);
+    kit.box(0.46, 0.02, 0.014, m.rubber, [0, by - 0.014, zg(0, by - 0.014)], [0, 0, 0.02]);
+  }
+
   /* roof spoiler + high-mount stop lamp */
   const sp = poly([
     [-1.98, 1.771],
@@ -263,7 +278,7 @@ export function makeWheelTemplate(kit: Kit) {
   put(new THREE.Mesh(tireGeo, m.tread));
 
   /* sidewall branding ring */
-  const side1 = new THREE.Mesh(new THREE.RingGeometry(0.252, 0.322, 48), m.tire);
+  const side1 = new THREE.Mesh(new THREE.RingGeometry(0.252, 0.322, 64), m.tireWall);
   side1.position.y = 0.1185;
   side1.rotation.x = -Math.PI / 2;
   g.add(side1);
@@ -324,6 +339,21 @@ export function makeWheelTemplate(kit: Kit) {
     const nut = new THREE.Mesh(new THREE.CylinderGeometry(0.013, 0.013, 0.02, 6), m.chrome);
     nut.position.set(Math.cos(a) * 0.045, 0.128, Math.sin(a) * 0.045);
     g.add(nut);
+  }
+
+  /* valve stem, sitting proud of the rim face */
+  {
+    const a = 0.9;
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.009, 0.009, 0.05, 8), m.rubber);
+    stem.rotateY(-a);
+    stem.rotateZ(-(Math.PI / 2 - 0.45));
+    stem.position.set(Math.cos(a) * 0.205, 0.116, Math.sin(a) * 0.205);
+    g.add(stem);
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, 0.014, 8), m.chrome);
+    cap.rotateY(-a);
+    cap.rotateZ(-(Math.PI / 2 - 0.45));
+    cap.position.set(Math.cos(a) * 0.243, 0.136, Math.sin(a) * 0.243);
+    g.add(cap);
   }
   return g;
 }

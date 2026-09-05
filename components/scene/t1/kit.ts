@@ -152,6 +152,59 @@ export function tireBump() {
   );
 }
 
+/** tyre sidewall: raised lettering laid around the ring.
+    RingGeometry UVs are a planar projection over the OUTER radius, so the
+    visible band is r 0.39–0.50 of the half-size — the text is drawn there. */
+export function sidewallTex() {
+  return tex("sidewall", () => {
+    const S = 1024;
+    const t = new THREE.CanvasTexture(
+      canvas2d(S, S, (c) => {
+        const h = S / 2;
+        c.fillStyle = "#0d0e10";
+        c.fillRect(0, 0, S, S);
+        /* faint concentric sheen so the rubber is not dead flat */
+        for (let r = 400; r <= 512; r += 2) {
+          const a = 0.03 * Math.sin((r - 400) * 0.09);
+          c.strokeStyle = `rgba(${a > 0 ? 150 : 0},${a > 0 ? 155 : 0},${a > 0 ? 160 : 0},${Math.abs(a)})`;
+          c.lineWidth = 2;
+          c.beginPath();
+          c.arc(h, h, r, 0, Math.PI * 2);
+          c.stroke();
+        }
+        /* bead lines */
+        c.strokeStyle = "rgba(190,195,200,0.22)";
+        c.lineWidth = 3;
+        for (const r of [404, 508]) {
+          c.beginPath();
+          c.arc(h, h, r, 0, Math.PI * 2);
+          c.stroke();
+        }
+        const ring = (str: string, R: number, font: string, fill: string, reps: number) => {
+          c.font = font;
+          c.fillStyle = fill;
+          c.textAlign = "center";
+          c.textBaseline = "middle";
+          for (let rep = 0; rep < reps; rep++)
+            for (let i = 0; i < str.length; i++) {
+              const a = ((rep + i / str.length) / reps) * Math.PI * 2;
+              c.save();
+              c.translate(h, h);
+              c.rotate(a);
+              c.translate(0, -R);
+              c.fillText(str[i], 0, 0);
+              c.restore();
+            }
+        };
+        ring("JETOUR  235/60 R19 107V  M+S   ", 458, "700 30px ui-sans-serif, Arial, sans-serif", "#b6bbc0", 3);
+        ring("TREADWEAR 320  TRACTION A  TEMPERATURE A  RADIAL TUBELESS  ", 424, "600 15px ui-sans-serif, Arial, sans-serif", "rgba(150,156,162,0.85)", 2);
+      }),
+    );
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  });
+}
+
 /** perforated leather grain */
 export function leatherBump() {
   return bumpTex(
@@ -561,6 +614,15 @@ export function makeMats() {
   const tread = tire.clone();
   tread.name = "tire-tread";
   tread.roughness = 0.98;
+  const tireWall = new THREE.MeshStandardMaterial({
+    name: "tire-sidewall",
+    map: sidewallTex(),
+    bumpMap: sidewallTex(),
+    bumpScale: 0.0016,
+    color: "#ffffff",
+    roughness: 0.86,
+    metalness: 0,
+  });
 
   const drl = new THREE.MeshStandardMaterial({
     name: "drl",
@@ -695,7 +757,7 @@ export function makeMats() {
   return {
     paint, trim, plastic, plasticSoft, cladding, liner,
     glass, glassDark, chrome, silver, alu, darkMetal,
-    tire, tread, drl, beam, tail, tailShell, amber, stopLamp, indicator,
+    tire, tread, tireWall, drl, beam, tail, tailShell, amber, stopLamp, indicator,
     leather, leatherDark, headliner, carpet, cabin, piano, crystal,
     ambient, dome, rubber, seam, caliper, disc, meshMat, hv,
   };
