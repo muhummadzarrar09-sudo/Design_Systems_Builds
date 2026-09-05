@@ -652,10 +652,12 @@ export function makeMats() {
   const tailShell = new THREE.MeshStandardMaterial({
     name: "tail-shell",
     color: "#1a0508",
-    roughness: 0.25,
-    metalness: 0.2,
+    roughness: 0.18,
+    metalness: 0.25,
     transparent: true,
-    opacity: 0.85,
+    /* a near-opaque lens hid the lit elements almost completely */
+    opacity: 0.42,
+    envMapIntensity: 1.4,
   });
   const amber = new THREE.MeshStandardMaterial({
     name: "amber",

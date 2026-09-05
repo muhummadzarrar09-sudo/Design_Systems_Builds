@@ -72,14 +72,16 @@ export function buildFront(kit: Kit, badge?: THREE.Material | null) {
   kit.rbox(1.3, 0.055, 0.16, 0.03, m.alu, [0, 0.415, 2.26], [-0.25, 0, 0]);
   kit.box(0.9, 0.02, 0.05, m.silver, [0, 0.45, 2.29], [-0.25, 0, 0]);
 
-  /* fog lamps + amber reflectors + lower intake + sensors */
+  /* fog lamps + amber reflectors + lower intake + sensors.
+     The bumper is a solid prism, so every fitting has to stand proud of
+     its local face (z 2.3525 at y 0.68, falling to 2.335 by y 0.47). */
   kit.both((s) => {
-    kit.cyl(0.055, 0.055, 0.04, m.plastic, [s * 0.72, 0.66, 2.33], [Math.PI / 2, 0, 0], 16);
-    kit.cyl(0.045, 0.045, 0.02, m.beam, [s * 0.72, 0.66, 2.32], [Math.PI / 2, 0, 0], 16);
-    kit.torus(0.058, 0.01, m.chrome, [s * 0.72, 0.66, 2.328], [0, 0, 0], 20);
-    kit.box(0.15, 0.05, 0.03, m.amber, [s * 0.87, 0.52, 2.31]);
-    kit.cyl(0.022, 0.022, 0.02, m.plasticSoft, [s * 0.36, 0.63, 2.335], [Math.PI / 2, 0, 0], 12);
-    kit.cyl(0.022, 0.022, 0.02, m.plasticSoft, [s * 0.62, 0.6, 2.33], [Math.PI / 2, 0, 0], 12);
+    kit.cyl(0.056, 0.052, 0.055, m.plastic, [s * 0.72, 0.66, 2.329], [Math.PI / 2, 0, 0], 16);
+    kit.cyl(0.046, 0.046, 0.02, m.beam, [s * 0.72, 0.66, 2.3425], [Math.PI / 2, 0, 0], 16);
+    kit.torus(0.058, 0.01, m.chrome, [s * 0.72, 0.66, 2.344], [0, 0, 0], 20);
+    kit.box(0.15, 0.05, 0.03, m.amber, [s * 0.87, 0.52, 2.33]);
+    kit.cyl(0.022, 0.022, 0.02, m.plasticSoft, [s * 0.36, 0.63, 2.341], [Math.PI / 2, 0, 0], 12);
+    kit.cyl(0.022, 0.022, 0.02, m.plasticSoft, [s * 0.62, 0.6, 2.339], [Math.PI / 2, 0, 0], 12);
   });
   const intake = poly([
     [-0.62, 0.46],
@@ -87,7 +89,7 @@ export function buildFront(kit: Kit, badge?: THREE.Material | null) {
     [0.58, 0.58],
     [-0.58, 0.58],
   ]);
-  kit.extrude(intake, 0.03, m.meshMat, [0, 0, 2.3]);
+  kit.extrude(intake, 0.03, m.meshMat, [0, 0, 2.325]);
 
   /* number plate (T1 demonstrator plate) */
   if (badge) {
@@ -211,9 +213,9 @@ export function buildRear(kit: Kit, wordMat?: THREE.Material | null) {
 
   kit.rbox(1.0, 0.05, 0.14, 0.03, m.alu, [0, 0.42, -2.28], [0.25, 0, 0]);
   kit.both((s) => {
-    kit.box(0.16, 0.055, 0.03, m.tail, [s * 0.83, 0.56, -2.325]);
-    kit.cyl(0.022, 0.022, 0.02, m.plasticSoft, [s * 0.34, 0.63, -2.335], [Math.PI / 2, 0, 0], 12);
-    kit.cyl(0.022, 0.022, 0.02, m.plasticSoft, [s * 0.62, 0.6, -2.33], [Math.PI / 2, 0, 0], 12);
+    kit.box(0.16, 0.055, 0.03, m.tail, [s * 0.83, 0.56, -2.333]);
+    kit.cyl(0.022, 0.022, 0.02, m.plasticSoft, [s * 0.34, 0.63, -2.341], [Math.PI / 2, 0, 0], 12);
+    kit.cyl(0.022, 0.022, 0.02, m.plasticSoft, [s * 0.62, 0.6, -2.339], [Math.PI / 2, 0, 0], 12);
   });
   /* tow-eye cover */
   kit.cyl(0.035, 0.035, 0.02, m.plastic, [-0.55, 0.45, -2.33], [Math.PI / 2, 0, 0], 12);
