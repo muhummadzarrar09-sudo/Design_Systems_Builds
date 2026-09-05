@@ -63,9 +63,17 @@ export function buildFront(kit: Kit, badge?: THREE.Material | null, wordMat?: TH
     [2.15, 0.38],
     [2.08, 0.48],
   ]);
-  const bumper = new THREE.ExtrudeGeometry(fb, { depth: 1.86, bevelEnabled: false, curveSegments: 3 });
+  const bumper = new THREE.ExtrudeGeometry(fb, {
+    depth: 1.86,
+    bevelEnabled: true,
+    bevelThickness: 0.035,
+    bevelSize: 0.035,
+    bevelSegments: 3,
+    curveSegments: 6,
+  });
   bumper.rotateY(-Math.PI / 2);
   bumper.translate(0.93, 0, 0);
+  bumper.translate(0, 0, -0.035); // bevel grows the profile; keep nose at the true envelope
   kit.add(bumper, m.cladding);
 
   /* silver skid plate */
@@ -199,7 +207,14 @@ export function buildRear(kit: Kit, wordMat?: THREE.Material | null) {
     [-2.1, 1.782],
     [-2.02, 1.765],
   ]);
-  const spG = new THREE.ExtrudeGeometry(sp, { depth: 1.76, bevelEnabled: false, curveSegments: 3 });
+  const spG = new THREE.ExtrudeGeometry(sp, {
+    depth: 1.76,
+    bevelEnabled: true,
+    bevelThickness: 0.02,
+    bevelSize: 0.02,
+    bevelSegments: 3,
+    curveSegments: 6,
+  });
   spG.rotateY(-Math.PI / 2);
   spG.translate(0.88, 0, 0);
   kit.add(spG, m.paint);
@@ -214,9 +229,17 @@ export function buildRear(kit: Kit, wordMat?: THREE.Material | null) {
     [-2.15, 0.385],
     [-2.08, 0.5],
   ]);
-  const rbG = new THREE.ExtrudeGeometry(rb, { depth: 1.86, bevelEnabled: false, curveSegments: 3 });
+  const rbG = new THREE.ExtrudeGeometry(rb, {
+    depth: 1.86,
+    bevelEnabled: true,
+    bevelThickness: 0.035,
+    bevelSize: 0.035,
+    bevelSegments: 3,
+    curveSegments: 6,
+  });
   rbG.rotateY(-Math.PI / 2);
   rbG.translate(0.93, 0, 0);
+  rbG.translate(0, 0, 0.035); // bevel grows the profile; keep tail at the true envelope
   kit.add(rbG, m.cladding);
 
   kit.rbox(1.0, 0.05, 0.14, 0.03, m.alu, [0, 0.42, -2.28], [0.25, 0, 0]);
@@ -283,9 +306,17 @@ export function makeWheelTemplate(kit: Kit) {
     [0.272, -0.119],
     [0.2455, -0.118],
   ];
-  const tireGeo = new THREE.LatheGeometry(prof.map(([x, y]) => new THREE.Vector2(x, y)), 56);
+  const tireGeo = new THREE.LatheGeometry(prof.map(([x, y]) => new THREE.Vector2(x, y)), 96);
   tireGeo.computeVertexNormals();
   put(new THREE.Mesh(tireGeo, m.tread));
+  /* rounded tread shoulder so the carcass never shows a hard facet edge */
+  const shoulder = new THREE.Mesh(new THREE.TorusGeometry(0.345, 0.028, 14, 96), m.tread);
+  shoulder.rotation.x = Math.PI / 2;
+  shoulder.position.y = 0.088;
+  put(shoulder);
+  const shoulder2 = shoulder.clone();
+  shoulder2.position.y = -0.088;
+  put(shoulder2);
 
   /* sidewall branding ring */
   const side1 = new THREE.Mesh(new THREE.RingGeometry(0.252, 0.322, 64), m.tireWall);

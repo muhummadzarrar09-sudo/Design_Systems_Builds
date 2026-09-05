@@ -9,7 +9,7 @@
 
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three-stdlib";
-import { Kit, Mats, V3 } from "./kit";
+import { Kit, Mats, V3, loftY, loftZ } from "./kit";
 
 /** place a thin strap between two points (seat-belt webbing) */
 function strap(
@@ -271,24 +271,65 @@ export function buildInterior(
   });
 
   /* ══════════════ 7. SEATS ══════════════ */
+  /* closed 14-pt bolstered cross-section in X/Y (cushion) */
+  const secCushion = (w: number, yT: number, yB: number, b: number): [number, number][] => {
+    const w2 = w / 2;
+    return [
+      [-w2, yB + 0.02], [-w2, yT - 0.02],
+      [-w2 + 0.05, yT + b], [-w2 + 0.14, yT + b * 0.5],
+      [-0.09, yT], [0, yT - 0.02], [0.09, yT],
+      [w2 - 0.14, yT + b * 0.5], [w2 - 0.05, yT + b],
+      [w2, yT - 0.02], [w2, yB + 0.02],
+      [w2 * 0.5, yB], [0, yB - 0.02], [-w2 * 0.5, yB],
+    ];
+  };
+  /* closed 14-pt bolstered cross-section in X/Z (backrest, bolsters +Z) */
+  const secBack = (w: number, b: number, t: number): [number, number][] => {
+    const w2 = w / 2;
+    return [
+      [-w2, -t], [-w2, 0],
+      [-w2 + 0.05, b], [-w2 + 0.15, b * 0.5],
+      [-0.09, 0], [0, 0.02], [0.09, 0],
+      [w2 - 0.15, b * 0.5], [w2 - 0.05, b],
+      [w2, 0], [w2, -t],
+      [w2 * 0.5, -t - 0.02], [0, -t - 0.03], [-w2 * 0.5, -t - 0.02],
+    ];
+  };
+
   const seat = (px: number, pz: number, w: number, head: number) => {
     const y0 = 0.44;
     kit.both((s) => kit.box(0.05, 0.05, 0.46, m.darkMetal, [px + s * 0.2, y0, pz])); // rails
     kit.rbox(w - 0.12, 0.1, 0.44, 0.03, m.cabin, [px, y0 + 0.06, pz]); // plinth
-    kit.rbox(w - 0.14, 0.12, 0.46, 0.05, m.leather, [px, 0.55, pz + 0.02], [-0.05, 0, 0]);
-    kit.both((s) =>
-      kit.rbox(0.1, 0.15, 0.44, 0.042, m.leatherDark, [px + s * (w / 2 - 0.055), 0.575, pz + 0.02], [-0.05, s * 0.12, 0]),
-    );
-    for (let i = 0; i < 2; i++)
-      quilt(kit, m.seam, px, 0.562, pz + 0.1 - i * 0.13, w - 0.34, -0.05);
-    /* backrest */
-    kit.rbox(w - 0.18, 0.62, 0.15, 0.05, m.leather, [px, 0.95, pz - 0.27], [0.24, 0, 0]);
-    kit.both((s) =>
-      kit.rbox(0.12, 0.58, 0.17, 0.045, m.leatherDark, [px + s * (w / 2 - 0.075), 0.97, pz - 0.29], [0.24, s * 0.08, 0]),
-    );
+
+    /* sculpted cushion: lofted bolstered sections front→back */
+    const cz: { z: number; pts: [number, number][] }[] = [
+      { z: pz + 0.27, pts: secCushion(w * 0.9, 0.585, 0.47, 0.045) },
+      { z: pz + 0.16, pts: secCushion(w, 0.605, 0.46, 0.07) },
+      { z: pz + 0.02, pts: secCushion(w, 0.6, 0.46, 0.07) },
+      { z: pz - 0.12, pts: secCushion(w * 0.98, 0.59, 0.46, 0.06) },
+      { z: pz - 0.24, pts: secCushion(w * 0.9, 0.615, 0.47, 0.05) },
+    ];
+    const cush = new THREE.Mesh(loftZ(cz), m.leather);
+    cush.castShadow = true;
+    cush.receiveShadow = true;
+    kit.group.add(cush);
+
+    /* sculpted backrest: lofted bolstered sections base→shoulder, reclined */
+    const by: { y: number; pts: [number, number][] }[] = [
+      { y: 0.0, pts: secBack(w * 0.94, 0.05, 0.1) },
+      { y: 0.2, pts: secBack(w, 0.075, 0.12) },
+      { y: 0.42, pts: secBack(w, 0.07, 0.12) },
+      { y: 0.6, pts: secBack(w * 0.96, 0.06, 0.11) },
+      { y: 0.74, pts: secBack(w * 0.8, 0.05, 0.1) },
+    ];
+    const back = new THREE.Mesh(loftY(by), m.leather);
+    back.rotation.x = -0.24;
+    back.position.set(px, 0.6, pz - 0.26);
+    back.castShadow = true;
+    back.receiveShadow = true;
+    kit.group.add(back);
+
     kit.rbox(w - 0.06, 0.1, 0.16, 0.04, m.leatherDark, [px, 1.235, pz - 0.4], [0.24, 0, 0]); // shoulder roll
-    for (let i = 0; i < 4; i++)
-      quilt(kit, m.seam, px, 0.78 + i * 0.135, pz - 0.44 + i * 0.034, w - 0.42, 0.24);
     /* back panel + map pocket */
     kit.rbox(w - 0.12, 0.56, 0.028, 0.02, m.cabin, [px, 0.96, pz - 0.35], [0.24, 0, 0]);
     kit.rbox(w - 0.28, 0.24, 0.026, 0.02, m.leatherDark, [px, 0.8, pz - 0.42], [0.3, 0, 0]);
@@ -303,14 +344,34 @@ export function buildInterior(
   seat(-0.36, 0.16, 0.56, 1);
 
   /* ══════════════ 8. REAR BENCH (60/40) ══════════════ */
-  kit.rbox(1.34, 0.15, 0.5, 0.05, m.leather, [0, 0.68, -1.0], [-0.05, 0, 0]);
-  kit.both((s) =>
-    kit.rbox(0.14, 0.17, 0.48, 0.05, m.leatherDark, [s * 0.58, 0.7, -1.0], [-0.05, s * 0.12, 0]),
-  );
-  kit.rbox(1.36, 0.6, 0.16, 0.05, m.leather, [0, 1.06, -1.26], [0.3, 0, 0]);
-  kit.both((s) =>
-    kit.rbox(0.16, 0.56, 0.18, 0.05, m.leatherDark, [s * 0.6, 1.08, -1.28], [0.3, s * 0.09, 0]),
-  );
+  /* sculpted rear bench cushion (lofted, bolstered) */
+  {
+    const bz: { z: number; pts: [number, number][] }[] = [
+      { z: -0.74, pts: secCushion(1.28, 0.72, 0.6, 0.04) },
+      { z: -0.88, pts: secCushion(1.34, 0.75, 0.59, 0.06) },
+      { z: -1.05, pts: secCushion(1.34, 0.74, 0.59, 0.06) },
+      { z: -1.22, pts: secCushion(1.28, 0.77, 0.6, 0.05) },
+    ];
+    const bc = new THREE.Mesh(loftZ(bz), m.leather);
+    bc.castShadow = true;
+    bc.receiveShadow = true;
+    kit.group.add(bc);
+  }
+  /* sculpted rear bench backrest */
+  {
+    const bb: { y: number; pts: [number, number][] }[] = [
+      { y: 0.0, pts: secBack(1.3, 0.05, 0.1) },
+      { y: 0.25, pts: secBack(1.34, 0.07, 0.12) },
+      { y: 0.5, pts: secBack(1.32, 0.06, 0.11) },
+      { y: 0.66, pts: secBack(1.2, 0.05, 0.1) },
+    ];
+    const bbk = new THREE.Mesh(loftY(bb), m.leather);
+    bbk.rotation.x = -0.3;
+    bbk.position.set(0, 0.78, -1.24);
+    bbk.castShadow = true;
+    bbk.receiveShadow = true;
+    kit.group.add(bbk);
+  }
   kit.box(0.012, 0.56, 0.016, m.seam, [0.22, 1.06, -1.35], [0.3, 0, 0]); // 60/40 split
   for (let i = 0; i < 2; i++)
     quilt(kit, m.seam, 0, 0.86 + i * 0.16, -1.36 + i * 0.048, 1.04, 0.3);

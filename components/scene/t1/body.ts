@@ -477,9 +477,9 @@ export function buildRoof(kit: Kit) {
 
   /* roof rails + cross bars */
   kit.both((s) => {
-    kit.box(0.055, 0.05, 2.0, m.plastic, [s * 0.7, 1.798, -0.55]);
-    kit.box(0.045, 0.026, 2.0, m.silver, [s * 0.7, 1.824, -0.55]);
-    for (const z of [0.42, -1.52]) kit.box(0.07, 0.06, 0.13, m.plastic, [s * 0.7, 1.785, z]);
+    kit.rbox(0.055, 0.05, 2.0, 0.02, m.plastic, [s * 0.7, 1.798, -0.55]);
+    kit.rbox(0.045, 0.026, 2.0, 0.012, m.silver, [s * 0.7, 1.824, -0.55]);
+    for (const z of [0.42, -1.52]) kit.rbox(0.07, 0.06, 0.13, 0.02, m.plastic, [s * 0.7, 1.785, z]);
   });
   for (const z of [0.2, -1.3]) {
     kit.box(1.44, 0.035, 0.06, m.plastic, [0, 1.816, z]);
@@ -540,9 +540,16 @@ export function buildCladding(kit: Kit) {
   hole.closePath();
   shape.holes.push(hole);
 
-  for (const az of [DIM.axleF, DIM.axleR]) {
+    for (const az of [DIM.axleF, DIM.axleR]) {
     for (const s of [1, -1]) {
-      const g = new THREE.ExtrudeGeometry(shape, { depth: 0.085, bevelEnabled: false, curveSegments: 3 });
+      const g = new THREE.ExtrudeGeometry(shape, {
+        depth: 0.085,
+        bevelEnabled: true,
+        bevelThickness: 0.022,
+        bevelSize: 0.022,
+        bevelSegments: 3,
+        curveSegments: 6,
+      });
       g.rotateY(-Math.PI / 2);
       g.translate(0.9835, 0.4, az);
       if (s < 0) g.translate(-1.882, 0, 0);

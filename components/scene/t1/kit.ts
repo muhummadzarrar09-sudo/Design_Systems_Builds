@@ -792,7 +792,8 @@ export class Kit {
 
   rbox(w: number, h: number, d: number, r: number, mat: THREE.Material, pos?: V3, rot?: V3) {
     const rad = Math.min(r, Math.min(w, h, d) / 2 - 1e-4);
-    return this.add(new RoundedBoxGeometry(w, h, d, 3, rad), mat, pos, rot);
+    /* 5 segments so rounded stock reads as soft polymer, not a bevelled slab */
+    return this.add(new RoundedBoxGeometry(w, h, d, 5, rad), mat, pos, rot);
   }
 
   plane(w: number, h: number, mat: THREE.Material, pos?: V3, rot?: V3) {
