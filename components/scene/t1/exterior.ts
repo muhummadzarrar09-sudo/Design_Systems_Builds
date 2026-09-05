@@ -7,6 +7,7 @@
    =================================================================== */
 
 import * as THREE from "three";
+import { deckY } from "./body";
 import { DIM, Kit, Mats, mergeByMaterial, poly, type V3 } from "./kit";
 
 /* ---------------- FRONT ---------------- */
@@ -95,10 +96,23 @@ export function buildFront(kit: Kit, badge?: THREE.Material | null) {
   }
 
   /* bonnet: shut lines + JETOUR wordmark on the leading edge */
-  /* shut lines, laid on top of the lofted bonnet skin */
+  /* shut lines: a U traced over the crowned bonnet skin, plus the
+     nose panel joint */
+  /* 3 mm proud so the line reads, 11 mm sunk so it can never float */
+  const SEAT = -0.004;
   kit.both((s) => {
-    kit.box(0.014, 0.018, 1.0, m.seam, [s * 0.56, 1.191, 1.75], [0.03, 0, 0]);
-    kit.box(0.012, 0.016, 0.5, m.seam, [s * 0.93, 1.183, 1.9]);
+    for (let i = 0; i < 18; i++) {
+      const z = 1.26 + (i + 0.5) * (0.96 / 18);
+      kit.box(0.012, 0.014, 0.96 / 18, m.seam, [s * 0.83, deckY(0.83, z) + SEAT, z]);
+    }
+    for (let i = 0; i < 8; i++) {
+      const x = -0.83 + (i + 0.5) * (1.66 / 8);
+      kit.box(1.66 / 8, 0.014, 0.012, m.seam, [x, deckY(x, 2.19) + SEAT, 2.19]);
+    }
+    for (let i = 0; i < 9; i++) {
+      const z = 1.4 + (i + 0.5) * (0.66 / 9);
+      kit.box(0.01, 0.016, 0.66 / 9, m.seam, [s * 0.56, deckY(0.56, z) + SEAT, z]);
+    }
   });
 }
 
@@ -107,6 +121,11 @@ export function buildCowl(kit: Kit) {
   const m: Mats = kit.mats;
   kit.rbox(1.76, 0.06, 0.2, 0.025, m.plastic, [0, 1.198, 1.13]);
   kit.box(1.6, 0.02, 0.1, m.plasticSoft, [0, 1.228, 1.13]);
+  /* screen-washer jets */
+  kit.both((s) => {
+    kit.box(0.032, 0.014, 0.022, m.plastic, [s * 0.46, 1.231, 1.115], [0.3, 0, 0]);
+    kit.box(0.012, 0.006, 0.008, m.chrome, [s * 0.46, 1.238, 1.104], [0.3, 0, 0]);
+  });
   /* wiper arms + blades parked on the screen */
   kit.both((s) => {
     const rake = -0.62;

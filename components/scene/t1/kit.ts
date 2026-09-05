@@ -456,13 +456,17 @@ export function makeMats() {
   const paint = new THREE.MeshPhysicalMaterial({
     name: "paint",
     color: new THREE.Color("#93b3a1"),
-    roughness: 0.32,
-    metalness: 0.62,
+    /* real metallic paint is a coloured dielectric base coat with metal
+       flake in it, sealed under a hard clear coat — metalness 0.6+ reads
+       as bare anodised metal and kills the body colour */
+    roughness: 0.24,
+    metalness: 0.26,
     clearcoat: 1,
-    clearcoatRoughness: 0.055,
-    envMapIntensity: 1.35,
+    clearcoatRoughness: 0.028,
+    envMapIntensity: 1.95,
     bumpMap: flake,
-    bumpScale: 0.0022,
+    bumpScale: 0.0032,
+    specularIntensity: 1,
   });
 
   const trim = new THREE.MeshPhysicalMaterial({
@@ -611,11 +615,14 @@ export function makeMats() {
     emissiveIntensity: 1.6,
   });
 
-  const leather = new THREE.MeshStandardMaterial({
+  const leather = new THREE.MeshPhysicalMaterial({
     name: "leather",
     color: "#7ba291",
     roughness: 0.62,
     metalness: 0.02,
+    sheen: 0.55,
+    sheenRoughness: 0.6,
+    sheenColor: new THREE.Color("#cfd9d3"),
     bumpMap: leatherBump(),
     bumpScale: 0.006,
   });

@@ -7,7 +7,7 @@
 import * as THREE from "three";
 import { Brush, Evaluator, SUBTRACTION } from "three-bvh-csg";
 import { RoundedBoxGeometry } from "three-stdlib";
-import { DIM, Kit, Mats, loftY, loftZ, poly, smoothKeys, troughX, type V3 } from "./kit";
+import { DIM, Kit, Mats, loftY, loftZ, poly, smoothKeys, troughX, trs, type V3 } from "./kit";
 
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
@@ -86,6 +86,54 @@ function section(s: Sec): [number, number][] {
 }
 
 /* ---------------- the shell ---------------- */
+
+/* ── deck surface model ─────────────────────────────────────────────
+   Mirrors buildBodyShell exactly (same keys, same smoothing, same
+   crown) so exterior trim can be laid ON the skin instead of near it.
+   `cr` is only carried by the first key on purpose — smoothKeys then
+   resolves it to 0.009 between z 2.20–2.26 and 0 everywhere else,
+   which is what the loft actually does.
+   ------------------------------------------------------------------ */
+const DECK_KEYS = [
+  { z: 2.26, hwTop: 0.855, yTop: 1.145, cr: 0.009 },
+  { z: 2.2, hwTop: 0.888, yTop: 1.153 },
+  { z: 2.05, hwTop: 0.923, yTop: 1.165 },
+  { z: 1.85, hwTop: 0.94, yTop: 1.177 },
+  { z: 1.6, hwTop: 0.947, yTop: 1.192 },
+  { z: 1.4345, hwTop: 0.948, yTop: 1.203 },
+  { z: 1.26, hwTop: 0.947, yTop: 1.215 },
+  { z: 1.16, hwTop: 0.947, yTop: 1.225 },
+  { z: 0.9, hwTop: 0.946, yTop: 1.23 },
+  { z: 0.5, hwTop: 0.947, yTop: 1.238 },
+  { z: 0.0, hwTop: 0.95, yTop: 1.245 },
+  { z: -0.6, hwTop: 0.95, yTop: 1.248 },
+  { z: -1.0, hwTop: 0.948, yTop: 1.245 },
+  { z: -1.25, hwTop: 0.946, yTop: 1.243 },
+  { z: -1.3655, hwTop: 0.945, yTop: 1.24 },
+  { z: -1.7, hwTop: 0.938, yTop: 1.235 },
+  { z: -1.95, hwTop: 0.929, yTop: 1.228 },
+  { z: -2.08, hwTop: 0.919, yTop: 1.222 },
+] as { z: number; hwTop: number; yTop: number; cr?: number }[];
+const DECK_SAMPLES = smoothKeys(DECK_KEYS, 6);
+
+/** Y of the painted deck skin over the bonnet at (x, z). */
+export function deckY(x: number, z: number): number {
+  const S = DECK_SAMPLES;
+  let i = 0;
+  while (i < S.length - 2 && S[i + 1].z > z) i++;
+  const a = S[i];
+  const b = S[i + 1] ?? a;
+  const t = b.z === a.z ? 0 : clamp((a.z - z) / (a.z - b.z), 0, 1);
+  const yTop = lerp(a.yTop, b.yTop, t);
+  const hwTop = lerp(a.hwTop, b.hwTop, t);
+  /* cr is UNDEFINED once smoothKeys drops the key — section() then
+     falls back to 0.014, so the crown has to be sampled the same way */
+  const cr = lerp(a.cr ?? 0.014, b.cr ?? 0.014, t);
+  const ax = Math.min(Math.abs(x), hwTop);
+  const q = ax / hwTop;
+  const crown = q <= 0.3 ? cr : q >= 0.62 ? cr * 0.55 * (1 - (q - 0.62) / 0.38) : cr * (1 - (q - 0.3) / 0.32 * 0.45);
+  return yTop + crown;
+}
 
 export function buildBodyShell(kit: Kit) {
   const m: Mats = kit.mats;
@@ -459,6 +507,19 @@ export function buildCladding(kit: Kit) {
     }
   }
 
+  /* exposed fasteners around each arch flange (instanced) */
+  {
+    const bolt = new THREE.CylinderGeometry(0.0125, 0.0125, 0.009, 8);
+    const matsB: THREE.Matrix4[] = [];
+    for (const az of [DIM.axleF, DIM.axleR])
+      for (const s of [1, -1])
+        for (const [dz, dy] of outer) {
+          if (dy < -0.08) continue; // skip the buried bottom run
+          matsB.push(trs([s * 0.9855, dy + 0.4, dz + az], [0, 0, Math.PI / 2]));
+        }
+    kit.instances(bolt, m.plastic, matsB);
+  }
+
   /* rockers + side steps */
   kit.both((s) => {
     kit.box(0.1, 0.17, 1.9, m.cladding, [s * 0.955, 0.375, -0.0]);
@@ -492,6 +553,9 @@ export function buildDoorHardware(kit: Kit) {
     kit.rbox(0.18, 0.05, 0.095, 0.02, m.paint, [s * 1.055, 1.372, 1.0], [0, s * 0.12, 0]);
     kit.plane(0.15, 0.085, m.glass, [s * 0.965, 1.325, 1.0], [0, -Math.PI / 2 + s * 0.5, 0]);
     kit.box(0.012, 0.022, 0.1, m.indicator, [s * 1.135, 1.305, 1.0], [0, s * 0.12, 0]);
+    /* puddle lamp in the mirror base */
+    const puddle = kit.box(0.05, 0.006, 0.05, m.dome, [s * 1.04, 1.268, 1.0]);
+    puddle.castShadow = false;
   });
 }
 
@@ -521,6 +585,32 @@ export function buildTailgate(kit: Kit, plateMat?: THREE.Material | null) {
   const stations = [];
   for (let i = 0; i <= 14; i++) stations.push(sec(0.85 + (i / 14) * 0.918));
   kit.add(loftY(stations), m.paint);
+
+  /* tailgate shut line — traced on the (curved) outer skin */
+  {
+    const tg = (y: number, x: number) => {
+      const t = (y - 0.85) / 0.918;
+      const zR = -2.255 + t * 0.155;
+      const hw = 0.9 - (1 - t) * 0.05;
+      const r = 0.07 + t * 0.02;
+      const ax = Math.min(Math.abs(x), hw);
+      const z =
+        ax <= hw - r
+          ? zR - 1.05 * r + (ax / (hw - r)) * 0.05 * r
+          : zR - r + (ax - hw + r);
+      return z - 0.006; // outward on a rear-facing skin is -Z
+    };
+    for (let i = 0; i < 8; i++) {
+      const x = -0.76 + (i + 0.5) * (1.52 / 8);
+      kit.box(1.52 / 8, 0.012, 0.012, m.seam, [x, 0.872, tg(0.872, x)]);
+      kit.box(1.66 / 8, 0.012, 0.012, m.seam, [x, 1.749, tg(1.749, x)]);
+    }
+    for (const s of [1, -1])
+      for (let i = 0; i < 8; i++) {
+        const y = 0.92 + (i + 0.5) * (0.8 / 8);
+        kit.box(0.012, 0.8 / 8, 0.012, m.seam, [s * 0.845, y, tg(y, 0.845)]);
+      }
+  }
 
   /* body-colour band carrying the spaced JETOUR letters */
   kit.rbox(1.42, 0.2, 0.035, 0.02, m.paint, [0, 1.02, -2.238]);
