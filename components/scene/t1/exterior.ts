@@ -12,7 +12,7 @@ import { DIM, Kit, Mats, mergeByMaterial, poly, type V3 } from "./kit";
 
 /* ---------------- FRONT ---------------- */
 
-export function buildFront(kit: Kit, badge?: THREE.Material | null) {
+export function buildFront(kit: Kit, badge?: THREE.Material | null, wordMat?: THREE.Material | null) {
   const m: Mats = kit.mats;
   const NZ = 2.27; // fascia plane
 
@@ -90,6 +90,14 @@ export function buildFront(kit: Kit, badge?: THREE.Material | null) {
     [-0.58, 0.58],
   ]);
   kit.extrude(intake, 0.03, m.meshMat, [0, 0, 2.325]);
+
+  /* JETOUR wordmark across the top of the grille panel + 540° camera */
+  if (wordMat) {
+    const wm = kit.plane(0.62, 0.062, wordMat, [0, 1.107, 2.279]);
+    wm.castShadow = false;
+  }
+  kit.cyl(0.026, 0.026, 0.02, m.plastic, [0, 0.905, 2.283], [Math.PI / 2, 0, 0], 14);
+  kit.cyl(0.016, 0.016, 0.008, m.trim, [0, 0.905, 2.293], [Math.PI / 2, 0, 0], 14);
 
   /* number plate (T1 demonstrator plate) */
   if (badge) {

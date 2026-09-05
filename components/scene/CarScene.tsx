@@ -143,7 +143,7 @@ function Rig({ night }: { night: boolean }) {
       <directionalLight ref={rim} position={[-2.5, 4.5, -8.5]} intensity={0.2} color="#7fb0ff" />
 
       <Suspense fallback={null}>
-        <Environment key={night ? "night" : "day"} resolution={512} frames={1} background={false}>
+        <Environment key={night ? "night" : "day"} resolution={1024} frames={1} background={false}>
           {/* soft overhead box — the main roof reflection */}
           <Lightformer
             form="rect"
@@ -187,6 +187,15 @@ function Rig({ night }: { night: boolean }) {
             scale={[14, 14, 1]}
             rotation={[-Math.PI / 2, 0, 0]}
           />
+          {/* low front kicker — the highlight that runs along the bumper */}
+          <Lightformer
+            form="rect"
+            intensity={night ? 0.3 : 0.9}
+            color={night ? "#7fa8e8" : "#ffffff"}
+            position={[0, 0.55, 6.5]}
+            scale={[7, 0.55, 1]}
+            onUpdate={(m) => m.lookAt(0, 0.7, 0)}
+          />
         </Environment>
       </Suspense>
 
@@ -206,9 +215,9 @@ function Plaza({ night }: { night: boolean }) {
         <circleGeometry args={[70, 96]} />
         <MeshReflectorMaterial
           resolution={1024}
-          blur={[420, 140]}
-          mixBlur={1.1}
-          mixStrength={night ? 2.6 : 1.35}
+          blur={[320, 110]}
+          mixBlur={1.05}
+          mixStrength={night ? 2.35 : 1.3}
           mixContrast={1.05}
           roughness={night ? 0.72 : 0.82}
           metalness={0.28}
@@ -228,10 +237,10 @@ function Plaza({ night }: { night: boolean }) {
       <ContactShadows
         position={[0, 0.012, 0]}
         scale={11}
-        resolution={1024}
-        blur={2.6}
-        opacity={night ? 0.75 : 0.62}
-        far={2.2}
+        resolution={2048}
+        blur={2.2}
+        opacity={night ? 0.78 : 0.66}
+        far={2.4}
         frames={Infinity}
         color="#05070a"
       />

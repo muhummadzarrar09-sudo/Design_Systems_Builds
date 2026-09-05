@@ -102,7 +102,7 @@ export function buildJetourT1(opts?: BuildOpts) {
   buildCowl(kit);
 
   /* lamps / bumpers / badges */
-  buildFront(kit, badges.plate);
+  buildFront(kit, badges.plate, badges.word);
   buildRear(kit, badges.word);
   buildDetails(kit);
 
