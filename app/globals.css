@@ -4,8 +4,8 @@
 html, body { margin: 0; padding: 0; height: 100%; }
 body {
   font-family: "Helvetica Neue", "Inter", system-ui, -apple-system, sans-serif;
-  background: #0a0604;
-  color: #d4b87a;
+  background: #0b0d10;
+  color: #e3e8ec;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
 }
@@ -15,7 +15,7 @@ body {
   width: 100vw;
   height: 100vh;
   background:
-    radial-gradient(ellipse at 50% 30%, #2a1a10 0%, #0a0604 70%, #050302 100%);
+    radial-gradient(ellipse at 50% 32%, #1c2530 0%, #0b0d10 68%, #06080a 100%);
   overflow: hidden;
 }
 
